@@ -96,4 +96,4 @@ The Competition Scoring System is a fully-featured web application specifically 
 
 - Version: 1.0
 - Last Updated: October 2025
-- Compatible Browsers: Chrome, Firefox, Safari, Edge and other modern browsers
+- Compatible Browsers: Chrome, Firefox, Safari, Edge and other modern browsers 
