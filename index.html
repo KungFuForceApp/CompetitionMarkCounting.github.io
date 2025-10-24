@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>比赛计分系统</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo i {
+            font-size: 24px;
+        }
+
+        .logo h1 {
+            font-size: 24px;
+            font-weight: 700;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .contestants-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+        }
+
+        .contestant-card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 15px;
+            transition: var(--transition);
+            border-left: 4px solid var(--primary);
+        }
+
+        .contestant-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .contestant-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .contestant-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .contestant-score {
+            font-weight: 700;
+            font-size: 18px;
+            color: var(--primary);
+        }
+
+        .score-controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .btn-warning {
+            background-color: var(--warning);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: scale(1.05);
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .ranking-item:hover {
+            transform: translateX(5px);
+        }
+
+        .rank {
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            margin-right: 15px;
+        }
+
+        .rank-1 {
+            background-color: gold;
+            color: var(--dark);
+        }
+
+        .rank-2 {
+            background-color: silver;
+            color: var(--dark);
+        }
+
+        .rank-3 {
+            background-color: #cd7f32;
+            color: white;
+        }
+
+        .ranking-info {
+            flex: 1;
+        }
+
+        .ranking-name {
+            font-weight: 600;
+        }
+
+        .ranking-score {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .settings-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--box-shadow);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: var(--box-shadow);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .shortcut-config {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .shortcut-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+
+        .shortcut-key {
+            background: var(--primary);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 600;
+            min-width: 40px;
+            text-align: center;
+        }
+
+        .shortcut-action {
+            flex: 1;
+        }
+
+        .shortcut-input {
+            width: 50px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .award-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .award-option {
+            background: #f8f9fa;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .award-option:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .award-option i {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .certificate-preview {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            padding: 30px;
+            margin-top: 20px;
+            min-height: 400px;
+            position: relative;
+        }
+
+        .certificate-border {
+            border: 3px double #d4af37;
+            padding: 30px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .certificate-title {
+            font-size: 36px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #d4af37;
+        }
+
+        .certificate-subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+            color: var(--gray);
+        }
+
+        .certificate-name {
+            font-size: 32px;
+            font-weight: 700;
+            margin: 20px 0;
+            color: var(--dark);
+        }
+
+        .certificate-details {
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+
+        .certificate-signature {
+            margin-top: 50px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .signature-line {
+            border-top: 1px solid #333;
+            width: 200px;
+            text-align: center;
+            padding-top: 5px;
+        }
+
+        .display-container {
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            color: white;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .display-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .display-title {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .display-subtitle {
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        .display-ranking {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .display-ranking-item {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .display-ranking-item:hover {
+            transform: scale(1.02);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .display-rank {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border-radius: 50%;
+            font-weight: 700;
+            font-size: 24px;
+            margin-right: 20px;
+        }
+
+        .display-rank-1 {
+            background: linear-gradient(135deg, gold, #ffd700);
+            color: #333;
+        }
+
+        .display-rank-2 {
+            background: linear-gradient(135deg, silver, #c0c0c0);
+            color: #333;
+        }
+
+        .display-rank-3 {
+            background: linear-gradient(135deg, #cd7f32, #b08d57);
+            color: white;
+        }
+
+        .display-ranking-info {
+            flex: 1;
+        }
+
+        .display-ranking-name {
+            font-weight: 600;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .display-ranking-score {
+            font-weight: 700;
+            font-size: 32px;
+            color: #4cc9f0;
+        }
+
+        .display-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .display-stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .display-stat-value {
+            font-size: 36px;
+            font-weight: 700;
+            margin: 10px 0;
+            color: #4cc9f0;
+        }
+
+        .display-stat-label {
+            font-size: 18px;
+            opacity: 0.9;
+        }
+
+        .display-timer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 24px;
+            opacity: 0.9;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .settings-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .display-title {
+                font-size: 36px;
+            }
+            
+            .display-ranking-name {
+                font-size: 22px;
+            }
+            
+            .display-ranking-score {
+                font-size: 26px;
+            }
+            
+            .display-stat-value {
+                font-size: 28px;
+            }
+        }
+
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            .print-section, .print-section * {
+                visibility: visible;
+            }
+            .print-section {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-trophy"></i>
+                <h1>比赛计分系统</h1>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <div class="tab active" data-tab="scoring">计分面板</div>
+            <div class="tab" data-tab="ranking">排名榜</div>
+            <div class="tab" data-tab="awards">奖项打印</div>
+            <div class="tab" data-tab="settings">比赛设置</div>
+            <div class="tab" data-tab="display">实时显示</div>
+        </div>
+
+        <div class="tab-content active" id="scoring-tab">
+            <div class="dashboard">
+                <div class="main-content">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">选手计分控制</h2>
+                            <div class="last-update">最后更新: <span id="last-update-time">刚刚</span></div>
+                        </div>
+                        <div class="contestants-list" id="contestants-container">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">操作日志</h2>
+                            <button class="btn btn-warning" id="clear-log">
+                                <i class="fas fa-trash"></i> 清空日志
+                            </button>
+                        </div>
+                        <div class="log-container" id="log-container">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">实时排名</h2>
+                            <button class="btn btn-primary" id="refresh-ranking">
+                                <i class="fas fa-sync-alt"></i> 刷新
+                            </button>
+                        </div>
+                        <div class="ranking-list" id="ranking-container">
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">比赛统计</h2>
+                        </div>
+                        <div class="stats">
+                            <div class="stat-card">
+                                <div class="stat-label">参赛选手</div>
+                                <div class="stat-value" id="contestants-count">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">最高分</div>
+                                <div class="stat-value" id="highest-score">0</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-label">平均分</div>
+                                <div class="stat-value" id="average-score">0</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h2 class="card-title">快捷操作</h2>
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn btn-success" id="save-data">
+                                <i class="fas fa-save"></i> 保存数据
+                            </button>
+                            <button class="btn btn-warning" id="reset-scores">
+                                <i class="fas fa-undo"></i> 重置分数
+                            </button>
+                            <button class="btn btn-primary" id="configure-shortcuts">
+                                <i class="fas fa-keyboard"></i> 快捷键设置
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="ranking-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">完整排名榜</h2>
+                    <button class="btn btn-primary" id="print-ranking">
+                        <i class="fas fa-print"></i> 打印排名
+                    </button>
+                </div>
+                <div class="ranking-list" id="full-ranking-container">
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="awards-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">奖项打印</h2>
+                </div>
+                <div class="award-options">
+                    <div class="award-option" data-type="certificate">
+                        <i class="fas fa-award"></i>
+                        <h3>荣誉证书</h3>
+                        <p>为获奖选手生成荣誉证书</p>
+                    </div>
+                    <div class="award-option" data-type="ranking">
+                        <i class="fas fa-list-ol"></i>
+                        <h3>排名表</h3>
+                        <p>打印完整排名列表</p>
+                    </div>
+                </div>
+                
+                <div id="certificate-config" style="display: none;">
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="certificate-title">证书标题</label>
+                            <input type="text" id="certificate-title" class="form-control" value="荣誉证书">
+                        </div>
+                        <div class="form-group">
+                            <label for="contest-name-print">比赛名称</label>
+                            <input type="text" id="contest-name-print" class="form-control" value="比赛">
+                        </div>
+                        <div class="form-group">
+                            <label for="award-rank">颁发奖项</label>
+                            <select id="award-rank" class="form-control">
+                                <option value="1">第一名</option>
+                                <option value="2">第二名</option>
+                                <option value="3">第三名</option>
+                                <option value="all">所有选手</option>
+                                <option value="custom">自定义排名范围</option>
+                            </select>
+                        </div>
+                        <div class="form-group" id="custom-rank-range" style="display: none;">
+                            <label for="rank-start">起始排名</label>
+                            <input type="number" id="rank-start" class="form-control" value="1" min="1">
+                            <label for="rank-end">结束排名</label>
+                            <input type="number" id="rank-end" class="form-control" value="3" min="1">
+                        </div>
+                        <div class="form-group full-width">
+                            <label for="certificate-text">证书正文</label>
+                            <textarea id="certificate-text" class="form-control" rows="4">在本次比赛中表现优异，荣获{rank}，特发此证，以资鼓励。</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="issuing-authority">颁发机构</label>
+                            <input type="text" id="issuing-authority" class="form-control" value="比赛组委会">
+                        </div>
+                        <div class="form-group">
+                            <label for="issue-date">颁发日期</label>
+                            <input type="date" id="issue-date" class="form-control" value="">
+                        </div>
+                    </div>
+                    
+                    <div class="certificate-preview">
+                        <div class="certificate-border">
+                            <div class="certificate-title" id="preview-title">荣誉证书</div>
+                            <div class="certificate-subtitle" id="preview-contest">比赛</div>
+                            <div class="certificate-name" id="preview-name">获奖者姓名</div>
+                            <div class="certificate-details" id="preview-text">在本次比赛中表现优异，荣获第一名，特发此证，以资鼓励。</div>
+                            <div class="certificate-signature">
+                                <div class="signature-line">
+                                    <div id="preview-date">2023年12月1日</div>
+                                </div>
+                                <div class="signature-line">
+                                    <div id="preview-authority">比赛组委会</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button class="btn btn-success" id="preview-certificate">
+                            <i class="fas fa-eye"></i> 更新预览
+                        </button>
+                        <button class="btn btn-primary" id="print-certificate">
+                            <i class="fas fa-print"></i> 打印证书
+                        </button>
+                        <button class="btn btn-warning" id="save-certificate-template">
+                            <i class="fas fa-save"></i> 保存模板
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="ranking-print" style="display: none;">
+                    <div class="action-buttons">
+                        <button class="btn btn-primary" id="print-ranking-list">
+                            <i class="fas fa-print"></i> 打印排名表
+                        </button>
+                    </div>
+                    <div class="ranking-list print-section" id="print-ranking-container">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="settings-tab">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">比赛设置</h2>
+                </div>
+                <div class="settings-form">
+                    <div class="form-group">
+                        <label for="contest-name">比赛名称</label>
+                        <input type="text" id="contest-name" class="form-control" value="比赛">
+                    </div>
+                    <div class="form-group">
+                        <label for="max-score">满分值</label>
+                        <input type="number" id="max-score" class="form-control" value="100" min="1">
+                    </div>
+                    <div class="form-group full-width">
+                        <label for="contestants">选手名单 (每行一个名字)</label>
+                        <textarea id="contestants" class="form-control" rows="6"></textarea>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button class="btn btn-success" id="save-settings">
+                        <i class="fas fa-save"></i> 保存设置
+                    </button>
+                    <button class="btn btn-primary" id="export-data">
+                        <i class="fas fa-download"></i> 导出数据
+                    </button>
+                    <button class="btn btn-warning" id="import-data">
+                        <i class="fas fa-upload"></i> 导入数据
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-content" id="display-tab">
+            <div class="display-container">
+                <div class="display-header">
+                    <h1 class="display-title" id="display-contest-name">比赛</h1>
+                    <div class="display-subtitle">实时排名显示</div>
+                </div>
+                
+                <div class="display-ranking" id="display-ranking-container">
+                </div>
+                
+                <div class="display-stats">
+                    <div class="display-stat-card">
+                        <div class="display-stat-label">参赛选手</div>
+                        <div class="display-stat-value" id="display-contestants-count">0</div>
+                    </div>
+                    <div class="display-stat-card">
+                        <div class="display-stat-label">最高分</div>
+                        <div class="display-stat-value" id="display-highest-score">0</div>
+                    </div>
+                    <div class="display-stat-card">
+                        <div class="display-stat-label">平均分</div>
+                        <div class="display-stat-value" id="display-average-score">0</div>
+                    </div>
+                </div>
+                
+                <div class="display-timer">
+                    最后更新: <span id="display-update-time">刚刚</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>比赛计分系统 - 设计用于各类比赛活动的实时计分和排名 - 2025功夫坊</p>
+        </footer>
+    </div>
+
+    <div class="modal" id="shortcut-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">快捷键配置</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <p>为每个选手设置快捷键，按相应键即可快速调整分数。</p>
+            <div id="shortcut-list">
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-success" id="save-shortcuts">
+                    <i class="fas fa-save"></i> 保存快捷键
+                </button>
+                <button class="btn btn-primary" id="reset-shortcuts">
+                    <i class="fas fa-undo"></i> 重置为默认
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="import-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">导入数据</h3>
+                <button class="close-modal">&times;</button>
+            </div>
+            <p>粘贴之前导出的JSON数据：</p>
+            <textarea id="import-data-text" class="form-control" rows="10" placeholder="在此粘贴JSON数据..."></textarea>
+            <div class="action-buttons">
+                <button class="btn btn-success" id="confirm-import">
+                    <i class="fas fa-check"></i> 确认导入
+                </button>
+                <button class="btn btn-warning" id="cancel-import">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultShortcuts = {
+            '1': { contestantId: 1, change: 1 },
+            '2': { contestantId: 2, change: 1 },
+            '3': { contestantId: 3, change: 1 },
+            '4': { contestantId: 4, change: 1 },
+            '5': { contestantId: 5, change: 1 },
+            '6': { contestantId: 6, change: 1 },
+            '7': { contestantId: 7, change: 1 },
+            '8': { contestantId: 8, change: 1 },
+            'q': { contestantId: 1, change: -1 },
+            'w': { contestantId: 2, change: -1 },
+            'e': { contestantId: 3, change: -1 },
+            'r': { contestantId: 4, change: -1 },
+            't': { contestantId: 5, change: -1 },
+            'y': { contestantId: 6, change: -1 },
+            'u': { contestantId: 7, change: -1 },
+            'i': { contestantId: 8, change: -1 }
+        };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            let contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+            
+            let shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
+            
+            document.getElementById('issue-date').valueAsDate = new Date();
+            
+            renderContestants(contestants);
+            
+            renderRanking(contestants);
+            
+            renderFullRanking(contestants);
+            
+            renderDisplayRanking(contestants);
+            
+            updateStats(contestants);
+            
+            initTabs();
+            
+            initEventListeners();
+            
+            initLog();
+            
+            initAwardPrinting();
+            
+            initShortcuts(shortcuts);
+            
+            updateDisplayInfo(contestants);
+        });
+
+        function renderContestants(contestants) {
+            const container = document.getElementById('contestants-container');
+            container.innerHTML = '';
+            
+            contestants.forEach(contestant => {
+                const card = document.createElement('div');
+                card.className = 'contestant-card';
+                card.innerHTML = `
+                    <div class="contestant-header">
+                        <div class="contestant-name">${contestant.name}</div>
+                        <div class="contestant-score">${contestant.score}</div>
+                    </div>
+                    <div class="score-controls">
+                        <button class="btn btn-danger minus-btn" data-id="${contestant.id}">
+                            <i class="fas fa-minus"></i> -1
+                        </button>
+                        <button class="btn btn-primary minus-btn-5" data-id="${contestant.id}">
+                            <i class="fas fa-minus"></i> -5
+                        </button>
+                        <button class="btn btn-success add-btn" data-id="${contestant.id}">
+                            <i class="fas fa-plus"></i> +1
+                        </button>
+                        <button class="btn btn-success add-btn-5" data-id="${contestant.id}">
+                            <i class="fas fa-plus"></i> +5
+                        </button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            
+            document.querySelectorAll('.minus-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    updateScore(id, -1);
+                });
+            });
+            
+            document.querySelectorAll('.minus-btn-5').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    updateScore(id, -5);
+                });
+            });
+            
+            document.querySelectorAll('.add-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    updateScore(id, 1);
+                });
+            });
+            
+            document.querySelectorAll('.add-btn-5').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const id = parseInt(this.getAttribute('data-id'));
+                    updateScore(id, 5);
+                });
+            });
+        }
+
+        function updateScore(id, change) {
+            let contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+            const contestant = contestants.find(c => c.id === id);
+            const maxScore = parseInt(document.getElementById('max-score').value) || 100;
+            
+            if (contestant) {
+                const newScore = contestant.score + change;
+                contestant.score = Math.max(0, Math.min(maxScore, newScore));
+                
+                localStorage.setItem('contestants', JSON.stringify(contestants));
+                
+                renderContestants(contestants);
+                renderRanking(contestants);
+                renderFullRanking(contestants);
+                renderDisplayRanking(contestants);
+                updateStats(contestants);
+                updateDisplayInfo(contestants);
+                
+                addLog(`${contestant.name} 分数${change > 0 ? '增加' : '减少'}了 ${Math.abs(change)} 分，当前分数: ${contestant.score}`);
+                
+                updateLastUpdateTime();
+            }
+        }
+
+        function renderRanking(contestants) {
+            const container = document.getElementById('ranking-container');
+            container.innerHTML = '';
+            
+            const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+            
+            const topContestants = sortedContestants.slice(0, 5);
+            
+            topContestants.forEach((contestant, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.innerHTML = `
+                    <div class="rank ${index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : ''}">${index + 1}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${contestant.name}</div>
+                    </div>
+                    <div class="ranking-score">${contestant.score}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderFullRanking(contestants) {
+            const container = document.getElementById('full-ranking-container');
+            container.innerHTML = '';
+            
+            const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+            
+            sortedContestants.forEach((contestant, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.innerHTML = `
+                    <div class="rank ${index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : ''}">${index + 1}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${contestant.name}</div>
+                    </div>
+                    <div class="ranking-score">${contestant.score}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderDisplayRanking(contestants) {
+            const container = document.getElementById('display-ranking-container');
+            container.innerHTML = '';
+            
+            const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+            
+            const topContestants = sortedContestants.slice(0, 8);
+            
+            topContestants.forEach((contestant, index) => {
+                const item = document.createElement('div');
+                item.className = 'display-ranking-item';
+                item.innerHTML = `
+                    <div class="display-rank ${index === 0 ? 'display-rank-1' : index === 1 ? 'display-rank-2' : index === 2 ? 'display-rank-3' : ''}">${index + 1}</div>
+                    <div class="display-ranking-info">
+                        <div class="display-ranking-name">${contestant.name}</div>
+                    </div>
+                    <div class="display-ranking-score">${contestant.score}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderPrintRanking(contestants) {
+            const container = document.getElementById('print-ranking-container');
+            container.innerHTML = '';
+            
+            const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+            
+            sortedContestants.forEach((contestant, index) => {
+                const item = document.createElement('div');
+                item.className = 'ranking-item';
+                item.innerHTML = `
+                    <div class="rank ${index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : index === 2 ? 'rank-3' : ''}">${index + 1}</div>
+                    <div class="ranking-info">
+                        <div class="ranking-name">${contestant.name}</div>
+                    </div>
+                    <div class="ranking-score">${contestant.score}</div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function updateStats(contestants) {
+            const count = contestants.length;
+            const highestScore = count > 0 ? Math.max(...contestants.map(c => c.score)) : 0;
+            const averageScore = count > 0 ? (contestants.reduce((sum, c) => sum + c.score, 0) / count).toFixed(1) : 0;
+            
+            document.getElementById('contestants-count').textContent = count;
+            document.getElementById('highest-score').textContent = highestScore;
+            document.getElementById('average-score').textContent = averageScore;
+        }
+
+        function updateDisplayInfo(contestants) {
+            const count = contestants.length;
+            const highestScore = count > 0 ? Math.max(...contestants.map(c => c.score)) : 0;
+            const averageScore = count > 0 ? (contestants.reduce((sum, c) => sum + c.score, 0) / count).toFixed(1) : 0;
+            
+            document.getElementById('display-contestants-count').textContent = count;
+            document.getElementById('display-highest-score').textContent = highestScore;
+            document.getElementById('display-average-score').textContent = averageScore;
+            
+            document.getElementById('display-contest-name').textContent = document.getElementById('contest-name').value;
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('display-update-time').textContent = timeString;
+        }
+
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+        }
+
+        function initEventListeners() {
+            document.getElementById('save-settings').addEventListener('click', function() {
+                const contestantsText = document.getElementById('contestants').value;
+                const contestantNames = contestantsText.split('\n').filter(name => name.trim() !== '');
+                
+                let contestants = contestantNames.map((name, index) => {
+                    return {
+                        id: index + 1,
+                        name: name.trim(),
+                        score: 0
+                    };
+                });
+                
+                localStorage.setItem('contestants', JSON.stringify(contestants));
+                
+                renderContestants(contestants);
+                renderRanking(contestants);
+                renderFullRanking(contestants);
+                renderDisplayRanking(contestants);
+                updateStats(contestants);
+                updateDisplayInfo(contestants);
+                
+                alert('设置已保存！');
+                addLog('比赛设置已更新');
+            });
+            
+            document.getElementById('refresh-ranking').addEventListener('click', function() {
+                const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                renderRanking(contestants);
+                addLog('排名已刷新');
+            });
+            
+            document.getElementById('save-data').addEventListener('click', function() {
+                addLog('数据已保存到本地存储');
+                alert('数据已保存！');
+            });
+            
+            document.getElementById('reset-scores').addEventListener('click', function() {
+                if (confirm('确定要重置所有分数吗？')) {
+                    let contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                    
+                    contestants.forEach(contestant => {
+                        contestant.score = 0;
+                    });
+                    
+                    localStorage.setItem('contestants', JSON.stringify(contestants));
+                    
+                    renderContestants(contestants);
+                    renderRanking(contestants);
+                    renderFullRanking(contestants);
+                    renderDisplayRanking(contestants);
+                    updateStats(contestants);
+                    updateDisplayInfo(contestants);
+                    
+                    addLog('所有选手分数已重置为 0');
+                }
+            });
+            
+            document.getElementById('print-ranking').addEventListener('click', function() {
+                window.print();
+            });
+            
+            document.getElementById('export-data').addEventListener('click', function() {
+                const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                const dataStr = JSON.stringify(contestants, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = '比赛数据.json';
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                addLog('数据已导出');
+            });
+            
+            document.getElementById('import-data').addEventListener('click', function() {
+                document.getElementById('import-modal').style.display = 'flex';
+            });
+            
+            document.getElementById('confirm-import').addEventListener('click', function() {
+                const importData = document.getElementById('import-data-text').value;
+                try {
+                    const contestants = JSON.parse(importData);
+                    localStorage.setItem('contestants', JSON.stringify(contestants));
+                    
+                    renderContestants(contestants);
+                    renderRanking(contestants);
+                    renderFullRanking(contestants);
+                    renderDisplayRanking(contestants);
+                    updateStats(contestants);
+                    updateDisplayInfo(contestants);
+                    
+                    document.getElementById('import-modal').style.display = 'none';
+                    alert('数据导入成功！');
+                    addLog('数据已从JSON导入');
+                } catch (e) {
+                    alert('导入失败：无效的JSON数据');
+                }
+            });
+            
+            document.getElementById('cancel-import').addEventListener('click', function() {
+                document.getElementById('import-modal').style.display = 'none';
+            });
+            
+            document.querySelectorAll('.close-modal').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    this.closest('.modal').style.display = 'none';
+                });
+            });
+            
+            document.getElementById('configure-shortcuts').addEventListener('click', function() {
+                document.getElementById('shortcut-modal').style.display = 'flex';
+                renderShortcuts();
+            });
+        }
+
+        function initLog() {
+            document.getElementById('clear-log').addEventListener('click', function() {
+                document.getElementById('log-container').innerHTML = '';
+                addLog('日志已清空');
+            });
+            
+            addLog('系统初始化完成');
+            addLog('计分系统已就绪');
+        }
+
+        function addLog(message) {
+            const container = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            
+            logEntry.innerHTML = `
+                <div class="log-time">${timeString}</div>
+                <div class="log-message">${message}</div>
+            `;
+            
+            container.appendChild(logEntry);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function updateLastUpdateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString();
+            document.getElementById('last-update-time').textContent = timeString;
+        }
+
+        function initShortcuts(shortcuts) {
+            document.getElementById('save-shortcuts').addEventListener('click', function() {
+                const newShortcuts = {};
+                document.querySelectorAll('.shortcut-item').forEach(item => {
+                    const key = item.querySelector('.shortcut-input').value.toLowerCase();
+                    const contestantId = parseInt(item.getAttribute('data-contestant-id'));
+                    const change = parseInt(item.getAttribute('data-change'));
+                    
+                    if (key) {
+                        newShortcuts[key] = { contestantId, change };
+                    }
+                });
+                
+                localStorage.setItem('shortcuts', JSON.stringify(newShortcuts));
+                shortcuts = newShortcuts;
+                
+                document.getElementById('shortcut-modal').style.display = 'none';
+                alert('快捷键已保存！');
+                addLog('快捷键设置已更新');
+            });
+            
+            document.getElementById('reset-shortcuts').addEventListener('click', function() {
+                localStorage.setItem('shortcuts', JSON.stringify(defaultShortcuts));
+                shortcuts = defaultShortcuts;
+                renderShortcuts();
+                alert('快捷键已重置为默认值！');
+                addLog('快捷键已重置为默认值');
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+                    return;
+                }
+                
+                const key = e.key.toLowerCase();
+                if (shortcuts[key]) {
+                    updateScore(shortcuts[key].contestantId, shortcuts[key].change);
+                    
+                    showShortcutHint(key, shortcuts[key].contestantId, shortcuts[key].change);
+                }
+            });
+        }
+
+        function renderShortcuts() {
+            const container = document.getElementById('shortcut-list');
+            container.innerHTML = '';
+            
+            const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+            const shortcuts = JSON.parse(localStorage.getItem('shortcuts')) || defaultShortcuts;
+            
+            contestants.forEach(contestant => {
+                const item = document.createElement('div');
+                item.className = 'shortcut-item';
+                item.setAttribute('data-contestant-id', contestant.id);
+                item.setAttribute('data-change', 1);
+                
+                let currentKey = '';
+                for (const [key, value] of Object.entries(shortcuts)) {
+                    if (value.contestantId === contestant.id && value.change === 1) {
+                        currentKey = key;
+                        break;
+                    }
+                }
+                
+                item.innerHTML = `
+                    <div class="shortcut-action">${contestant.name} +1分</div>
+                    <input type="text" class="shortcut-input form-control" maxlength="1" value="${currentKey}">
+                `;
+                container.appendChild(item);
+            });
+            
+            contestants.forEach(contestant => {
+                const item = document.createElement('div');
+                item.className = 'shortcut-item';
+                item.setAttribute('data-contestant-id', contestant.id);
+                item.setAttribute('data-change', -1);
+                
+                let currentKey = '';
+                for (const [key, value] of Object.entries(shortcuts)) {
+                    if (value.contestantId === contestant.id && value.change === -1) {
+                        currentKey = key;
+                        break;
+                    }
+                }
+                
+                item.innerHTML = `
+                    <div class="shortcut-action">${contestant.name} -1分</div>
+                    <input type="text" class="shortcut-input form-control" maxlength="1" value="${currentKey}">
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function showShortcutHint(key, contestantId, change) {
+            const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+            const contestant = contestants.find(c => c.id === contestantId);
+            
+            if (contestant) {
+                const hint = document.createElement('div');
+                hint.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 20px 40px;
+                    border-radius: 10px;
+                    font-size: 24px;
+                    z-index: 10000;
+                    animation: fadeOut 2s forwards;
+                `;
+                
+                hint.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 18px; margin-bottom: 10px;">快捷键操作</div>
+                        <div style="font-weight: bold;">${contestant.name} ${change > 0 ? '+' : ''}${change}分</div>
+                        <div style="font-size: 14px; margin-top: 10px;">按下了 "${key.toUpperCase()}" 键</div>
+                    </div>
+                `;
+                
+                document.body.appendChild(hint);
+                
+                setTimeout(() => {
+                    document.body.removeChild(hint);
+                }, 2000);
+            }
+        }
+
+        function initAwardPrinting() {
+            document.querySelectorAll('.award-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const type = this.getAttribute('data-type');
+                    
+                    document.getElementById('certificate-config').style.display = 'none';
+                    document.getElementById('ranking-print').style.display = 'none';
+                    
+                    if (type === 'certificate') {
+                        document.getElementById('certificate-config').style.display = 'block';
+                        updateCertificatePreview();
+                    } else if (type === 'ranking') {
+                        document.getElementById('ranking-print').style.display = 'block';
+                        const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                        renderPrintRanking(contestants);
+                    }
+                });
+            });
+            
+            document.getElementById('award-rank').addEventListener('change', function() {
+                if (this.value === 'custom') {
+                    document.getElementById('custom-rank-range').style.display = 'block';
+                } else {
+                    document.getElementById('custom-rank-range').style.display = 'none';
+                }
+                updateCertificatePreview();
+            });
+            
+            document.getElementById('preview-certificate').addEventListener('click', updateCertificatePreview);
+            
+            document.getElementById('print-certificate').addEventListener('click', function() {
+                const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+                
+                const awardRank = document.getElementById('award-rank').value;
+                let targetContestants = [];
+                
+                if (awardRank === 'all') {
+                    targetContestants = sortedContestants;
+                } else if (awardRank === 'custom') {
+                    const start = parseInt(document.getElementById('rank-start').value) || 1;
+                    const end = parseInt(document.getElementById('rank-end').value) || 3;
+                    targetContestants = sortedContestants.slice(start - 1, end);
+                } else {
+                    const rank = parseInt(awardRank);
+                    targetContestants = [sortedContestants[rank - 1]];
+                }
+                
+                targetContestants.forEach((contestant, index) => {
+                    const printWindow = window.open('', '_blank');
+                    const rankText = getRankText(sortedContestants.findIndex(c => c.id === contestant.id) + 1);
+                    
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>荣誉证书</title>
+                            <style>
+                                body {
+                                    font-family: 'SimSun', serif;
+                                    margin: 0;
+                                    padding: 20px;
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    height: 100vh;
+                                    background-color: #f5f5f5;
+                                }
+                                .certificate {
+                                    width: 800px;
+                                    height: 600px;
+                                    border: 3px double #d4af37;
+                                    padding: 40px;
+                                    background: white;
+                                    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                                    position: relative;
+                                    text-align: center;
+                                }
+                                .certificate-title {
+                                    font-size: 42px;
+                                    font-weight: bold;
+                                    margin-bottom: 30px;
+                                    color: #d4af37;
+                                }
+                                .certificate-subtitle {
+                                    font-size: 20px;
+                                    margin-bottom: 40px;
+                                    color: #666;
+                                }
+                                .certificate-name {
+                                    font-size: 36px;
+                                    font-weight: bold;
+                                    margin: 30px 0;
+                                    color: #333;
+                                }
+                                .certificate-details {
+                                    font-size: 20px;
+                                    margin-bottom: 50px;
+                                    line-height: 1.8;
+                                }
+                                .certificate-signature {
+                                    display: flex;
+                                    justify-content: space-between;
+                                    margin-top: 60px;
+                                }
+                                .signature-line {
+                                    border-top: 1px solid #333;
+                                    width: 200px;
+                                    text-align: center;
+                                    padding-top: 5px;
+                                }
+                                @media print {
+                                    body {
+                                        background: white;
+                                    }
+                                    .certificate {
+                                        box-shadow: none;
+                                        border: 3px double #d4af37;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="certificate">
+                                <div class="certificate-title">${document.getElementById('certificate-title').value}</div>
+                                <div class="certificate-subtitle">${document.getElementById('contest-name-print').value}</div>
+                                <div class="certificate-name">${contestant.name}</div>
+                                <div class="certificate-details">${document.getElementById('certificate-text').value.replace('{rank}', rankText)}</div>
+                                <div class="certificate-signature">
+                                    <div class="signature-line">
+                                        <div>${formatDate(document.getElementById('issue-date').value)}</div>
+                                    </div>
+                                    <div class="signature-line">
+                                        <div>${document.getElementById('issuing-authority').value}</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <script>
+                                window.onload = function() {
+                                    window.print();
+                                    ${index === targetContestants.length - 1 ? 'window.close();' : ''}
+                                };
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                });
+                
+                addLog(`已打印 ${targetContestants.length} 份证书`);
+            });
+            
+            document.getElementById('print-ranking-list').addEventListener('click', function() {
+                const printWindow = window.open('', '_blank');
+                const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+                const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+                
+                let rankingHTML = '';
+                sortedContestants.forEach((contestant, index) => {
+                    rankingHTML += `
+                        <div style="display: flex; padding: 10px; border-bottom: 1px solid #eee;">
+                            <div style="width: 50px; text-align: center; font-weight: bold;">${index + 1}</div>
+                            <div style="flex: 1;">${contestant.name}</div>
+                            <div style="width: 80px; text-align: right;">${contestant.score}分</div>
+                        </div>
+                    `;
+                });
+                
+                printWindow.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <title>比赛排名表</title>
+                        <style>
+                            body {
+                                font-family: Arial, sans-serif;
+                                margin: 20px;
+                            }
+                            .ranking-header {
+                                text-align: center;
+                                margin-bottom: 20px;
+                            }
+                            .ranking-title {
+                                font-size: 24px;
+                                font-weight: bold;
+                                margin-bottom: 10px;
+                            }
+                            .ranking-subtitle {
+                                font-size: 16px;
+                                color: #666;
+                            }
+                            @media print {
+                                body {
+                                    margin: 0;
+                                }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="ranking-header">
+                            <div class="ranking-title">${document.getElementById('contest-name').value} 排名表</div>
+                            <div class="ranking-subtitle">生成时间: ${new Date().toLocaleString()}</div>
+                        </div>
+                        ${rankingHTML}
+                        <script>
+                            window.onload = function() {
+                                window.print();
+                            };
+                        <\/script>
+                    </body>
+                    </html>
+                `);
+                printWindow.document.close();
+                
+                addLog('已打印排名表');
+            });
+            
+            document.getElementById('save-certificate-template').addEventListener('click', function() {
+                const template = {
+                    title: document.getElementById('certificate-title').value,
+                    contestName: document.getElementById('contest-name-print').value,
+                    text: document.getElementById('certificate-text').value,
+                    authority: document.getElementById('issuing-authority').value
+                };
+                
+                localStorage.setItem('certificateTemplate', JSON.stringify(template));
+                alert('证书模板已保存！');
+                addLog('证书模板已保存');
+            });
+            
+            const savedTemplate = JSON.parse(localStorage.getItem('certificateTemplate'));
+            if (savedTemplate) {
+                document.getElementById('certificate-title').value = savedTemplate.title;
+                document.getElementById('contest-name-print').value = savedTemplate.contestName;
+                document.getElementById('certificate-text').value = savedTemplate.text;
+                document.getElementById('issuing-authority').value = savedTemplate.authority;
+            }
+        }
+
+        function updateCertificatePreview() {
+            document.getElementById('preview-title').textContent = document.getElementById('certificate-title').value;
+            document.getElementById('preview-contest').textContent = document.getElementById('contest-name-print').value;
+            
+            const contestants = JSON.parse(localStorage.getItem('contestants')) || [];
+            const sortedContestants = [...contestants].sort((a, b) => b.score - a.score);
+            
+            const awardRank = document.getElementById('award-rank').value;
+            let previewContestant = sortedContestants[0];
+            let rank = 1;
+            
+            if (awardRank === 'custom') {
+                const start = parseInt(document.getElementById('rank-start').value) || 1;
+                previewContestant = sortedContestants[start - 1] || sortedContestants[0];
+                rank = start;
+            } else if (awardRank !== 'all') {
+                rank = parseInt(awardRank);
+                previewContestant = sortedContestants[rank - 1] || sortedContestants[0];
+            }
+            
+            document.getElementById('preview-name').textContent = previewContestant ? previewContestant.name : '获奖者姓名';
+            
+            const rankText = getRankText(rank);
+            const certificateText = document.getElementById('certificate-text').value.replace('{rank}', rankText);
+            document.getElementById('preview-text').textContent = certificateText;
+            
+            document.getElementById('preview-date').textContent = formatDate(document.getElementById('issue-date').value);
+            document.getElementById('preview-authority').textContent = document.getElementById('issuing-authority').value;
+        }
+
+        function getRankText(rank) {
+            if (rank === 1) return '第一名';
+            if (rank === 2) return '第二名';
+            if (rank === 3) return '第三名';
+            return `第${rank}名`;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            return `${year}年${month}月${day}日`;
+        }
+    </script>
+</body>
+</html>
