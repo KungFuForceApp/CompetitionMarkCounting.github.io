@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>比赛计分系统</title>
+    <title>比賽計分系統</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -702,16 +702,16 @@
         <header>
             <div class="logo">
                 <i class="fas fa-trophy"></i>
-                <h1>比赛计分系统</h1>
+                <h1>比賽計分系統</h1>
             </div>
         </header>
 
         <div class="tabs">
-            <div class="tab active" data-tab="scoring">计分面板</div>
+            <div class="tab active" data-tab="scoring">計分面板</div>
             <div class="tab" data-tab="ranking">排名榜</div>
-            <div class="tab" data-tab="awards">奖项打印</div>
-            <div class="tab" data-tab="settings">比赛设置</div>
-            <div class="tab" data-tab="display">实时显示</div>
+            <div class="tab" data-tab="awards">獎項打印</div>
+            <div class="tab" data-tab="settings">比賽設置</div>
+            <div class="tab" data-tab="display">即時顯示</div>
         </div>
 
         <div class="tab-content active" id="scoring-tab">
@@ -719,8 +719,8 @@
                 <div class="main-content">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">选手计分控制</h2>
-                            <div class="last-update">最后更新: <span id="last-update-time">刚刚</span></div>
+                            <h2 class="card-title">選手計分控制</h2>
+                            <div class="last-update">最後更新: <span id="last-update-time">剛剛</span></div>
                         </div>
                         <div class="contestants-list" id="contestants-container">
                         </div>
@@ -728,9 +728,9 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">操作日志</h2>
+                            <h2 class="card-title">操作日誌</h2>
                             <button class="btn btn-warning" id="clear-log">
-                                <i class="fas fa-trash"></i> 清空日志
+                                <i class="fas fa-trash"></i> 清空日誌
                             </button>
                         </div>
                         <div class="log-container" id="log-container">
@@ -741,7 +741,7 @@
                 <div class="sidebar">
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">实时排名</h2>
+                            <h2 class="card-title">即時排名</h2>
                             <button class="btn btn-primary" id="refresh-ranking">
                                 <i class="fas fa-sync-alt"></i> 刷新
                             </button>
@@ -752,11 +752,11 @@
 
                     <div class="card">
                         <div class="card-header">
-                            <h2 class="card-title">比赛统计</h2>
+                            <h2 class="card-title">比賽統計</h2>
                         </div>
                         <div class="stats">
                             <div class="stat-card">
-                                <div class="stat-label">参赛选手</div>
+                                <div class="stat-label">參賽選手</div>
                                 <div class="stat-value" id="contestants-count">0</div>
                             </div>
                             <div class="stat-card">
@@ -776,13 +776,13 @@
                         </div>
                         <div class="action-buttons">
                             <button class="btn btn-success" id="save-data">
-                                <i class="fas fa-save"></i> 保存数据
+                                <i class="fas fa-save"></i> 儲存數據
                             </button>
                             <button class="btn btn-warning" id="reset-scores">
-                                <i class="fas fa-undo"></i> 重置分数
+                                <i class="fas fa-undo"></i> 重置分數
                             </button>
                             <button class="btn btn-primary" id="configure-shortcuts">
-                                <i class="fas fa-keyboard"></i> 快捷键设置
+                                <i class="fas fa-keyboard"></i> 快捷鍵設置
                             </button>
                         </div>
                     </div>
@@ -806,13 +806,13 @@
         <div class="tab-content" id="awards-tab">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">奖项打印</h2>
+                    <h2 class="card-title">獎項打印</h2>
                 </div>
                 <div class="award-options">
                     <div class="award-option" data-type="certificate">
                         <i class="fas fa-award"></i>
-                        <h3>荣誉证书</h3>
-                        <p>为获奖选手生成荣誉证书</p>
+                        <h3>榮譽證書</h3>
+                        <p>為獲獎選手生成榮譽證書</p>
                     </div>
                     <div class="award-option" data-type="ranking">
                         <i class="fas fa-list-ol"></i>
@@ -824,55 +824,55 @@
                 <div id="certificate-config" style="display: none;">
                     <div class="settings-form">
                         <div class="form-group">
-                            <label for="certificate-title">证书标题</label>
-                            <input type="text" id="certificate-title" class="form-control" value="荣誉证书">
+                            <label for="certificate-title">證書標題</label>
+                            <input type="text" id="certificate-title" class="form-control" value="榮譽證書">
                         </div>
                         <div class="form-group">
-                            <label for="contest-name-print">比赛名称</label>
-                            <input type="text" id="contest-name-print" class="form-control" value="比赛">
+                            <label for="contest-name-print">比賽名稱</label>
+                            <input type="text" id="contest-name-print" class="form-control" value="比賽">
                         </div>
                         <div class="form-group">
-                            <label for="award-rank">颁发奖项</label>
+                            <label for="award-rank">頒發獎項</label>
                             <select id="award-rank" class="form-control">
                                 <option value="1">第一名</option>
                                 <option value="2">第二名</option>
                                 <option value="3">第三名</option>
-                                <option value="all">所有选手</option>
-                                <option value="custom">自定义排名范围</option>
+                                <option value="all">所有選手</option>
+                                <option value="custom">自定義排名範圍</option>
                             </select>
                         </div>
                         <div class="form-group" id="custom-rank-range" style="display: none;">
                             <label for="rank-start">起始排名</label>
                             <input type="number" id="rank-start" class="form-control" value="1" min="1">
-                            <label for="rank-end">结束排名</label>
+                            <label for="rank-end">結束排名</label>
                             <input type="number" id="rank-end" class="form-control" value="3" min="1">
                         </div>
                         <div class="form-group full-width">
-                            <label for="certificate-text">证书正文</label>
-                            <textarea id="certificate-text" class="form-control" rows="4">在本次比赛中表现优异，荣获{rank}，特发此证，以资鼓励。</textarea>
+                            <label for="certificate-text">證書正文</label>
+                            <textarea id="certificate-text" class="form-control" rows="4">在本次比賽中表現優異，榮獲{rank}，特發此證，以資鼓勵。</textarea>
                         </div>
                         <div class="form-group">
-                            <label for="issuing-authority">颁发机构</label>
-                            <input type="text" id="issuing-authority" class="form-control" value="比赛组委会">
+                            <label for="issuing-authority">頒發機構</label>
+                            <input type="text" id="issuing-authority" class="form-control" value="比賽組委會">
                         </div>
                         <div class="form-group">
-                            <label for="issue-date">颁发日期</label>
+                            <label for="issue-date">頒發日期</label>
                             <input type="date" id="issue-date" class="form-control" value="">
                         </div>
                     </div>
                     
                     <div class="certificate-preview">
                         <div class="certificate-border">
-                            <div class="certificate-title" id="preview-title">荣誉证书</div>
-                            <div class="certificate-subtitle" id="preview-contest">比赛</div>
-                            <div class="certificate-name" id="preview-name">获奖者姓名</div>
-                            <div class="certificate-details" id="preview-text">在本次比赛中表现优异，荣获第一名，特发此证，以资鼓励。</div>
+                            <div class="certificate-title" id="preview-title">榮譽證書</div>
+                            <div class="certificate-subtitle" id="preview-contest">比賽</div>
+                            <div class="certificate-name" id="preview-name">獲獎者姓名</div>
+                            <div class="certificate-details" id="preview-text">在本次比賽中表現優異，榮獲第一名，特發此證，以資鼓勵。</div>
                             <div class="certificate-signature">
                                 <div class="signature-line">
                                     <div id="preview-date">2023年12月1日</div>
                                 </div>
                                 <div class="signature-line">
-                                    <div id="preview-authority">比赛组委会</div>
+                                    <div id="preview-authority">比賽組委會</div>
                                 </div>
                             </div>
                         </div>
@@ -880,13 +880,13 @@
                     
                     <div class="action-buttons">
                         <button class="btn btn-success" id="preview-certificate">
-                            <i class="fas fa-eye"></i> 更新预览
+                            <i class="fas fa-eye"></i> 更新預覽
                         </button>
                         <button class="btn btn-primary" id="print-certificate">
-                            <i class="fas fa-print"></i> 打印证书
+                            <i class="fas fa-print"></i> 打印證書
                         </button>
                         <button class="btn btn-warning" id="save-certificate-template">
-                            <i class="fas fa-save"></i> 保存模板
+                            <i class="fas fa-save"></i> 儲存模板
                         </button>
                     </div>
                 </div>
@@ -906,31 +906,31 @@
         <div class="tab-content" id="settings-tab">
             <div class="card">
                 <div class="card-header">
-                    <h2 class="card-title">比赛设置</h2>
+                    <h2 class="card-title">比賽設置</h2>
                 </div>
                 <div class="settings-form">
                     <div class="form-group">
-                        <label for="contest-name">比赛名称</label>
-                        <input type="text" id="contest-name" class="form-control" value="比赛">
+                        <label for="contest-name">比賽名稱</label>
+                        <input type="text" id="contest-name" class="form-control" value="比賽">
                     </div>
                     <div class="form-group">
-                        <label for="max-score">满分值</label>
+                        <label for="max-score">滿分值</label>
                         <input type="number" id="max-score" class="form-control" value="100" min="1">
                     </div>
                     <div class="form-group full-width">
-                        <label for="contestants">选手名单 (每行一个名字)</label>
+                        <label for="contestants">選手名單 (每行一個名字)</label>
                         <textarea id="contestants" class="form-control" rows="6"></textarea>
                     </div>
                 </div>
                 <div class="action-buttons">
                     <button class="btn btn-success" id="save-settings">
-                        <i class="fas fa-save"></i> 保存设置
+                        <i class="fas fa-save"></i> 儲存設置
                     </button>
                     <button class="btn btn-primary" id="export-data">
-                        <i class="fas fa-download"></i> 导出数据
+                        <i class="fas fa-download"></i> 導出數據
                     </button>
                     <button class="btn btn-warning" id="import-data">
-                        <i class="fas fa-upload"></i> 导入数据
+                        <i class="fas fa-upload"></i> 導入數據
                     </button>
                 </div>
             </div>
@@ -939,8 +939,8 @@
         <div class="tab-content" id="display-tab">
             <div class="display-container">
                 <div class="display-header">
-                    <h1 class="display-title" id="display-contest-name">比赛</h1>
-                    <div class="display-subtitle">实时排名显示</div>
+                    <h1 class="display-title" id="display-contest-name">比賽</h1>
+                    <div class="display-subtitle">即時排名顯示</div>
                 </div>
                 
                 <div class="display-ranking" id="display-ranking-container">
@@ -948,7 +948,7 @@
                 
                 <div class="display-stats">
                     <div class="display-stat-card">
-                        <div class="display-stat-label">参赛选手</div>
+                        <div class="display-stat-label">參賽選手</div>
                         <div class="display-stat-value" id="display-contestants-count">0</div>
                     </div>
                     <div class="display-stat-card">
@@ -962,31 +962,31 @@
                 </div>
                 
                 <div class="display-timer">
-                    最后更新: <span id="display-update-time">刚刚</span>
+                    最後更新: <span id="display-update-time">剛剛</span>
                 </div>
             </div>
         </div>
 
         <footer>
-            <p>比赛计分系统 - 设计用于各类比赛活动的实时计分和排名 - 2025功夫坊</p>
+            <p>比賽計分系統 - 設計用於各類比賽活動的即時計分和排名 - 2025功夫坊</p>
         </footer>
     </div>
 
     <div class="modal" id="shortcut-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">快捷键配置</h3>
+                <h3 class="modal-title">快捷鍵配置</h3>
                 <button class="close-modal">&times;</button>
             </div>
-            <p>为每个选手设置快捷键，按相应键即可快速调整分数。</p>
+            <p>為每個選手設置快捷鍵，按相應鍵即可快速調整分數。</p>
             <div id="shortcut-list">
             </div>
             <div class="action-buttons">
                 <button class="btn btn-success" id="save-shortcuts">
-                    <i class="fas fa-save"></i> 保存快捷键
+                    <i class="fas fa-save"></i> 儲存快捷鍵
                 </button>
                 <button class="btn btn-primary" id="reset-shortcuts">
-                    <i class="fas fa-undo"></i> 重置为默认
+                    <i class="fas fa-undo"></i> 重置為默認
                 </button>
             </div>
         </div>
@@ -995,14 +995,14 @@
     <div class="modal" id="import-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title">导入数据</h3>
+                <h3 class="modal-title">導入數據</h3>
                 <button class="close-modal">&times;</button>
             </div>
-            <p>粘贴之前导出的JSON数据：</p>
-            <textarea id="import-data-text" class="form-control" rows="10" placeholder="在此粘贴JSON数据..."></textarea>
+            <p>粘貼之前導出的JSON數據：</p>
+            <textarea id="import-data-text" class="form-control" rows="10" placeholder="在此粘貼JSON數據..."></textarea>
             <div class="action-buttons">
                 <button class="btn btn-success" id="confirm-import">
-                    <i class="fas fa-check"></i> 确认导入
+                    <i class="fas fa-check"></i> 確認導入
                 </button>
                 <button class="btn btn-warning" id="cancel-import">
                     <i class="fas fa-times"></i> 取消
@@ -1138,7 +1138,7 @@
                 updateStats(contestants);
                 updateDisplayInfo(contestants);
                 
-                addLog(`${contestant.name} 分数${change > 0 ? '增加' : '减少'}了 ${Math.abs(change)} 分，当前分数: ${contestant.score}`);
+                addLog(`${contestant.name} 分數${change > 0 ? '增加' : '減少'}了 ${Math.abs(change)} 分，當前分數: ${contestant.score}`);
                 
                 updateLastUpdateTime();
             }
@@ -1294,8 +1294,8 @@
                 updateStats(contestants);
                 updateDisplayInfo(contestants);
                 
-                alert('设置已保存！');
-                addLog('比赛设置已更新');
+                alert('設置已儲存！');
+                addLog('比賽設置已更新');
             });
             
             document.getElementById('refresh-ranking').addEventListener('click', function() {
@@ -1305,12 +1305,12 @@
             });
             
             document.getElementById('save-data').addEventListener('click', function() {
-                addLog('数据已保存到本地存储');
-                alert('数据已保存！');
+                addLog('數據已儲存到本地存儲');
+                alert('數據已儲存！');
             });
             
             document.getElementById('reset-scores').addEventListener('click', function() {
-                if (confirm('确定要重置所有分数吗？')) {
+                if (confirm('確定要重置所有分數嗎？')) {
                     let contestants = JSON.parse(localStorage.getItem('contestants')) || [];
                     
                     contestants.forEach(contestant => {
@@ -1326,7 +1326,7 @@
                     updateStats(contestants);
                     updateDisplayInfo(contestants);
                     
-                    addLog('所有选手分数已重置为 0');
+                    addLog('所有選手分數已重置為 0');
                 }
             });
             
@@ -1339,14 +1339,14 @@
                 const dataStr = JSON.stringify(contestants, null, 2);
                 const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
                 
-                const exportFileDefaultName = '比赛数据.json';
+                const exportFileDefaultName = '比賽數據.json';
                 
                 const linkElement = document.createElement('a');
                 linkElement.setAttribute('href', dataUri);
                 linkElement.setAttribute('download', exportFileDefaultName);
                 linkElement.click();
                 
-                addLog('数据已导出');
+                addLog('數據已導出');
             });
             
             document.getElementById('import-data').addEventListener('click', function() {
@@ -1367,10 +1367,10 @@
                     updateDisplayInfo(contestants);
                     
                     document.getElementById('import-modal').style.display = 'none';
-                    alert('数据导入成功！');
-                    addLog('数据已从JSON导入');
+                    alert('數據導入成功！');
+                    addLog('數據已從JSON導入');
                 } catch (e) {
-                    alert('导入失败：无效的JSON数据');
+                    alert('導入失敗：無效的JSON數據');
                 }
             });
             
@@ -1393,11 +1393,11 @@
         function initLog() {
             document.getElementById('clear-log').addEventListener('click', function() {
                 document.getElementById('log-container').innerHTML = '';
-                addLog('日志已清空');
+                addLog('日誌已清空');
             });
             
-            addLog('系统初始化完成');
-            addLog('计分系统已就绪');
+            addLog('系統初始化完成');
+            addLog('計分系統已就緒');
         }
 
         function addLog(message) {
@@ -1440,16 +1440,16 @@
                 shortcuts = newShortcuts;
                 
                 document.getElementById('shortcut-modal').style.display = 'none';
-                alert('快捷键已保存！');
-                addLog('快捷键设置已更新');
+                alert('快捷鍵已儲存！');
+                addLog('快捷鍵設置已更新');
             });
             
             document.getElementById('reset-shortcuts').addEventListener('click', function() {
                 localStorage.setItem('shortcuts', JSON.stringify(defaultShortcuts));
                 shortcuts = defaultShortcuts;
                 renderShortcuts();
-                alert('快捷键已重置为默认值！');
-                addLog('快捷键已重置为默认值');
+                alert('快捷鍵已重置為默認值！');
+                addLog('快捷鍵已重置為默認值');
             });
             
             document.addEventListener('keydown', function(e) {
@@ -1538,9 +1538,9 @@
                 
                 hint.innerHTML = `
                     <div style="text-align: center;">
-                        <div style="font-size: 18px; margin-bottom: 10px;">快捷键操作</div>
+                        <div style="font-size: 18px; margin-bottom: 10px;">快捷鍵操作</div>
                         <div style="font-weight: bold;">${contestant.name} ${change > 0 ? '+' : ''}${change}分</div>
-                        <div style="font-size: 14px; margin-top: 10px;">按下了 "${key.toUpperCase()}" 键</div>
+                        <div style="font-size: 14px; margin-top: 10px;">按下了 "${key.toUpperCase()}" 鍵</div>
                     </div>
                 `;
                 
@@ -1608,7 +1608,7 @@
                         <!DOCTYPE html>
                         <html>
                         <head>
-                            <title>荣誉证书</title>
+                            <title>榮譽證書</title>
                             <style>
                                 body {
                                     font-family: 'SimSun', serif;
@@ -1701,7 +1701,7 @@
                     printWindow.document.close();
                 });
                 
-                addLog(`已打印 ${targetContestants.length} 份证书`);
+                addLog(`已打印 ${targetContestants.length} 份證書`);
             });
             
             document.getElementById('print-ranking-list').addEventListener('click', function() {
@@ -1724,7 +1724,7 @@
                     <!DOCTYPE html>
                     <html>
                     <head>
-                        <title>比赛排名表</title>
+                        <title>比賽排名表</title>
                         <style>
                             body {
                                 font-family: Arial, sans-serif;
@@ -1753,7 +1753,7 @@
                     <body>
                         <div class="ranking-header">
                             <div class="ranking-title">${document.getElementById('contest-name').value} 排名表</div>
-                            <div class="ranking-subtitle">生成时间: ${new Date().toLocaleString()}</div>
+                            <div class="ranking-subtitle">生成時間: ${new Date().toLocaleString()}</div>
                         </div>
                         ${rankingHTML}
                         <script>
@@ -1778,8 +1778,8 @@
                 };
                 
                 localStorage.setItem('certificateTemplate', JSON.stringify(template));
-                alert('证书模板已保存！');
-                addLog('证书模板已保存');
+                alert('證書模板已儲存！');
+                addLog('證書模板已儲存');
             });
             
             const savedTemplate = JSON.parse(localStorage.getItem('certificateTemplate'));
@@ -1811,7 +1811,7 @@
                 previewContestant = sortedContestants[rank - 1] || sortedContestants[0];
             }
             
-            document.getElementById('preview-name').textContent = previewContestant ? previewContestant.name : '获奖者姓名';
+            document.getElementById('preview-name').textContent = previewContestant ? previewContestant.name : '獲獎者姓名';
             
             const rankText = getRankText(rank);
             const certificateText = document.getElementById('certificate-text').value.replace('{rank}', rankText);
