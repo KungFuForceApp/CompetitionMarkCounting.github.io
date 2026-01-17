@@ -695,36 +695,68 @@
                     showStatus('Error deleting competition: ' + err.message, 'error');
                 });
         }
-        function exportToGoogleSheets() {
-            if (!competitionData || !currentCompetitionId) {
-                showStatus('No competition data to export', 'error');
-                return;
+        async function exportToGoogleSheets() {
+          if (!competitionData || !currentCompetitionId) {
+            showStatus('No competition data to export', 'error');
+            return;
+          }
+        
+          const contestants = competitionData.contestants;
+          const mode = competitionData.mode;
+          let successCount = 0;
+          let errorCount = 0;
+        
+          showStatus('Exporting data...', 'info');
+        
+          for (let index = 0; index < contestants.length; index++) {
+            const contestant = contestants[index];
+            const finalScore = mode === 1 ? calculateAverageScore(index) : (contestant.score || 0);
+        
+            const data = {
+              competition_id: currentCompetitionId,
+              competition_name: competitionData.name,
+              mode: `Mode ${mode}`,
+              contestant_name: contestant.name,
+              final_score: finalScore.toFixed(2),
+              color: contestant.color
+            };
+        
+            if (mode === 1) {
+              const scores = competitionData.mode1Scores?.[index];
+              data.referee_count = scores ? Object.keys(scores).length : 0;
+            } else {
+              data.mark_history = (contestant.markHistory ? Object.values(contestant.markHistory) : []).map(h => `+${h.mark}`).join(', ');
             }
-            const contestants = competitionData.contestants;
-            const mode = competitionData.mode;
-            contestants.forEach((contestant, index) => {
-                const finalScore = mode === 1 ? calculateAverageScore(index) : (contestant.score || 0);
-                const data = {
-                    competition_id: currentCompetitionId,
-                    competition_name: competitionData.name,
-                    mode: `Mode ${mode}`,
-                    contestant_name: contestant.name,
-                    final_score: finalScore.toFixed(2),
-                    color: contestant.color
-                };
-                if (mode === 1) {
-                    const scores = competitionData.mode1Scores?.[index];
-                    data.referee_count = scores ? Object.keys(scores).length : 0;
-                } else {
-                    data.mark_history = (contestant.markHistory ? Object.values(contestant.markHistory) : []).map(h => `+${h.mark}`).join(', ');
-                }
-                const formData = new URLSearchParams();
-                for (const [key, value] of Object.entries(data)) {
-                    formData.append(key, value);
-                }
-                fetch(GOOGLE_SHEETS_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData.toString() });
-            });
-            showStatus('Data exported to Google Sheets!', 'success');
+        
+            const formData = new URLSearchParams();
+            for (const [key, value] of Object.entries(data)) {
+              formData.append(key, String(value));
+            }
+        
+            try {
+              const response = await fetch(GOOGLE_SHEETS_URL, { 
+                method: 'POST', 
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, 
+                body: formData.toString() 
+              });
+              
+              if (response.ok) {
+                successCount++;
+              } else {
+                console.error('Export failed for ' + contestant.name + ':', await response.text());
+                errorCount++;
+              }
+            } catch (error) {
+              console.error('Export error for ' + contestant.name + ':', error);
+              errorCount++;
+            }
+          }
+        
+          if (errorCount === 0) {
+            showStatus('Exported ' + successCount + ' contestants to Google Sheets!', 'success');
+          } else {
+            showStatus('Export: ' + successCount + ' success, ' + errorCount + ' failed. Check console (F12).', 'error');
+          }
         }
         function showStatus(message, type) {
             const existing = document.querySelector('.status-message');
