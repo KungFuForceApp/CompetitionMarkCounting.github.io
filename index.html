@@ -1222,32 +1222,35 @@
 
         function joinCompetition() {
             const compName = document.getElementById('join-comp-name').value.trim();
+            const refereeName = document.getElementById('referee-name').value.trim();
+        
             if (!compName) {
                 showStatus('Please enter a competition name', 'error');
-                return;
-            }
-            const compId = Object.keys(allCompetitions).find(id => {
-                const comp = allCompetitions[id];
-                return comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase();
-            });
-            if (!compId) {
-                showStatus('Competition not found', 'error');
-                return;
-            }
-            const refereeName = document.getElementById('referee-name').value.trim();
-
-            if (!compId) {
-                showStatus('Please select a competition', 'error');
                 return;
             }
             if (!refereeName) {
                 showStatus('Please enter your name', 'error');
                 return;
             }
-
+        
+            // Find competition by name (with safety checks)
+            let compId = null;
+            for (const id in allCompetitions) {
+                const comp = allCompetitions[id];
+                if (comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase()) {
+                    compId = id;
+                    break;
+                }
+            }
+        
+            if (!compId) {
+                showStatus('Competition not found', 'error');
+                return;
+            }
+        
             currentCompetitionId = compId;
             currentRefereeName = refereeName;
-
+        
             database.ref(`competitions/${compId}`).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -1512,35 +1515,30 @@
 
         function viewScoreboard() {
             const compName = document.getElementById('view-comp-name').value.trim();
-            if (!compName) {
-                showStatus('Please enter a competition name', 'error');
-                return;
-            }
-            const compId = Object.keys(allCompetitions).find(id => {
-                const comp = allCompetitions[id];
-                return comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase();
-            });
-            if (!compId) {
-                showStatus('Competition not found', 'error');
-                return;
-            }
             
             if (!compName) {
                 showStatus('Please enter a competition name', 'error');
                 return;
             }
+        
+            // Find competition by name (with safety checks)
+            let compId = null;
+            for (const id in allCompetitions) {
+                const comp = allCompetitions[id];
+                if (comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase()) {
+                    compId = id;
+                    break;
+                }
+            }
+        
             if (!compId) {
                 showStatus('Competition not found', 'error');
                 return;
             }
-            if (!compId) {
-                showStatus('Please select a competition', 'error');
-                return;
-            }
-
+        
             currentCompetitionId = compId;
             const compRef = database.ref(`competitions/${compId}`);
-
+        
             const unsub = compRef.on('value', snapshot => {
                 if (!snapshot.exists()) {
                     showStatus('Competition not found', 'error');
@@ -1551,7 +1549,6 @@
             });
             unsubscribers.push(() => compRef.off('value', unsub));
         }
-
         function updateScoreboard() {
             document.getElementById('scoreboard-display').classList.remove('hidden');
             document.getElementById('sb-comp-name').textContent = competitionData.name;
