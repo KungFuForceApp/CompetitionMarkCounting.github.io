@@ -907,11 +907,9 @@
         <div id="join-panel" class="panel">
             <h2>🎯 Join as Referee</h2>
 
-            <div class="competition-select-wrapper">
-                <label>Select Competition</label>
-                <select id="join-comp-select" class="competition-dropdown" onchange="onCompetitionSelect()">
-                    <option value="">-- Choose a competition --</option>
-                </select>
+            <div class="form-group" style="max-width: 500px; margin: 0 auto 20px;">
+                <label>Competition Name</label>
+                <input type="text" id="join-comp-name" placeholder="Enter competition name">
             </div>
 
             <div class="form-group" style="max-width: 500px; margin: 0 auto;">
@@ -952,14 +950,11 @@
         <div id="scoreboard-panel" class="panel">
             <h2>📊 Live Scoreboard</h2>
 
-            <div class="competition-select-wrapper">
-                <label>Select Competition</label>
-                <select id="view-comp-select" class="competition-dropdown">
-                    <option value="">-- Choose a competition --</option>
-                </select>
+            <div class="form-group" style="max-width: 500px; margin: 0 auto;">
+                <label>Competition Name</label>
+                <input type="text" id="view-comp-name" placeholder="Enter competition name">
                 <button class="submit-btn" style="margin-top: 12px;" onclick="viewScoreboard()">View Scores</button>
             </div>
-
             <div id="scoreboard-display" class="scoreboard hidden">
                 <div class="scoreboard-header">
                     <h2 id="sb-comp-name">Competition Name</h2>
@@ -1241,7 +1236,10 @@
         }
 
         function joinCompetition() {
-            const compId = document.getElementById('join-comp-select').value;
+            const compName = document.getElementById('join-comp-name').value.trim();
+            const compId = Object.keys(allCompetitions).find(id => 
+                allCompetitions[id].name.toLowerCase() === compName.toLowerCase()
+            );
             const refereeName = document.getElementById('referee-name').value.trim();
 
             if (!compId) {
@@ -1519,7 +1517,19 @@
         }
 
         function viewScoreboard() {
-            const compId = document.getElementById('view-comp-select').value;
+            const compName = document.getElementById('view-comp-name').value.trim();
+            const compId = Object.keys(allCompetitions).find(id => 
+                allCompetitions[id].name.toLowerCase() === compName.toLowerCase()
+            );
+            
+            if (!compName) {
+                showStatus('Please enter a competition name', 'error');
+                return;
+            }
+            if (!compId) {
+                showStatus('Competition not found', 'error');
+                return;
+            }
             if (!compId) {
                 showStatus('Please select a competition', 'error');
                 return;
