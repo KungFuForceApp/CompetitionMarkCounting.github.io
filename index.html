@@ -1222,9 +1222,18 @@
 
         function joinCompetition() {
             const compName = document.getElementById('join-comp-name').value.trim();
-            const compId = Object.keys(allCompetitions).find(id => 
-                allCompetitions[id].name.toLowerCase() === compName.toLowerCase()
-            );
+            if (!compName) {
+                showStatus('Please enter a competition name', 'error');
+                return;
+            }
+            const compId = Object.keys(allCompetitions).find(id => {
+                const comp = allCompetitions[id];
+                return comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase();
+            });
+            if (!compId) {
+                showStatus('Competition not found', 'error');
+                return;
+            }
             const refereeName = document.getElementById('referee-name').value.trim();
 
             if (!compId) {
@@ -1503,9 +1512,18 @@
 
         function viewScoreboard() {
             const compName = document.getElementById('view-comp-name').value.trim();
-            const compId = Object.keys(allCompetitions).find(id => 
-                allCompetitions[id].name.toLowerCase() === compName.toLowerCase()
-            );
+            if (!compName) {
+                showStatus('Please enter a competition name', 'error');
+                return;
+            }
+            const compId = Object.keys(allCompetitions).find(id => {
+                const comp = allCompetitions[id];
+                return comp && comp.name && comp.name.toLowerCase() === compName.toLowerCase();
+            });
+            if (!compId) {
+                showStatus('Competition not found', 'error');
+                return;
+            }
             
             if (!compName) {
                 showStatus('Please enter a competition name', 'error');
