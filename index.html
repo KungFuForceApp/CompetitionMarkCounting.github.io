@@ -1010,17 +1010,7 @@
         }
 
         function updateCompetitionDropdowns() {
-            const joinSelect = document.getElementById('join-comp-select');
-            const viewSelect = document.getElementById('view-comp-select');
 
-            const options = '<option value="">-- Choose a competition --</option>' +
-                Object.entries(allCompetitions)
-                    .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
-                    .map(([id, comp]) => `<option value="${id}">${comp.name}</option>`)
-                    .join('');
-
-            joinSelect.innerHTML = options;
-            viewSelect.innerHTML = options;
         }
 
         // Check if competition name is unique
@@ -1037,7 +1027,7 @@
             clearTimeout(nameCheckTimeout);
             nameCheckTimeout = setTimeout(() => {
                 const exists = Object.values(allCompetitions).some(
-                    comp => comp.name.toLowerCase() === name
+                    comp => comp && comp.name && comp.name.toLowerCase() === name
                 );
 
                 if (exists) {
@@ -1056,10 +1046,6 @@
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
 
-            // Refresh dropdowns when switching panels
-            if (panelName === 'join' || panelName === 'scoreboard') {
-                updateCompetitionDropdowns();
-            }
         }
 
         function updateModeInfo() {
@@ -1143,9 +1129,8 @@
                 return;
             }
 
-            // Check name uniqueness
             const nameExists = Object.values(allCompetitions).some(
-                comp => comp.name.toLowerCase() === name.toLowerCase()
+                comp => comp && comp.name && comp.name.toLowerCase() === name.toLowerCase()
             );
 
             if (nameExists) {
