@@ -6,240 +6,931 @@
     <title>Competition Scoring System</title>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); min-height: 100vh; color: #fff; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        header { text-align: center; padding: 30px 0; }
-        header h1 { font-size: 3rem; background: linear-gradient(90deg, #e94560, #ff6b6b, #feca57); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 10px; }
-        header p { color: #a0a0a0; font-size: 1.1rem; }
-        .nav-buttons { display: flex; justify-content: center; gap: 15px; margin: 30px 0; flex-wrap: wrap; }
-        .nav-btn { padding: 15px 30px; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .nav-btn.primary { background: linear-gradient(135deg, #e94560, #ff6b6b); color: white; }
-        .nav-btn.secondary { background: linear-gradient(135deg, #0f3460, #16213e); color: white; border: 2px solid #e94560; }
-        .nav-btn.success { background: linear-gradient(135deg, #00b894, #00cec9); color: white; }
-        .nav-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(233, 69, 96, 0.3); }
-        .panel { display: none; background: rgba(255, 255, 255, 0.05); border-radius: 20px; padding: 30px; margin: 20px 0; backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
-        .panel.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .panel h2 { color: #e94560; margin-bottom: 25px; font-size: 1.8rem; display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #ccc; font-weight: 500; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 12px 15px; border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 10px; background: rgba(255, 255, 255, 0.05); color: #fff; font-size: 1rem; transition: border-color 0.3s ease; }
-        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline: none; border-color: #e94560; }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .container { max-width: 1300px; margin: 0 auto; padding: 25px; }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 0 30px;
+        }
+
+        header h1 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+
+        header .subtitle {
+            color: rgba(255,255,255,0.6);
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        header .brand {
+            margin-top: 15px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        /* Navigation */
+        .nav-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 35px 0;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 16px 32px;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-btn.secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        .nav-btn.success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        .nav-btn .icon { font-size: 1.2rem; }
+
+        /* Panels */
+        .panel {
+            display: none;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 24px;
+            padding: 35px;
+            margin: 25px 0;
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+
+        .panel.active {
+            display: block;
+            animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(25px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .panel h2 {
+            color: #a78bfa;
+            margin-bottom: 30px;
+            font-size: 1.9rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        /* Forms */
+        .form-group { margin-bottom: 24px; }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 14px 18px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+        .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+
         .form-group select option { background: #1a1a2e; color: #fff; }
-        .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+        }
+
+        /* Contestant Items */
         .contestant-list { margin: 20px 0; }
-        .contestant-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; }
+
+        .contestant-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: all 0.2s ease;
+        }
+
+        .contestant-item:hover { background: rgba(255, 255, 255, 0.06); }
+
         .contestant-item input[type="text"] { flex: 1; }
-        .contestant-item input[type="color"] { width: 50px; height: 40px; border: none; border-radius: 8px; cursor: pointer; }
-        .contestant-item button { padding: 10px 15px; background: #e94560; border: none; border-radius: 8px; color: white; cursor: pointer; }
-        .add-contestant-btn { padding: 12px 25px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 10px; color: white; font-weight: 600; cursor: pointer; margin-top: 10px; }
-        .mode-info { background: rgba(233, 69, 96, 0.1); border-left: 4px solid #e94560; padding: 15px; border-radius: 0 10px 10px 0; margin: 15px 0; }
-        .mode-info h4 { color: #e94560; margin-bottom: 8px; }
-        .mode-info p { color: #a0a0a0; font-size: 0.9rem; }
-        .submit-btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #e94560, #ff6b6b); border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; margin-top: 20px; transition: all 0.3s ease; }
-        .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4); }
-        .competition-id-display { text-align: center; padding: 30px; background: rgba(0, 184, 148, 0.1); border-radius: 15px; margin: 20px 0; }
-        .competition-id-display h3 { color: #00b894; margin-bottom: 15px; }
-        .competition-id-display .id-code { font-size: 2rem; font-weight: 700; color: #feca57; letter-spacing: 3px; padding: 15px; background: rgba(255, 255, 255, 0.05); border-radius: 10px; display: inline-block; }
-        .copy-btn { margin-top: 15px; padding: 10px 25px; background: #00b894; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: 600; }
+
+        .contestant-item input[type="color"] {
+            width: 50px;
+            height: 44px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .contestant-item button {
+            padding: 12px 16px;
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 10px;
+            color: #ef4444;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+
+        .contestant-item button:hover {
+            background: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Buttons */
+        .add-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(17, 153, 142, 0.4); }
+
+        .add-btn.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .add-btn.blue:hover { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
+
+        /* Mode Info Cards */
+        .mode-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+            border-left: 4px solid #667eea;
+            padding: 18px 20px;
+            border-radius: 0 14px 14px 0;
+            margin: 18px 0;
+        }
+
+        .mode-info h4 { color: #a78bfa; margin-bottom: 10px; font-size: 1.05rem; }
+        .mode-info p { color: rgba(255,255,255,0.7); font-size: 0.92rem; line-height: 1.5; }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-size: 1.15rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            letter-spacing: 0.5px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+
+        /* Competition Created Display */
+        .competition-created-display {
+            text-align: center;
+            padding: 35px;
+            background: linear-gradient(135deg, rgba(17, 153, 142, 0.15), rgba(56, 239, 125, 0.1));
+            border-radius: 20px;
+            margin: 25px 0;
+            border: 1px solid rgba(56, 239, 125, 0.2);
+        }
+
+        .competition-created-display h3 {
+            color: #38ef7d;
+            margin-bottom: 18px;
+            font-size: 1.4rem;
+        }
+
+        .competition-created-display .comp-name-display {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fbbf24;
+            padding: 18px 25px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 14px;
+            display: inline-block;
+            border: 2px dashed rgba(251, 191, 36, 0.3);
+        }
+
+        .copy-btn {
+            margin-top: 18px;
+            padding: 12px 28px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn:hover { transform: translateY(-2px); }
+
+        /* Competition Select Dropdown */
+        .competition-select-wrapper {
+            position: relative;
+            max-width: 500px;
+            margin: 0 auto 30px;
+        }
+
+        .competition-select-wrapper label {
+            display: block;
+            margin-bottom: 10px;
+            color: rgba(255,255,255,0.8);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .competition-dropdown {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1.05rem;
+            cursor: pointer;
+            appearance: none;
+            transition: all 0.3s ease;
+        }
+
+        .competition-dropdown:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
+        }
+
+        .no-competitions {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .no-competitions .icon { font-size: 3rem; margin-bottom: 15px; }
+
+        /* Referee Panel */
         .referee-panel { text-align: center; }
-        .contestant-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin: 30px 0; }
-        .contestant-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; text-align: center; transition: all 0.3s ease; border: 3px solid transparent; }
-        .contestant-card:hover { transform: translateY(-5px); }
-        .contestant-card h3 { font-size: 1.5rem; margin-bottom: 15px; }
-        .contestant-card .current-score { font-size: 3rem; font-weight: 700; margin: 15px 0; }
-        .mark-input { display: flex; gap: 10px; justify-content: center; align-items: center; margin-top: 15px; }
-        .mark-input input { width: 80px; padding: 10px; text-align: center; font-size: 1.2rem; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 8px; background: rgba(255, 255, 255, 0.1); color: white; }
-        .mark-input button { padding: 10px 20px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
-        .quick-marks { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 15px; }
-        .quick-mark-btn { width: 60px; height: 60px; border: none; border-radius: 50%; font-size: 1.3rem; font-weight: 700; cursor: pointer; transition: all 0.2s ease; background: linear-gradient(135deg, #e94560, #ff6b6b); color: white; }
-        .quick-mark-btn:hover { transform: scale(1.1); }
+
+        .referee-info {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .referee-info span { color: rgba(255,255,255,0.7); font-size: 0.95rem; }
+        .referee-info strong { color: #a78bfa; }
+
+        .referee-count {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px 18px;
+            border-radius: 25px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        /* Contestant Cards */
+        .contestant-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+            margin: 30px 0;
+        }
+
+        .contestant-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .contestant-card:hover {
+            transform: translateY(-6px);
+            background: rgba(255, 255, 255, 0.06);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .contestant-card h3 { font-size: 1.5rem; margin-bottom: 18px; font-weight: 700; }
+        .contestant-card .current-score { font-size: 3.2rem; font-weight: 800; margin: 18px 0; }
+
+        /* Quick Mark Buttons */
+        .quick-marks {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .quick-mark-btn {
+            width: 65px;
+            height: 65px;
+            border: none;
+            border-radius: 50%;
+            font-size: 1.35rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .quick-mark-btn:hover { transform: scale(1.12); }
         .quick-mark-btn:active { transform: scale(0.95); }
-        .quick-mark-btn.voted { background: linear-gradient(135deg, #00b894, #00cec9); animation: pulse 0.5s ease; }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
-        .scoreboard { text-align: center; }
-        .scoreboard-header { background: linear-gradient(135deg, rgba(233, 69, 96, 0.2), rgba(255, 107, 107, 0.1)); padding: 30px; border-radius: 15px; margin-bottom: 30px; }
-        .scoreboard-header h2 { font-size: 2.5rem; margin-bottom: 10px; justify-content: center; }
-        .scoreboard-header .description { color: #a0a0a0; margin-bottom: 15px; }
-        .competition-timer { font-size: 3rem; font-weight: 700; color: #feca57; font-family: 'Courier New', monospace; margin: 20px 0; }
-        .timer-controls { display: flex; gap: 10px; justify-content: center; margin-top: 15px; flex-wrap: wrap; }
-        .timer-controls button { padding: 10px 25px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .timer-controls .start-btn { background: #00b894; color: white; }
-        .timer-controls .pause-btn { background: #feca57; color: #1a1a2e; }
-        .timer-controls .reset-btn { background: #e94560; color: white; }
-        .timer-controls .delete-btn { background: #6c5ce7; color: white; }
-        .timer-controls .export-btn { background: linear-gradient(135deg, #00b894, #00cec9); color: white; }
-        .start-competition-btn { padding: 15px 40px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 10px; color: white; font-size: 1.2rem; font-weight: 700; cursor: pointer; margin: 20px 0; transition: all 0.3s ease; animation: glow 2s ease-in-out infinite; }
-        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px rgba(0, 184, 148, 0.4); } 50% { box-shadow: 0 0 40px rgba(0, 184, 148, 0.8); } }
+        .quick-mark-btn.voted {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            animation: pulse 0.5s ease;
+            box-shadow: 0 4px 20px rgba(56, 239, 125, 0.4);
+        }
+
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
+
+        /* Timer */
+        .competition-timer {
+            font-size: 3.5rem;
+            font-weight: 800;
+            color: #fbbf24;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            margin: 25px 0;
+            text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+        }
+
+        /* Timer Controls */
+        .timer-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .timer-controls button {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95rem;
+        }
+
+        .timer-controls .start-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .timer-controls .reset-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .timer-controls .delete-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .timer-controls .export-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+
+        .timer-controls button:hover { transform: translateY(-2px); }
+
+        /* Start Competition Button */
+        .start-competition-btn {
+            padding: 18px 45px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.25rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin: 25px 0;
+            transition: all 0.3s ease;
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 25px rgba(56, 239, 125, 0.4); }
+            50% { box-shadow: 0 0 50px rgba(56, 239, 125, 0.7); }
+        }
+
         .start-competition-btn:hover { transform: scale(1.05); }
-        .start-competition-btn:disabled { background: linear-gradient(135deg, #636e72, #b2bec3); cursor: not-allowed; animation: none; }
-        .competition-status { padding: 10px 20px; border-radius: 20px; font-weight: 600; display: inline-block; margin: 10px 0; }
-        .competition-status.pending { background: rgba(253, 203, 110, 0.2); color: #feca57; }
-        .competition-status.running { background: rgba(0, 184, 148, 0.2); color: #00b894; }
-        .competition-status.ended { background: rgba(233, 69, 96, 0.2); color: #e94560; }
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 2000; animation: fadeIn 0.2s ease; }
-        .modal-content { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); border-radius: 20px; padding: 30px; max-width: 400px; width: 90%; text-align: center; border: 2px solid #e94560; }
-        .modal-content h3 { color: #e94560; margin-bottom: 15px; }
-        .modal-content p { color: #a0a0a0; margin-bottom: 25px; }
+        .start-competition-btn:disabled {
+            background: linear-gradient(135deg, #4b5563, #6b7280);
+            cursor: not-allowed;
+            animation: none;
+        }
+
+        /* Competition Status */
+        .competition-status {
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-weight: 600;
+            display: inline-block;
+            margin: 12px 0;
+            font-size: 0.95rem;
+        }
+
+        .competition-status.pending { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3); }
+        .competition-status.running { background: rgba(56, 239, 125, 0.15); color: #38ef7d; border: 1px solid rgba(56, 239, 125, 0.3); }
+        .competition-status.ended { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            animation: fadeIn 0.2s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 24px;
+            padding: 35px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            border: 2px solid #667eea;
+        }
+
+        .modal-content h3 { color: #f5576c; margin-bottom: 18px; font-size: 1.4rem; }
+        .modal-content p { color: rgba(255,255,255,0.7); margin-bottom: 28px; line-height: 1.6; }
+
         .modal-buttons { display: flex; gap: 15px; justify-content: center; }
-        .modal-buttons button { padding: 12px 30px; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .modal-buttons .confirm-btn { background: #e94560; color: white; }
+        .modal-buttons button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-buttons .confirm-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
         .modal-buttons .cancel-btn { background: rgba(255, 255, 255, 0.1); color: white; border: 2px solid rgba(255, 255, 255, 0.2); }
-        .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
-        .score-card { background: rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 25px; text-align: center; border: 3px solid; transition: all 0.3s ease; }
-        .score-card .rank { font-size: 0.9rem; color: #a0a0a0; margin-bottom: 5px; }
-        .score-card h3 { font-size: 1.5rem; margin-bottom: 10px; }
-        .score-card .score { font-size: 3.5rem; font-weight: 700; }
-        .score-card.rank-1 { background: linear-gradient(135deg, rgba(255, 215, 0, 0.2), rgba(255, 215, 0, 0.05)); }
-        .score-card.rank-2 { background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(192, 192, 192, 0.05)); }
-        .score-card.rank-3 { background: linear-gradient(135deg, rgba(205, 127, 50, 0.2), rgba(205, 127, 50, 0.05)); }
-        .vote-indicator { margin-top: 15px; padding: 10px; background: rgba(254, 202, 87, 0.1); border-radius: 8px; }
-        .vote-indicator .vote-count { font-size: 0.9rem; color: #feca57; }
-        .mark-history { margin-top: 15px; font-size: 0.8rem; color: #a0a0a0; max-height: 100px; overflow-y: auto; }
-        .mark-history-item { padding: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
-        .mark-history-item.consensus { color: #00b894; font-weight: 600; }
-        .export-panel { margin-top: 30px; padding: 20px; background: rgba(0, 184, 148, 0.1); border-radius: 15px; text-align: center; }
-        .export-btn { padding: 15px 40px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 10px; color: white; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; }
-        .export-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4); }
-        .status-message { position: fixed; bottom: 20px; right: 20px; padding: 15px 25px; border-radius: 10px; font-weight: 600; z-index: 1000; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        .status-message.success { background: #00b894; color: white; }
-        .status-message.error { background: #e94560; color: white; }
-        .status-message.info { background: #0984e3; color: white; }
-        .referee-info { background: rgba(9, 132, 227, 0.1); padding: 15px; border-radius: 10px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .referee-info span { color: #a0a0a0; }
-        .referee-count { background: #0984e3; padding: 5px 15px; border-radius: 20px; font-weight: 600; }
-        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top-color: #fff; animation: spin 1s ease-in-out infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        /* Score categories styling */
+
+        /* Scoreboard */
+        .scoreboard { text-align: center; }
+
+        .scoreboard-header {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+            padding: 35px;
+            border-radius: 20px;
+            margin-bottom: 35px;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .scoreboard-header h2 {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            justify-content: center;
+            color: #a78bfa;
+        }
+
+        .scoreboard-header .description { color: rgba(255,255,255,0.6); margin-bottom: 18px; font-size: 1.05rem; }
+
+        /* Score Cards */
+        .scores-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+        }
+
+        .score-card {
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 20px;
+            padding: 28px;
+            text-align: center;
+            border: 3px solid;
+            transition: all 0.3s ease;
+        }
+
+        .score-card:hover { transform: translateY(-5px); }
+
+        .score-card .rank {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.5);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .score-card h3 { font-size: 1.5rem; margin-bottom: 12px; font-weight: 700; }
+        .score-card .score { font-size: 3.8rem; font-weight: 800; }
+
+        .score-card.rank-1 {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.15), rgba(255, 215, 0, 0.05));
+            border-color: #ffd700;
+        }
+        .score-card.rank-2 {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.15), rgba(192, 192, 192, 0.05));
+            border-color: #c0c0c0;
+        }
+        .score-card.rank-3 {
+            background: linear-gradient(135deg, rgba(205, 127, 50, 0.15), rgba(205, 127, 50, 0.05));
+            border-color: #cd7f32;
+        }
+
+        /* Vote Indicator */
+        .vote-indicator {
+            margin-top: 18px;
+            padding: 12px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .vote-indicator .vote-count { font-size: 0.9rem; color: #fbbf24; }
+
+        /* Mark History */
+        .mark-history {
+            margin-top: 18px;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .mark-history-item {
+            padding: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .mark-history-item.consensus { color: #38ef7d; font-weight: 600; }
+
+        /* Status Message */
+        .status-message {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            padding: 18px 28px;
+            border-radius: 14px;
+            font-weight: 600;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .status-message.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
+        .status-message.error { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .status-message.info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+
+        /* Score Categories */
         .score-categories-list { margin: 20px 0; }
-        .score-category-item { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; padding: 10px; background: rgba(255, 255, 255, 0.03); border-radius: 10px; flex-wrap: wrap; }
-        .score-category-item input[type="text"] { flex: 2; min-width: 120px; }
-        .score-category-item input[type="number"] { width: 80px; }
-        .score-category-item button { padding: 10px 15px; background: #e94560; border: none; border-radius: 8px; color: white; cursor: pointer; }
-        .weight-total { margin-top: 10px; padding: 10px 15px; background: rgba(254, 202, 87, 0.1); border-radius: 8px; color: #feca57; font-weight: 600; }
-        .weight-total.valid { background: rgba(0, 184, 148, 0.1); color: #00b894; }
-        .weight-total.invalid { background: rgba(233, 69, 96, 0.1); color: #e94560; }
-        /* Multi-score input styling */
-        .category-scores { margin-top: 15px; }
-        .category-score-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; padding: 8px; background: rgba(255, 255, 255, 0.03); border-radius: 8px; }
-        .category-score-row label { flex: 1; font-size: 0.9rem; color: #ccc; }
-        .category-score-row input { width: 70px; padding: 8px; text-align: center; font-size: 1rem; border: 2px solid rgba(255, 255, 255, 0.2); border-radius: 6px; background: rgba(255, 255, 255, 0.1); color: white; }
-        .category-score-row .weight-badge { font-size: 0.75rem; color: #feca57; background: rgba(254, 202, 87, 0.2); padding: 2px 8px; border-radius: 10px; }
-        .submit-all-scores-btn { width: 100%; margin-top: 10px; padding: 10px; background: linear-gradient(135deg, #00b894, #00cec9); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; }
-        /* Referee controls panel */
-        .referee-controls { background: rgba(233, 69, 96, 0.1); padding: 20px; border-radius: 15px; margin: 20px 0; }
-        .referee-controls h3 { color: #e94560; margin-bottom: 15px; text-align: center; }
+
+        .score-category-item {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 12px;
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 14px;
+            flex-wrap: wrap;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
+        .score-category-item input[type="text"] { flex: 2; min-width: 140px; }
+        .score-category-item input[type="number"] { width: 90px; }
+
+        .weight-total {
+            margin-top: 14px;
+            padding: 14px 18px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 12px;
+            color: #fbbf24;
+            font-weight: 600;
+            border: 1px solid rgba(251, 191, 36, 0.2);
+        }
+
+        .weight-total.valid {
+            background: rgba(56, 239, 125, 0.1);
+            color: #38ef7d;
+            border-color: rgba(56, 239, 125, 0.3);
+        }
+
+        .weight-total.invalid {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        /* Category Score Rows */
+        .category-scores { margin-top: 18px; }
+
+        .category-score-row {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .category-score-row label { flex: 1; font-size: 0.92rem; color: rgba(255,255,255,0.8); }
+
+        .category-score-row input {
+            width: 75px;
+            padding: 10px;
+            text-align: center;
+            font-size: 1rem;
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: white;
+        }
+
+        .category-score-row .weight-badge {
+            font-size: 0.75rem;
+            color: #fbbf24;
+            background: rgba(251, 191, 36, 0.15);
+            padding: 4px 10px;
+            border-radius: 12px;
+        }
+
+        .submit-all-scores-btn {
+            width: 100%;
+            margin-top: 14px;
+            padding: 12px;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .submit-all-scores-btn:hover { transform: translateY(-2px); }
+
+        /* Referee Controls */
+        .referee-controls {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+            padding: 24px;
+            border-radius: 18px;
+            margin: 24px 0;
+            border: 1px solid rgba(102, 126, 234, 0.2);
+        }
+
+        .referee-controls h3 {
+            color: #a78bfa;
+            margin-bottom: 18px;
+            text-align: center;
+            font-size: 1.15rem;
+        }
+
+        /* Section Headers */
+        .section-header {
+            margin: 30px 0 18px;
+            color: #fbbf24;
+            font-size: 1.15rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Loading */
+        .loading {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            border-top-color: #667eea;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
             header h1 { font-size: 2rem; }
             .nav-buttons { flex-direction: column; align-items: center; }
-            .nav-btn { width: 100%; max-width: 300px; }
-            .competition-id-display .id-code { font-size: 1.3rem; word-break: break-all; }
+            .nav-btn { width: 100%; max-width: 320px; justify-content: center; }
+            .panel { padding: 22px; }
+            .contestant-cards { grid-template-columns: 1fr; }
+            .competition-created-display .comp-name-display { font-size: 1.3rem; word-break: break-word; }
         }
+
         .hidden { display: none !important; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Competition Mark Counting App</h1>
-            <p>Real-time Competition Scoring System</p>
-            <hr>
-            <p>Kung Fu Force/Ryan Lee@2026</p>
+            <h1>🏆 Competition Scoring</h1>
+            <p class="subtitle">Real-time Competition Mark Counting System</p>
+            <p class="brand">Kung Fu Force / Ryan Lee @ 2026</p>
         </header>
+
         <div class="nav-buttons">
-            <button class="nav-btn primary" onclick="showPanel('create')">🏆 Create Competition</button>
-            <button class="nav-btn secondary" onclick="showPanel('join')">🎯 Join as Referee</button>
-            <button class="nav-btn success" onclick="showPanel('scoreboard')">📊 View Scoreboard</button>
+            <button class="nav-btn primary" onclick="showPanel('create')">
+                <span class="icon">✨</span> Create Competition
+            </button>
+            <button class="nav-btn secondary" onclick="showPanel('join')">
+                <span class="icon">🎯</span> Join as Referee
+            </button>
+            <button class="nav-btn success" onclick="showPanel('scoreboard')">
+                <span class="icon">📊</span> View Scoreboard
+            </button>
         </div>
+
+        <!-- CREATE PANEL -->
         <div id="create-panel" class="panel">
-            <h2>🏆 Create New Competition</h2>
+            <h2>✨ Create New Competition</h2>
+
             <div class="form-group">
-                <label>Competition Name</label>
-                <input type="text" id="comp-name" placeholder="e.g., Kung Fu Competition 2026">
+                <label>Competition Name (must be unique)</label>
+                <input type="text" id="comp-name" placeholder="e.g., Kung Fu Championship 2026" oninput="checkCompetitionName()">
+                <div id="name-status" style="margin-top: 8px; font-size: 0.85rem;"></div>
             </div>
+
             <div class="form-group">
-                <label>Description</label>
+                <label>Description (optional)</label>
                 <textarea id="comp-description" rows="3" placeholder="Brief description of the competition..."></textarea>
             </div>
+
             <div class="form-group">
                 <label>Scoring Mode</label>
                 <select id="comp-mode" onchange="updateModeInfo()">
-                    <option value="1">Mode 1: Average Scoring</option>
-                    <option value="2">Mode 2: Consensus Scoring</option>
+                    <option value="1">📊 Mode 1: Average Scoring (weighted categories)</option>
+                    <option value="2">⚡ Mode 2: Consensus Scoring (real-time)</option>
                 </select>
             </div>
+
             <div id="mode-info-1" class="mode-info">
                 <h4>📊 Mode 1: Average Scoring</h4>
-                <p>Each referee submits scores for multiple categories. The final score is calculated by weighting each category score and averaging across all referees.</p>
+                <p>Define multiple scoring categories with weights. Each referee submits scores for all categories, and the final score is calculated as a weighted average across all referees.</p>
             </div>
+
             <div id="mode-info-2" class="mode-info hidden">
                 <h4>⚡ Mode 2: Consensus Scoring</h4>
-                <p>Referees press score buttons in real-time. When enough referees (specified count) press the same score within the time window, the contestant earns that score.</p>
+                <p>Real-time scoring where referees press buttons simultaneously. When the required number of referees press the same score within the time window, points are awarded.</p>
             </div>
+
+            <!-- Mode 1: Score Categories -->
             <div id="mode1-settings">
-                <h3 style="margin: 25px 0 15px; color: #0984e3;">📋 Score Categories</h3>
-                <p style="color: #a0a0a0; font-size: 0.9rem; margin-bottom: 15px;">Define scoring categories and their weights (must total 100%)</p>
+                <h3 class="section-header">📋 Score Categories</h3>
+                <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 18px;">Define categories and their weights (must total 100%)</p>
                 <div id="score-categories-list" class="score-categories-list"></div>
-                <button class="add-contestant-btn" onclick="addScoreCategory()" style="background: linear-gradient(135deg, #0984e3, #74b9ff);">+ Add Category</button>
+                <button class="add-btn blue" onclick="addScoreCategory()">+ Add Category</button>
                 <div id="weight-total" class="weight-total">Total Weight: 0%</div>
             </div>
+
+            <!-- Mode 2: Settings -->
             <div id="mode2-settings" class="hidden">
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Consensus Threshold (Referees Needed)</label>
-                        <input type="number" id="consensus-threshold" value="2" min="1" max="50" placeholder="Number of referees needed">
+                        <label>Referees Needed for Consensus</label>
+                        <input type="number" id="consensus-threshold" value="2" min="1" max="50">
                     </div>
                     <div class="form-group">
                         <label>Time Window (seconds)</label>
-                        <input type="number" id="time-window" value="0.5" min="0.1" max="5" step="0.1" placeholder="Time window for consensus">
+                        <input type="number" id="time-window" value="0.5" min="0.1" max="5" step="0.1">
                     </div>
                 </div>
                 <div class="form-row">
                     <div class="form-group">
-                        <label>Competition Duration (minutes)</label>
-                        <input type="number" id="comp-duration" value="5" min="1" max="60" placeholder="Total competition time">
+                        <label>Duration (minutes)</label>
+                        <input type="number" id="comp-duration" value="5" min="1" max="60">
                     </div>
                     <div class="form-group">
-                        <label>Quick Mark Buttons (comma-separated)</label>
+                        <label>Quick Score Buttons</label>
                         <input type="text" id="quick-marks" value="1,2,3,5,10" placeholder="e.g., 1,2,3,5,10">
                     </div>
                 </div>
             </div>
-            <h3 style="margin: 25px 0 15px; color: #feca57;">👥 Contestants</h3>
+
+            <h3 class="section-header">👥 Contestants</h3>
             <div id="contestants-list" class="contestant-list"></div>
-            <button class="add-contestant-btn" onclick="addContestant()">+ Add Contestant</button>
-            <button class="submit-btn" onclick="createCompetition()">Create Competition</button>
-            <div id="competition-created" class="competition-id-display hidden">
-                <h3>✅ Competition Created!</h3>
-                <div class="id-code" id="new-comp-id"></div>
-                <p style="margin-top: 15px; color: #a0a0a0;">Share this ID with referees</p>
-                <button class="copy-btn" onclick="copyCompetitionId()">📋 Copy ID</button>
+            <button class="add-btn" onclick="addContestant()">+ Add Contestant</button>
+
+            <button class="submit-btn" onclick="createCompetition()">🚀 Create Competition</button>
+
+            <div id="competition-created" class="competition-created-display hidden">
+                <h3>✅ Competition Created Successfully!</h3>
+                <div class="comp-name-display" id="new-comp-name"></div>
+                <p style="margin-top: 18px; color: rgba(255,255,255,0.6);">Share this name with your referees to join</p>
+                <button class="copy-btn" onclick="copyCompetitionName()">📋 Copy Name</button>
             </div>
         </div>
+
+        <!-- JOIN PANEL -->
         <div id="join-panel" class="panel">
             <h2>🎯 Join as Referee</h2>
-            <div class="form-row">
-                <div class="form-group">
-                    <label>Competition ID</label>
-                    <input type="text" id="join-comp-id" placeholder="Enter competition ID">
-                </div>
-                <div class="form-group">
-                    <label>Your Name</label>
-                    <input type="text" id="referee-name" placeholder="Enter your name">
-                </div>
+
+            <div class="competition-select-wrapper">
+                <label>Select Competition</label>
+                <select id="join-comp-select" class="competition-dropdown" onchange="onCompetitionSelect()">
+                    <option value="">-- Choose a competition --</option>
+                </select>
             </div>
-            <button class="submit-btn" onclick="joinCompetition()">Join Competition</button>
+
+            <div class="form-group" style="max-width: 500px; margin: 0 auto;">
+                <label>Your Name</label>
+                <input type="text" id="referee-name" placeholder="Enter your name">
+            </div>
+
+            <button class="submit-btn" style="max-width: 500px; margin: 20px auto 0; display: block;" onclick="joinCompetition()">Join Competition</button>
+
             <div id="referee-interface" class="referee-panel hidden">
                 <div class="referee-info">
                     <span>Competition: <strong id="ref-comp-name"></strong></span>
                     <span>Mode: <strong id="ref-comp-mode"></strong></span>
-                    <span class="referee-count">Referees Online: <span id="ref-count">0</span></span>
+                    <span class="referee-count">👥 Online: <span id="ref-count">0</span></span>
                 </div>
+
                 <div id="ref-timer" class="competition-timer hidden">00:00</div>
-                <div id="ref-status" class="competition-status pending hidden">⏳ Waiting for competition to start...</div>
+                <div id="ref-status" class="competition-status pending hidden">⏳ Waiting to start...</div>
+
                 <div id="referee-controls" class="referee-controls hidden">
                     <h3>🎮 Competition Controls</h3>
                     <div id="ref-timer-controls" class="timer-controls">
@@ -248,7 +939,7 @@
                         <button class="export-btn" onclick="exportToGoogleSheets()">📤 Export</button>
                         <button class="delete-btn" onclick="confirmDeleteCompetition()">🗑️ Delete</button>
                     </div>
-                    <div id="ref-start-competition" class="hidden" style="margin-top: 15px;">
+                    <div id="ref-start-competition" class="hidden" style="margin-top: 18px;">
                         <button id="ref-start-btn" class="start-competition-btn" onclick="startCompetition()">🚀 Start Competition</button>
                     </div>
                 </div>
@@ -256,18 +947,24 @@
                 <div id="referee-cards" class="contestant-cards"></div>
             </div>
         </div>
+
+        <!-- SCOREBOARD PANEL -->
         <div id="scoreboard-panel" class="panel">
             <h2>📊 Live Scoreboard</h2>
-            <div class="form-group" style="max-width: 400px; margin: 0 auto 30px;">
-                <label>Competition ID</label>
-                <input type="text" id="view-comp-id" placeholder="Enter competition ID">
-                <button class="submit-btn" style="margin-top: 10px;" onclick="viewScoreboard()">View Scores</button>
+
+            <div class="competition-select-wrapper">
+                <label>Select Competition</label>
+                <select id="view-comp-select" class="competition-dropdown">
+                    <option value="">-- Choose a competition --</option>
+                </select>
+                <button class="submit-btn" style="margin-top: 12px;" onclick="viewScoreboard()">View Scores</button>
             </div>
+
             <div id="scoreboard-display" class="scoreboard hidden">
                 <div class="scoreboard-header">
                     <h2 id="sb-comp-name">Competition Name</h2>
                     <p class="description" id="sb-comp-desc">Description</p>
-                    <p>Mode: <strong id="sb-comp-mode"></strong></p>
+                    <p style="color: rgba(255,255,255,0.6);">Mode: <strong id="sb-comp-mode" style="color: #a78bfa;"></strong></p>
                     <div id="sb-timer" class="competition-timer hidden">00:00</div>
                     <div id="sb-competition-status" class="competition-status pending hidden">⏳ Waiting to Start</div>
                 </div>
@@ -275,6 +972,7 @@
             </div>
         </div>
     </div>
+
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyB2EAzctjXJXEm-ZfIdqDiXDHaGRSVdTxY",
@@ -286,9 +984,12 @@
             appId: "1:141500133139:web:b3687a740c658a206f34e6",
             measurementId: "G-8E4QF5VBTD"
         };
+
         const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbySj5OCJ58r1SYnEpYi_oktCIyL2e5sNkTHoIEhmhdslXS6CVaK4lyd6RLPgGjZJ94LAw/exec";
+
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+
         let currentCompetitionId = null;
         let currentRefereeId = null;
         let currentRefereeName = null;
@@ -297,14 +998,73 @@
         let remainingTime = 0;
         let isTimerRunning = false;
         let unsubscribers = [];
-
+        let allCompetitions = {};
         let scoreCategoryCount = 0;
+        let contestantCount = 0;
+        let nameCheckTimeout = null;
+        let isNameAvailable = false;
+
+        const colors = ['#667eea', '#11998e', '#f5576c', '#fbbf24', '#a78bfa', '#38ef7d', '#f093fb', '#00cec9'];
+
+        // Load all competitions for dropdowns
+        function loadCompetitions() {
+            database.ref('competitions').on('value', snapshot => {
+                allCompetitions = snapshot.val() || {};
+                updateCompetitionDropdowns();
+            });
+        }
+
+        function updateCompetitionDropdowns() {
+            const joinSelect = document.getElementById('join-comp-select');
+            const viewSelect = document.getElementById('view-comp-select');
+
+            const options = '<option value="">-- Choose a competition --</option>' +
+                Object.entries(allCompetitions)
+                    .sort((a, b) => (b[1].createdAt || 0) - (a[1].createdAt || 0))
+                    .map(([id, comp]) => `<option value="${id}">${comp.name}</option>`)
+                    .join('');
+
+            joinSelect.innerHTML = options;
+            viewSelect.innerHTML = options;
+        }
+
+        // Check if competition name is unique
+        function checkCompetitionName() {
+            const name = document.getElementById('comp-name').value.trim().toLowerCase();
+            const statusEl = document.getElementById('name-status');
+
+            if (!name) {
+                statusEl.innerHTML = '';
+                isNameAvailable = false;
+                return;
+            }
+
+            clearTimeout(nameCheckTimeout);
+            nameCheckTimeout = setTimeout(() => {
+                const exists = Object.values(allCompetitions).some(
+                    comp => comp.name.toLowerCase() === name
+                );
+
+                if (exists) {
+                    statusEl.innerHTML = '<span style="color: #ef4444;">❌ This name is already taken</span>';
+                    isNameAvailable = false;
+                } else {
+                    statusEl.innerHTML = '<span style="color: #38ef7d;">✅ Name is available</span>';
+                    isNameAvailable = true;
+                }
+            }, 300);
+        }
 
         function showPanel(panelName) {
             document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
             document.getElementById(`${panelName}-panel`).classList.add('active');
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
+
+            // Refresh dropdowns when switching panels
+            if (panelName === 'join' || panelName === 'scoreboard') {
+                updateCompetitionDropdowns();
+            }
         }
 
         function updateModeInfo() {
@@ -321,9 +1081,9 @@
             div.className = 'score-category-item';
             div.id = `score-category-${scoreCategoryCount}`;
             div.innerHTML = `
-                <input type="text" placeholder="Category Name (e.g., Technique)" class="category-name">
-                <input type="number" value="25" min="1" max="100" class="category-weight" onchange="updateWeightTotal()" placeholder="Weight %">
-                <span>%</span>
+                <input type="text" placeholder="Category (e.g., Technique)" class="category-name">
+                <input type="number" value="25" min="1" max="100" class="category-weight" onchange="updateWeightTotal()">
+                <span style="color: rgba(255,255,255,0.5);">%</span>
                 <button onclick="removeScoreCategory(${scoreCategoryCount})">✕</button>
             `;
             document.getElementById('score-categories-list').appendChild(div);
@@ -353,20 +1113,17 @@
             }
         }
 
-        function initScoreCategories() {
-            addScoreCategory();
-        }
-
-        let contestantCount = 0;
-        const colors = ['#e94560', '#00b894', '#0984e3', '#feca57', '#a55eea', '#fd79a8', '#00cec9', '#fdcb6e'];
-
         function addContestant() {
             contestantCount++;
             const color = colors[(contestantCount - 1) % colors.length];
             const div = document.createElement('div');
             div.className = 'contestant-item';
             div.id = `contestant-${contestantCount}`;
-            div.innerHTML = `<input type="text" placeholder="Contestant ${contestantCount} Name" class="contestant-name"><input type="color" value="${color}" class="contestant-color"><button onclick="removeContestant(${contestantCount})">✕</button>`;
+            div.innerHTML = `
+                <input type="text" placeholder="Contestant ${contestantCount} Name" class="contestant-name">
+                <input type="color" value="${color}" class="contestant-color">
+                <button onclick="removeContestant(${contestantCount})">✕</button>
+            `;
             document.getElementById('contestants-list').appendChild(div);
         }
 
@@ -375,18 +1132,32 @@
             if (element) element.remove();
         }
 
+        // Initialize
+        loadCompetitions();
         addContestant();
         addContestant();
-        initScoreCategories();
+        addScoreCategory();
 
         function createCompetition() {
             const name = document.getElementById('comp-name').value.trim();
             const description = document.getElementById('comp-description').value.trim();
             const mode = parseInt(document.getElementById('comp-mode').value);
+
             if (!name) {
                 showStatus('Please enter a competition name', 'error');
                 return;
             }
+
+            // Check name uniqueness
+            const nameExists = Object.values(allCompetitions).some(
+                comp => comp.name.toLowerCase() === name.toLowerCase()
+            );
+
+            if (nameExists) {
+                showStatus('This competition name already exists. Please choose a different name.', 'error');
+                return;
+            }
+
             const contestants = [];
             document.querySelectorAll('.contestant-item').forEach(item => {
                 const nameInput = item.querySelector('.contestant-name');
@@ -395,10 +1166,12 @@
                     contestants.push({ name: nameInput.value.trim(), color: colorInput.value, score: 0, markHistory: [] });
                 }
             });
+
             if (contestants.length < 2) {
                 showStatus('Please add at least 2 contestants', 'error');
                 return;
             }
+
             const competition = {
                 name: name,
                 description: description,
@@ -432,7 +1205,6 @@
                 competition.scoreCategories = categories;
             }
 
- 
             if (mode === 2) {
                 competition.consensusThreshold = parseInt(document.getElementById('consensus-threshold').value) || 2;
                 competition.timeWindow = parseFloat(document.getElementById('time-window').value) || 0.5;
@@ -442,11 +1214,12 @@
                 competition.timerState = { running: false, remaining: competition.duration, lastUpdate: null };
             }
 
-            const compRef = database.ref('competitions').push();
-            const compId = compRef.key.substring(0, 8).toUpperCase();
+            // Use sanitized name as ID (remove special chars, lowercase)
+            const compId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
+
             database.ref(`competitions/${compId}`).set(competition)
                 .then(() => {
-                    document.getElementById('new-comp-id').textContent = compId;
+                    document.getElementById('new-comp-name').textContent = name;
                     document.getElementById('competition-created').classList.remove('hidden');
                     showStatus('Competition created successfully!', 'success');
                     currentCompetitionId = compId;
@@ -456,22 +1229,33 @@
                 });
         }
 
-        function copyCompetitionId() {
-            const id = document.getElementById('new-comp-id').textContent;
-            navigator.clipboard.writeText(id).then(() => {
-                showStatus('Competition ID copied!', 'success');
+        function copyCompetitionName() {
+            const name = document.getElementById('new-comp-name').textContent;
+            navigator.clipboard.writeText(name).then(() => {
+                showStatus('Competition name copied!', 'success');
             });
         }
 
+        function onCompetitionSelect() {
+            // Optional: Could pre-load competition info
+        }
+
         function joinCompetition() {
-            const compId = document.getElementById('join-comp-id').value.trim().toUpperCase();
+            const compId = document.getElementById('join-comp-select').value;
             const refereeName = document.getElementById('referee-name').value.trim();
-            if (!compId || !refereeName) {
-                showStatus('Please enter competition ID and your name', 'error');
+
+            if (!compId) {
+                showStatus('Please select a competition', 'error');
                 return;
             }
+            if (!refereeName) {
+                showStatus('Please enter your name', 'error');
+                return;
+            }
+
             currentCompetitionId = compId;
             currentRefereeName = refereeName;
+
             database.ref(`competitions/${compId}`).once('value')
                 .then(snapshot => {
                     if (!snapshot.exists()) {
@@ -480,20 +1264,23 @@
                     }
                     competitionData = snapshot.val();
                     currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
-                    database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({ name: refereeName, joinedAt: firebase.database.ServerValue.TIMESTAMP, online: true });
+                    database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({
+                        name: refereeName,
+                        joinedAt: firebase.database.ServerValue.TIMESTAMP,
+                        online: true
+                    });
                     database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
                     setupRefereeInterface();
                 })
                 .catch(err => {
-                    showStatus('Error joining competition: ' + err.message, 'error');
+                    showStatus('Error joining: ' + err.message, 'error');
                 });
         }
 
         function setupRefereeInterface() {
             document.getElementById('referee-interface').classList.remove('hidden');
             document.getElementById('ref-comp-name').textContent = competitionData.name;
-            document.getElementById('ref-comp-mode').textContent = `Mode ${competitionData.mode}`;
-
+            document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
             document.getElementById('referee-controls').classList.remove('hidden');
 
             if (competitionData.mode === 2) {
@@ -532,17 +1319,19 @@
                 statusEl.textContent = '🔴 Competition Ended';
             } else {
                 statusEl.classList.add('pending');
-                statusEl.textContent = '⏳ Waiting for competition to start...';
+                statusEl.textContent = '⏳ Waiting to start...';
             }
         }
 
         function updateRefereeCards() {
             const container = document.getElementById('referee-cards');
             container.innerHTML = '';
+
             competitionData.contestants.forEach((contestant, index) => {
                 const card = document.createElement('div');
                 card.className = 'contestant-card';
                 card.style.borderColor = contestant.color;
+
                 if (competitionData.mode === 1) {
                     const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
                     const myScores = getMyScores(index);
@@ -561,10 +1350,10 @@
                     card.innerHTML = `
                         <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                         <div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div>
-                        <p style="color: #a0a0a0; font-size: 0.85rem;">/100</p>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">/100</p>
                         <div class="category-scores">
                             ${categoryInputsHtml}
-                            <button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit All Scores</button>
+                            <button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button>
                         </div>
                     `;
                 } else {
@@ -573,7 +1362,7 @@
                     card.innerHTML = `
                         <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                         <div class="current-score" style="color: ${contestant.color}">${contestant.score || 0}</div>
-                        <p style="color: #a0a0a0; font-size: 0.85rem;">Consensus: ${threshold} referees needed</p>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">Need ${threshold} referees</p>
                         <div class="quick-marks" id="quick-marks-${index}">
                             ${quickMarks.map(mark => `<button class="quick-mark-btn" onclick="submitMode2Vote(${index}, ${mark})" data-mark="${mark}">+${mark}</button>`).join('')}
                         </div>
@@ -596,7 +1385,6 @@
             if (refereeIds.length === 0) return 0;
 
             let totalWeightedScore = 0;
-
             refereeIds.forEach(refId => {
                 const refScores = contestantScores[refId];
                 let refWeightedScore = 0;
@@ -663,21 +1451,23 @@
             scores.timestamp = firebase.database.ServerValue.TIMESTAMP;
 
             database.ref(`competitions/${currentCompetitionId}/mode1Scores/${contestantIndex}/${currentRefereeId}`).set(scores)
-                .then(() => {
-                    showStatus('All scores submitted!', 'success');
-                })
-                .catch(err => {
-                    showStatus('Error submitting scores: ' + err.message, 'error');
-                });
+                .then(() => showStatus('Scores submitted!', 'success'))
+                .catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
         function submitMode2Vote(contestantIndex, mark) {
             if (!competitionData.timerState || !competitionData.timerState.running) {
-                showStatus('Competition timer not running', 'error');
+                showStatus('Competition not running', 'error');
                 return;
             }
+
             const voteRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).push();
-            voteRef.set({ mark: mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+            voteRef.set({
+                mark: mark,
+                refereeId: currentRefereeId,
+                refereeName: currentRefereeName,
+                timestamp: firebase.database.ServerValue.TIMESTAMP
+            }).then(() => {
                 const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
                 if (btn) {
                     btn.classList.add('voted');
@@ -690,29 +1480,34 @@
         function checkConsensus(contestantIndex) {
             const votes = competitionData.votes?.[contestantIndex];
             if (!votes) return;
+
             const now = Date.now();
             const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
             const requiredVotes = competitionData.consensusThreshold || 2;
 
             const voteArray = Object.values(votes);
-            const recentVotes = voteArray.filter(v => {
-                const voteTime = v.timestamp;
-                return now - voteTime < timeWindow;
-            });
+            const recentVotes = voteArray.filter(v => now - v.timestamp < timeWindow);
+
             const markCounts = {};
             recentVotes.forEach(v => {
                 markCounts[v.mark] = (markCounts[v.mark] || 0) + 1;
             });
+
             for (const [mark, count] of Object.entries(markCounts)) {
                 if (count >= requiredVotes) {
                     const newScore = (competitionData.contestants[contestantIndex].score || 0) + parseInt(mark);
                     database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/score`).set(newScore);
-                    database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({ mark: parseInt(mark), votes: count, timestamp: firebase.database.ServerValue.TIMESTAMP });
+                    database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({
+                        mark: parseInt(mark),
+                        votes: count,
+                        timestamp: firebase.database.ServerValue.TIMESTAMP
+                    });
                     database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).remove();
-                    showStatus(`+${mark} scored for ${competitionData.contestants[contestantIndex].name}!`, 'success');
+                    showStatus(`+${mark} scored!`, 'success');
                     break;
                 }
             }
+
             updateVoteStatus(contestantIndex, markCounts, requiredVotes);
         }
 
@@ -724,13 +1519,15 @@
         }
 
         function viewScoreboard() {
-            const compId = document.getElementById('view-comp-id').value.trim().toUpperCase();
+            const compId = document.getElementById('view-comp-select').value;
             if (!compId) {
-                showStatus('Please enter a competition ID', 'error');
+                showStatus('Please select a competition', 'error');
                 return;
             }
+
             currentCompetitionId = compId;
             const compRef = database.ref(`competitions/${compId}`);
+
             const unsub = compRef.on('value', snapshot => {
                 if (!snapshot.exists()) {
                     showStatus('Competition not found', 'error');
@@ -761,8 +1558,10 @@
                 finalScore: competitionData.mode === 1 ? calculateWeightedAverageScore(i) : (c.score || 0)
             }));
             contestants.sort((a, b) => b.finalScore - a.finalScore);
+
             const container = document.getElementById('scores-grid');
             container.innerHTML = '';
+
             contestants.forEach((contestant, rank) => {
                 const card = document.createElement('div');
                 card.className = `score-card rank-${rank + 1}`;
@@ -770,7 +1569,7 @@
 
                 let detailsHtml = '';
                 if (competitionData.mode === 1) {
-                    detailsHtml = `<p style="color: #a0a0a0; font-size: 0.8rem; margin-top: 10px;">${countScoresForContestant(contestant.originalIndex)} referee scores</p>`;
+                    detailsHtml = `<p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 12px;">${countScoresForContestant(contestant.originalIndex)} referee scores</p>`;
                 } else {
                     detailsHtml = `<div class="mark-history">${(contestant.markHistory ? Object.values(contestant.markHistory) : []).slice(-5).map(h => `<div class="mark-history-item consensus">+${h.mark} (${h.votes} votes)</div>`).join('')}</div>`;
                 }
@@ -779,7 +1578,7 @@
                     <div class="rank">#${rank + 1}</div>
                     <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                     <div class="score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>
-                    ${competitionData.mode === 1 ? '<p style="color: #a0a0a0; font-size: 0.85rem;">/100</p>' : ''}
+                    ${competitionData.mode === 1 ? '<p style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">/100</p>' : ''}
                     ${detailsHtml}
                 `;
                 container.appendChild(card);
@@ -823,12 +1622,12 @@
         function toggleTimer() {
             if (!currentCompetitionId) return;
             const newState = !isTimerRunning;
-            database.ref(`competitions/${currentCompetitionId}/timerState`).update({ running: newState, lastUpdate: firebase.database.ServerValue.TIMESTAMP });
-            if (newState) {
-                startTimerSync();
-            } else {
-                stopTimerSync();
-            }
+            database.ref(`competitions/${currentCompetitionId}/timerState`).update({
+                running: newState,
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
+            if (newState) startTimerSync();
+            else stopTimerSync();
         }
 
         function startTimerSync() {
@@ -840,7 +1639,7 @@
                     if (remainingTime <= 0) {
                         stopTimerSync();
                         database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
-                        showStatus('Competition time ended!', 'info');
+                        showStatus('Competition ended!', 'info');
                     }
                 }
             }, 1000);
@@ -857,19 +1656,24 @@
             if (!currentCompetitionId) return;
             stopTimerSync();
             const duration = competitionData.duration || 300;
-            database.ref(`competitions/${currentCompetitionId}/timerState`).set({ running: false, remaining: duration, lastUpdate: firebase.database.ServerValue.TIMESTAMP });
+            database.ref(`competitions/${currentCompetitionId}/timerState`).set({
+                running: false,
+                remaining: duration,
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
             database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
         }
 
         function startCompetition() {
             if (!currentCompetitionId || !competitionData) return;
             database.ref(`competitions/${currentCompetitionId}`).update({ status: 'running' }).then(() => {
-                database.ref(`competitions/${currentCompetitionId}/timerState`).update({ running: true, lastUpdate: firebase.database.ServerValue.TIMESTAMP });
+                database.ref(`competitions/${currentCompetitionId}/timerState`).update({
+                    running: true,
+                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                });
                 startTimerSync();
                 showStatus('Competition started!', 'success');
-            }).catch(err => {
-                showStatus('Error starting competition: ' + err.message, 'error');
-            });
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
         function confirmDeleteCompetition() {
@@ -880,7 +1684,18 @@
             const modal = document.createElement('div');
             modal.className = 'modal-overlay';
             modal.id = 'delete-modal';
-            modal.innerHTML = `<div class="modal-content"><h3>⚠️ Delete Competition</h3><p>Are you sure you want to permanently delete this competition?<br><br><strong style="color: #feca57;">${competitionData?.name || currentCompetitionId}</strong><br><br>This action cannot be undone!</p><div class="modal-buttons"><button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button><button class="confirm-btn" onclick="deleteCompetition()">🗑️ Delete</button></div></div>`;
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <h3>⚠️ Delete Competition</h3>
+                    <p>Are you sure you want to permanently delete this competition?<br><br>
+                    <strong style="color: #fbbf24;">${competitionData?.name || 'Unknown'}</strong><br><br>
+                    This cannot be undone!</p>
+                    <div class="modal-buttons">
+                        <button class="cancel-btn" onclick="closeDeleteModal()">Cancel</button>
+                        <button class="confirm-btn" onclick="deleteCompetition()">🗑️ Delete</button>
+                    </div>
+                </div>
+            `;
             document.body.appendChild(modal);
         }
 
@@ -891,38 +1706,39 @@
 
         function deleteCompetition() {
             if (!currentCompetitionId) return;
-            const compId = currentCompetitionId;
-            database.ref(`competitions/${compId}`).remove()
+            database.ref(`competitions/${currentCompetitionId}`).remove()
                 .then(() => {
                     closeDeleteModal();
-                    showStatus('Competition deleted successfully!', 'success');
+                    showStatus('Competition deleted!', 'success');
                     currentCompetitionId = null;
                     competitionData = null;
                     document.getElementById('scoreboard-display').classList.add('hidden');
                     document.getElementById('referee-interface').classList.add('hidden');
-                    document.getElementById('view-comp-id').value = '';
                     unsubscribers.forEach(unsub => unsub());
                     unsubscribers = [];
                 })
                 .catch(err => {
                     closeDeleteModal();
-                    showStatus('Error deleting competition: ' + err.message, 'error');
+                    showStatus('Error: ' + err.message, 'error');
                 });
         }
 
         async function exportToGoogleSheets() {
             if (!competitionData || !currentCompetitionId) {
-                showStatus('No competition data to export', 'error');
+                showStatus('No competition data', 'error');
                 return;
             }
+
             const contestants = competitionData.contestants;
             const mode = competitionData.mode;
-            let successCount = 0;
-            let errorCount = 0;
-            showStatus('Exporting data...', 'info');
+            let successCount = 0, errorCount = 0;
+
+            showStatus('Exporting...', 'info');
+
             for (let index = 0; index < contestants.length; index++) {
                 const contestant = contestants[index];
                 const finalScore = mode === 1 ? calculateWeightedAverageScore(index) : (contestant.score || 0);
+
                 const data = {
                     competition_id: currentCompetitionId,
                     competition_name: competitionData.name,
@@ -931,40 +1747,38 @@
                     final_score: finalScore.toFixed(2),
                     color: contestant.color
                 };
+
                 if (mode === 1) {
-                    const scores = competitionData.mode1Scores?.[index];
-                    data.referee_count = scores ? Object.keys(scores).length : 0;
+                    data.referee_count = competitionData.mode1Scores?.[index] ? Object.keys(competitionData.mode1Scores[index]).length : 0;
                     if (competitionData.scoreCategories) {
                         data.categories = competitionData.scoreCategories.map(c => `${c.name}(${c.weight}%)`).join(', ');
                     }
                 } else {
                     data.mark_history = (contestant.markHistory ? Object.values(contestant.markHistory) : []).map(h => `+${h.mark}`).join(', ');
                 }
+
                 const formData = new URLSearchParams();
                 for (const [key, value] of Object.entries(data)) {
                     formData.append(key, String(value));
                 }
+
                 try {
                     const response = await fetch(GOOGLE_SHEETS_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
                     });
-                    if (response.ok) {
-                        successCount++;
-                    } else {
-                        console.error('Export failed for ' + contestant.name + ':', await response.text());
-                        errorCount++;
-                    }
+                    if (response.ok) successCount++;
+                    else errorCount++;
                 } catch (error) {
-                    console.error('Export error for ' + contestant.name + ':', error);
                     errorCount++;
                 }
             }
+
             if (errorCount === 0) {
-                showStatus('Exported ' + successCount + ' contestants to Google Sheets!', 'success');
+                showStatus(`Exported ${successCount} contestants!`, 'success');
             } else {
-                showStatus('Export: ' + successCount + ' success, ' + errorCount + ' failed. Check console (F12).', 'error');
+                showStatus(`Export: ${successCount} success, ${errorCount} failed`, 'error');
             }
         }
 
