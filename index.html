@@ -1446,7 +1446,7 @@ function setupRefereeInterface() {
             document.getElementById('ref-count').textContent = onlineCount;
         }
 
-        function updateRefTimer() {
+function updateRefTimer() {
     if (competitionData && competitionData.timerState) {
         const remaining = competitionData.timerState.remaining;
         const minutes = Math.floor(remaining / 60);
@@ -1455,6 +1455,10 @@ function setupRefereeInterface() {
         
         isTimerRunning = competitionData.timerState.running;
         remainingTime = remaining;
+        
+        if (isTimerRunning && !timerInterval) {
+            startTimerSync();
+        }
     }
 }
 
@@ -1668,8 +1672,19 @@ function toggleTimer() {
     if (!currentCompetitionId || !competitionData) return;
     
     const newState = !competitionData.timerState.running;
+    const now = Date.now();
+    const currentRemaining = competitionData.timerState.remaining;
     
-    database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(newState)
+    const updates = {
+        running: newState,
+        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+    };
+    
+    if (newState) {
+        updates.remaining = currentRemaining;
+    }
+    
+    database.ref(`competitions/${currentCompetitionId}/timerState`).update(updates)
         .then(() => {
             if (newState) {
                 startTimerSync();
@@ -1694,6 +1709,8 @@ function startTimerSync() {
     const initialRemaining = competitionData.timerState.remaining;
     
     timerInterval = setInterval(() => {
+        if (!competitionData || !competitionData.timerState) return;
+        
         const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
         const newRemaining = Math.max(0, initialRemaining - elapsedSeconds);
         
@@ -1707,10 +1724,6 @@ function startTimerSync() {
         if (refTimer) refTimer.textContent = timeString;
         if (sbTimer) sbTimer.textContent = timeString;
         
-        if (elapsedSeconds % 5 === 0 || newRemaining === 0) {
-            database.ref(`competitions/${currentCompetitionId}/timerState/remaining`).set(newRemaining);
-        }
-        
         if (newRemaining <= 0) {
             database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
             database.ref(`competitions/${currentCompetitionId}/status`).set('ended');
@@ -1718,7 +1731,7 @@ function startTimerSync() {
             clearInterval(timerInterval);
             timerInterval = null;
         }
-    }, 1000);
+    }, 100);
 }
 
 function stopTimerSync() {
@@ -1728,7 +1741,7 @@ function stopTimerSync() {
     }
 }
 
-        function resetTimer() {
+function resetTimer() {
     if (!currentCompetitionId) return;
     stopTimerSync();
     const duration = competitionData.duration || 300;
@@ -1771,7 +1784,6 @@ function startCompetition() {
         })
         .catch(err => showStatus('Error: ' + err.message, 'error'));
 }
-
         function confirmDeleteCompetition() {
             if (!currentCompetitionId) {
                 showStatus('No competition selected', 'error');
