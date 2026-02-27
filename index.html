@@ -1277,7 +1277,7 @@
                 });
         }
 
-        function setupRefereeInterface() {
+function setupRefereeInterface() {
     document.getElementById('referee-interface').classList.remove('hidden');
     document.getElementById('ref-comp-name').textContent = competitionData.name;
     document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
@@ -1319,13 +1319,21 @@
                 if (competitionData.status === 'running' || competitionData.timerState?.running) {
                     document.getElementById('ref-start-competition').classList.add('hidden');
                     document.getElementById('ref-timer-controls').classList.remove('hidden');
+                    
+                    if (!timerInterval) {
+                        startTimerSync();
+                    }
                 } else {
                     document.getElementById('ref-start-competition').classList.remove('hidden');
                     document.getElementById('ref-timer-controls').classList.add('hidden');
+                    
+                    stopTimerSync();
                 }
             }
         }
     });
+    unsubscribers.push(() => compRef.off('value', unsub));
+}
     unsubscribers.push(() => compRef.off('value', unsub));
 }
 
@@ -1444,13 +1452,16 @@
         }
 
         function updateRefTimer() {
-            if (competitionData.timerState) {
-                const remaining = competitionData.timerState.remaining;
-                const minutes = Math.floor(remaining / 60);
-                const seconds = remaining % 60;
-                document.getElementById('ref-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-            }
-        }
+    if (competitionData && competitionData.timerState) {
+        const remaining = competitionData.timerState.remaining;
+        const minutes = Math.floor(remaining / 60);
+        const seconds = remaining % 60;
+        document.getElementById('ref-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        isTimerRunning = competitionData.timerState.running;
+        remainingTime = remaining;
+    }
+}
 
         function submitMode1Scores(contestantIndex) {
             const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
@@ -1659,36 +1670,50 @@
             }
         }
 
-        function toggleTimer() {
-    if (!currentCompetitionId) return;
-    const newState = !isTimerRunning;
-    database.ref(`competitions/${currentCompetitionId}/timerState`).update({
-        running: newState,
-        lastUpdate: firebase.database.ServerValue.TIMESTAMP
-    });
+function toggleTimer() {
+    if (!currentCompetitionId || !competitionData) return;
+    
+    const newState = !competitionData.timerState.running;
+    
+    database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(newState)
+        .then(() => {
+            if (newState) {
+                startTimerSync();
+            } else {
+                stopTimerSync();
+            }
+        });
 }
 
-        function startTimerSync() {
-            if (timerInterval) clearInterval(timerInterval);
-            timerInterval = setInterval(() => {
-                if (remainingTime > 0 && isTimerRunning) {
-                    remainingTime--;
-                    database.ref(`competitions/${currentCompetitionId}/timerState/remaining`).set(remainingTime);
-                    if (remainingTime <= 0) {
-                        stopTimerSync();
-                        database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
-                        showStatus('Competition ended!', 'info');
-                    }
-                }
-            }, 1000);
-        }
-
-        function stopTimerSync() {
-            if (timerInterval) {
+       function startTimerSync() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+        if (!competitionData || !competitionData.timerState) return;
+        
+        const remaining = competitionData.timerState.remaining;
+        const isRunning = competitionData.timerState.running;
+        
+        if (isRunning && remaining > 0) {
+            const newRemaining = remaining - 1;
+            database.ref(`competitions/${currentCompetitionId}/timerState/remaining`).set(newRemaining);
+            
+            if (newRemaining <= 0) {
+                database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
+                database.ref(`competitions/${currentCompetitionId}/status`).set('ended');
+                showStatus('Competition ended!', 'info');
                 clearInterval(timerInterval);
                 timerInterval = null;
             }
         }
+    }, 1000);
+}
+
+        function stopTimerSync() {
+    if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+    }
+}
 
         function resetTimer() {
     if (!currentCompetitionId) return;
@@ -1728,7 +1753,7 @@
         .then(() => {
             showStatus('Competition started!', 'success');
             document.getElementById('ref-start-competition').classList.add('hidden');
-            startTimerSync();
+            document.getElementById('ref-timer-controls').classList.remove('hidden');
         })
         .catch(err => showStatus('Error: ' + err.message, 'error'));
 }
