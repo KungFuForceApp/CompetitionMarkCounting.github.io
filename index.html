@@ -1186,13 +1186,18 @@
             }
 
             if (mode === 2) {
-                competition.consensusThreshold = parseInt(document.getElementById('consensus-threshold').value) || 2;
-                competition.timeWindow = parseFloat(document.getElementById('time-window').value) || 0.5;
-                competition.duration = parseInt(document.getElementById('comp-duration').value) * 60;
-                competition.quickMarks = document.getElementById('quick-marks').value.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
-                competition.votes = {};
-                competition.timerState = { running: false, remaining: competition.duration, lastUpdate: null };
-            }
+    competition.consensusThreshold = parseInt(document.getElementById('consensus-threshold').value) || 2;
+    competition.timeWindow = parseFloat(document.getElementById('time-window').value) || 0.5;
+    competition.duration = parseInt(document.getElementById('comp-duration').value) * 60;
+    competition.quickMarks = document.getElementById('quick-marks').value.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
+    competition.votes = {};
+    competition.timerState = { 
+        running: false, 
+        remaining: parseInt(document.getElementById('comp-duration').value) * 60, 
+        lastUpdate: null 
+    };
+    competition.status = 'pending';
+}
 
             // Use sanitized name as ID (remove special chars, lowercase)
             const compId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
@@ -1273,31 +1278,56 @@
         }
 
         function setupRefereeInterface() {
-            document.getElementById('referee-interface').classList.remove('hidden');
-            document.getElementById('ref-comp-name').textContent = competitionData.name;
-            document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
-            document.getElementById('referee-controls').classList.remove('hidden');
+    document.getElementById('referee-interface').classList.remove('hidden');
+    document.getElementById('ref-comp-name').textContent = competitionData.name;
+    document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
+    document.getElementById('referee-controls').classList.remove('hidden');
 
-            if (competitionData.mode === 2) {
-                document.getElementById('ref-timer').classList.remove('hidden');
-                document.getElementById('ref-status').classList.remove('hidden');
-                document.getElementById('ref-start-competition').classList.remove('hidden');
-            }
+    const refStartComp = document.getElementById('ref-start-competition');
+    const refTimer = document.getElementById('ref-timer');
+    const refStatus = document.getElementById('ref-status');
+    const refTimerControls = document.getElementById('ref-timer-controls');
 
-            const compRef = database.ref(`competitions/${currentCompetitionId}`);
-            const unsub = compRef.on('value', snapshot => {
-                competitionData = snapshot.val();
-                if (competitionData) {
-                    updateRefereeCards();
-                    updateRefereeCount();
-                    if (competitionData.mode === 2) {
-                        updateRefTimer();
-                        updateRefereeStatus();
-                    }
-                }
-            });
-            unsubscribers.push(() => compRef.off('value', unsub));
+    if (competitionData.mode === 2) {
+        refTimer.classList.remove('hidden');
+        refStatus.classList.remove('hidden');
+        
+        if (competitionData.status === 'running' || competitionData.timerState?.running) {
+            refStartComp.classList.add('hidden');
+            refTimerControls.classList.remove('hidden');
+        } else {
+            refStartComp.classList.remove('hidden');
+            refTimerControls.classList.add('hidden');
         }
+    } else {
+        refTimer.classList.add('hidden');
+        refStatus.classList.add('hidden');
+        refStartComp.classList.add('hidden');
+        refTimerControls.classList.add('hidden');
+    }
+
+    const compRef = database.ref(`competitions/${currentCompetitionId}`);
+    const unsub = compRef.on('value', snapshot => {
+        competitionData = snapshot.val();
+        if (competitionData) {
+            updateRefereeCards();
+            updateRefereeCount();
+            if (competitionData.mode === 2) {
+                updateRefTimer();
+                updateRefereeStatus();
+                
+                if (competitionData.status === 'running' || competitionData.timerState?.running) {
+                    document.getElementById('ref-start-competition').classList.add('hidden');
+                    document.getElementById('ref-timer-controls').classList.remove('hidden');
+                } else {
+                    document.getElementById('ref-start-competition').classList.remove('hidden');
+                    document.getElementById('ref-timer-controls').classList.add('hidden');
+                }
+            }
+        }
+    });
+    unsubscribers.push(() => compRef.off('value', unsub));
+}
 
         function updateRefereeStatus() {
             const statusEl = document.getElementById('ref-status');
@@ -1630,15 +1660,13 @@
         }
 
         function toggleTimer() {
-            if (!currentCompetitionId) return;
-            const newState = !isTimerRunning;
-            database.ref(`competitions/${currentCompetitionId}/timerState`).update({
-                running: newState,
-                lastUpdate: firebase.database.ServerValue.TIMESTAMP
-            });
-            if (newState) startTimerSync();
-            else stopTimerSync();
-        }
+    if (!currentCompetitionId) return;
+    const newState = !isTimerRunning;
+    database.ref(`competitions/${currentCompetitionId}/timerState`).update({
+        running: newState,
+        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+    });
+}
 
         function startTimerSync() {
             if (timerInterval) clearInterval(timerInterval);
@@ -1663,28 +1691,47 @@
         }
 
         function resetTimer() {
-            if (!currentCompetitionId) return;
-            stopTimerSync();
-            const duration = competitionData.duration || 300;
-            database.ref(`competitions/${currentCompetitionId}/timerState`).set({
-                running: false,
-                remaining: duration,
-                lastUpdate: firebase.database.ServerValue.TIMESTAMP
-            });
-            database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
-        }
+    if (!currentCompetitionId) return;
+    stopTimerSync();
+    const duration = competitionData.duration || 300;
+    database.ref(`competitions/${currentCompetitionId}/timerState`).set({
+        running: false,
+        remaining: duration,
+        lastUpdate: firebase.database.ServerValue.TIMESTAMP
+    });
+    database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
+}
 
         function startCompetition() {
-            if (!currentCompetitionId || !competitionData) return;
-            database.ref(`competitions/${currentCompetitionId}`).update({ status: 'running' }).then(() => {
-                database.ref(`competitions/${currentCompetitionId}/timerState`).update({
-                    running: true,
-                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
-                });
-                startTimerSync();
-                showStatus('Competition started!', 'success');
-            }).catch(err => showStatus('Error: ' + err.message, 'error'));
+    if (!currentCompetitionId || !competitionData) {
+        showStatus('No competition selected', 'error');
+        return;
+    }
+    
+    if (competitionData.mode !== 2) {
+        showStatus('Start competition is only for Mode 2', 'error');
+        return;
+    }
+    
+    const duration = competitionData.duration || 300;
+    
+    const updates = {
+        status: 'running',
+        timerState: {
+            running: true,
+            remaining: duration,
+            lastUpdate: firebase.database.ServerValue.TIMESTAMP
         }
+    };
+    
+    database.ref(`competitions/${currentCompetitionId}`).update(updates)
+        .then(() => {
+            showStatus('Competition started!', 'success');
+            document.getElementById('ref-start-competition').classList.add('hidden');
+            startTimerSync();
+        })
+        .catch(err => showStatus('Error: ' + err.message, 'error'));
+}
 
         function confirmDeleteCompetition() {
             if (!currentCompetitionId) {
