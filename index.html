@@ -1119,77 +1119,78 @@
             addScoreCategory();
 
             function createCompetition() {
-                const name = document.getElementById('comp-name').value.trim();
-                const description = document.getElementById('comp-description').value.trim();
-                const mode = parseInt(document.getElementById('comp-mode').value);
+    const name = document.getElementById('comp-name').value.trim();
+    const description = document.getElementById('comp-description').value.trim();
+    const mode = parseInt(document.getElementById('comp-mode').value);
 
-                if (!name) {
-                    showStatus('Please enter a competition name', 'error');
-                    return;
-                }
+    if (!name) {
+        showStatus('Please enter a competition name', 'error');
+        return;
+    }
 
-                const nameExists = Object.values(allCompetitions).some(
-                    comp => comp && comp.name && comp.name.toLowerCase() === name.toLowerCase()
-                );
+    const nameExists = Object.values(allCompetitions).some(
+        comp => comp && comp.name && comp.name.toLowerCase() === name.toLowerCase()
+    );
 
-                if (nameExists) {
-                    showStatus('This competition name already exists. Please choose a different name.', 'error');
-                    return;
-                }
+    if (nameExists) {
+        showStatus('This competition name already exists. Please choose a different name.', 'error');
+        return;
+    }
 
-                const contestants = [];
-                document.querySelectorAll('.contestant-item').forEach(item => {
-                    const nameInput = item.querySelector('.contestant-name');
-                    const colorInput = item.querySelector('.contestant-color');
-                    if (nameInput.value.trim()) {
-                        contestants.push({ name: nameInput.value.trim(), color: colorInput.value, score: 0, markHistory: [] });
-                    }
-                });
+    const contestants = [];
+    document.querySelectorAll('.contestant-item').forEach(item => {
+        const nameInput = item.querySelector('.contestant-name');
+        const colorInput = item.querySelector('.contestant-color');
+        if (nameInput.value.trim()) {
+            contestants.push({ name: nameInput.value.trim(), color: colorInput.value, score: 0, markHistory: [] });
+        }
+    });
 
-                if (contestants.length < 2) {
-                    showStatus('Please add at least 2 contestants', 'error');
-                    return;
-                }
+    if (contestants.length < 2) {
+        showStatus('Please add at least 2 contestants', 'error');
+        return;
+    }
 
-                const competition = {
-                    name: name,
-                    description: description,
-                    mode: mode,
-                    contestants: contestants,
-                    referees: {},
-                    createdAt: firebase.database.ServerValue.TIMESTAMP,
-                    status: 'pending'
-                };
+    const competition = {
+        name: name,
+        description: description,
+        mode: mode,
+        contestants: contestants,
+        referees: {},
+        createdAt: firebase.database.ServerValue.TIMESTAMP,
+        status: 'pending'
+    };
 
-                if (mode === 1) {
-                    const categories = [];
-                    let totalWeight = 0;
-                    document.querySelectorAll('.score-category-item').forEach(item => {
-                        const nameInput = item.querySelector('.category-name');
-                        const weightInput = item.querySelector('.category-weight');
-                        if (nameInput.value.trim()) {
-                            const weight = parseFloat(weightInput.value) || 0;
-                            categories.push({ name: nameInput.value.trim(), weight: weight });
-                            totalWeight += weight;
-                        }
-                    });
-                    if (categories.length === 0) {
-                        showStatus('Please add at least one score category', 'error');
-                        return;
-                    }
-                    if (totalWeight !== 100) {
-                        showStatus('Category weights must total 100%', 'error');
-                        return;
-                    }
-                    competition.scoreCategories = categories;
-                }
+    if (mode === 1) {
+        const categories = [];
+        let totalWeight = 0;
+        document.querySelectorAll('.score-category-item').forEach(item => {
+            const nameInput = item.querySelector('.category-name');
+            const weightInput = item.querySelector('.category-weight');
+            if (nameInput.value.trim()) {
+                const weight = parseFloat(weightInput.value) || 0;
+                categories.push({ name: nameInput.value.trim(), weight: weight });
+                totalWeight += weight;
+            }
+        });
+        if (categories.length === 0) {
+            showStatus('Please add at least one score category', 'error');
+            return;
+        }
+        if (totalWeight !== 100) {
+            showStatus('Category weights must total 100%', 'error');
+            return;
+        }
+        competition.scoreCategories = categories;
+    }
 
-                if (mode === 2) {
+    if (mode === 2) {
         competition.consensusThreshold = parseInt(document.getElementById('consensus-threshold').value) || 2;
         competition.timeWindow = parseFloat(document.getElementById('time-window').value) || 0.5;
         competition.duration = parseInt(document.getElementById('comp-duration').value) * 60;
         competition.quickMarks = document.getElementById('quick-marks').value.split(',').map(m => parseInt(m.trim())).filter(m => !isNaN(m));
         competition.votes = {};
+        competition.refereeCooldowns = {};
         competition.timerState = { 
             running: false, 
             remaining: parseInt(document.getElementById('comp-duration').value) * 60, 
@@ -1198,21 +1199,20 @@
         competition.status = 'pending';
     }
 
-                // Use sanitized name as ID (remove special chars, lowercase)
-                const compId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
+    // Use sanitized name as ID (remove special chars, lowercase)
+    const compId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
 
-                database.ref(`competitions/${compId}`).set(competition)
-                    .then(() => {
-                        document.getElementById('new-comp-name').textContent = name;
-                        document.getElementById('competition-created').classList.remove('hidden');
-                        showStatus('Competition created successfully!', 'success');
-                        currentCompetitionId = compId;
-                    })
-                    .catch(err => {
-                        showStatus('Error creating competition: ' + err.message, 'error');
-                    });
-            }
-
+    database.ref(`competitions/${compId}`).set(competition)
+        .then(() => {
+            document.getElementById('new-comp-name').textContent = name;
+            document.getElementById('competition-created').classList.remove('hidden');
+            showStatus('Competition created successfully!', 'success');
+            currentCompetitionId = compId;
+        })
+        .catch(err => {
+            showStatus('Error creating competition: ' + err.message, 'error');
+        });
+}
             function copyCompetitionName() {
                 const name = document.getElementById('new-comp-name').textContent;
                 navigator.clipboard.writeText(name).then(() => {
@@ -1496,6 +1496,17 @@
                     return;
                 }
 
+                const refereeCooldowns = competitionData.refereeCooldowns || {};
+                const lastVoteTime = refereeCooldowns[currentRefereeId] || 0;
+                const now = Date.now();
+                const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
+
+                if (now - lastVoteTime < timeWindow) {
+                    const remainingCooldown = ((timeWindow - (now - lastVoteTime)) / 1000).toFixed(1);
+                    showStatus(`Please wait ${remainingCooldown}s before voting again`, 'error');
+                    return;
+                }
+
                 const voteRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).push();
                 voteRef.set({
                     mark: mark,
@@ -1503,10 +1514,16 @@
                     refereeName: currentRefereeName,
                     timestamp: firebase.database.ServerValue.TIMESTAMP
                 }).then(() => {
+                    database.ref(`competitions/${currentCompetitionId}/refereeCooldowns/${currentRefereeId}`).set(now);
+                    
                     const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
                     if (btn) {
                         btn.classList.add('voted');
-                        setTimeout(() => btn.classList.remove('voted'), 500);
+                        btn.disabled = true;
+                        setTimeout(() => {
+                            btn.classList.remove('voted');
+                            btn.disabled = false;
+                        }, timeWindow);
                     }
                     checkConsensus(contestantIndex);
                 });
