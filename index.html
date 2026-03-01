@@ -1623,12 +1623,11 @@
                     updateScoreboardStatus();
                 }
 
-                const contestants = [...competitionData.contestants].map((c, i) => ({
+                const contestants = competitionData.contestants.map((c, i) => ({
                     ...c,
                     originalIndex: i,
                     finalScore: competitionData.mode === 1 ? calculateWeightedAverageScore(i) : (c.score || 0)
                 }));
-                contestants.sort((a, b) => b.finalScore - a.finalScore);
 
                 const container = document.getElementById('scores-grid');
                 container.innerHTML = '';
