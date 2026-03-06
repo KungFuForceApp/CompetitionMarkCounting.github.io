@@ -126,7 +126,6 @@
             gap: 12px;
         }
 
-        /* Forms */
         .form-group { margin-bottom: 24px; }
 
         .form-group label {
@@ -166,7 +165,6 @@
             gap: 24px;
         }
 
-        /* Contestant Items */
         .contestant-list { margin: 20px 0; }
 
         .contestant-item {
@@ -209,7 +207,6 @@
             background: rgba(239, 68, 68, 0.3);
         }
 
-        /* Buttons */
         .add-btn {
             padding: 14px 28px;
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -230,7 +227,6 @@
         .add-btn.blue { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
         .add-btn.blue:hover { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
 
-        /* Mode Info Cards */
         .mode-info {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
             border-left: 4px solid #667eea;
@@ -242,7 +238,6 @@
         .mode-info h4 { color: #a78bfa; margin-bottom: 10px; font-size: 1.05rem; }
         .mode-info p { color: rgba(255,255,255,0.7); font-size: 0.92rem; line-height: 1.5; }
 
-        /* Submit Button */
         .submit-btn {
             width: 100%;
             padding: 18px;
@@ -263,7 +258,6 @@
             box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
         }
 
-        /* Competition Created Display */
         .competition-created-display {
             text-align: center;
             padding: 35px;
@@ -480,7 +474,6 @@
             font-size: 0.9rem;
         }
 
-        /* Contestant Cards */
         .contestant-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -506,7 +499,6 @@
         .contestant-card h3 { font-size: 1.5rem; margin-bottom: 18px; font-weight: 700; }
         .contestant-card .current-score { font-size: 3.2rem; font-weight: 800; margin: 18px 0; }
 
-        /* Quick Mark Buttons */
         .quick-marks {
             display: flex;
             gap: 12px;
@@ -539,7 +531,6 @@
 
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.25); } }
 
-        /* Timer */
         .competition-timer {
             font-size: 3.5rem;
             font-weight: 800;
@@ -549,7 +540,6 @@
             text-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
         }
 
-        /* Timer Controls */
         .timer-controls {
             display: flex;
             gap: 12px;
@@ -575,7 +565,6 @@
 
         .timer-controls button:hover { transform: translateY(-2px); }
 
-        /* Start Competition Button */
         .start-competition-btn {
             padding: 18px 45px;
             background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
@@ -602,7 +591,6 @@
             animation: none;
         }
 
-        /* Competition Status */
         .competition-status {
             padding: 12px 24px;
             border-radius: 25px;
@@ -616,7 +604,6 @@
         .competition-status.running { background: rgba(56, 239, 125, 0.15); color: #38ef7d; border: 1px solid rgba(56, 239, 125, 0.3); }
         .competition-status.ended { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -884,7 +871,6 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             header h1 { font-size: 2rem; }
             .nav-buttons { flex-direction: column; align-items: center; }
@@ -920,7 +906,6 @@
             </button>
         </div>
 
-        <!-- CREATE PANEL -->
         <div id="create-panel" class="panel">
             <h2>✨ Create New Competition</h2>
 
@@ -941,25 +926,19 @@
                     <select id="existing-folder-select" class="competition-dropdown">
                         <option value="__none__">(No folder)</option>
                     </select>
-                    <input type="text" id="new-folder-input" placeholder="Or type a new folder path, e.g. 2026/Finals/Group A">
-                    <small>Folders can be nested using `/`, for example: <code>Main Event/Junior/Group A</code></small>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>Awards (optional)</label>
-                <div class="folder-selector">
                     <div class="form-row">
                         <div class="form-group">
-                            <input type="text" id="award-excellence-name" placeholder="Award of Excellence">
+                            <input type="text" id="new-folder-name" placeholder="New folder name (no /)">
                         </div>
                         <div class="form-group">
-                            <input type="number" id="award-excellence-count" value="0" min="0" max="50" placeholder="Max winners (e.g. 5)">
+                            <select id="new-folder-parent" class="competition-dropdown">
+                                <option value="">No parent (root)</option>
+                            </select>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <input type="text" id="award-consolation-name" placeholder="Consolation Prize">
-                    </div>
+                    <div id="folder-awards-list" class="score-categories-list"></div>
+                    <button class="add-btn blue" type="button" onclick="addFolderAward()">+ Add Award</button>
+                    <button class="add-btn" type="button" onclick="createFolder()">Save Folder</button>
                 </div>
             </div>
 
@@ -1026,7 +1005,6 @@
             </div>
         </div>
 
-        <!-- JOIN PANEL -->
         <div id="join-panel" class="panel">
             <h2>🎯 Join as Referee</h2>
 
@@ -1149,7 +1127,8 @@
         let isTimerRunning = false;
         let unsubscribers = [];
         let allCompetitions = {};
-        let allFolders = [];
+        let allFolders = {};
+        let folderAwardCount = 0;
         let scoreCategoryCount = 0;
         let contestantCount = 0;
         let nameCheckTimeout = null;
@@ -1157,12 +1136,10 @@
 
         const colors = ['#667eea', '#11998e', '#f5576c', '#fbbf24', '#a78bfa', '#38ef7d', '#f093fb', '#00cec9'];
 
-        // Load all competitions for dropdowns
         function loadCompetitions() {
             database.ref('competitions').on('value', snapshot => {
                 allCompetitions = snapshot.val() || {};
                 updateCompetitionDropdowns();
-                updateFolderOptions();
             });
         }
 
@@ -1171,26 +1148,38 @@
         }
 
         function updateFolderOptions() {
-            const folderSet = new Set();
-            Object.values(allCompetitions).forEach(comp => {
-                if (comp && comp.folderPath) {
-                    folderSet.add(comp.folderPath);
-                }
-            });
-            allFolders = Array.from(folderSet).sort();
+            const entries = Object.entries(allFolders || {});
+            const folderList = entries.map(([id, folder]) => {
+                return { id, label: buildFolderLabel(id) };
+            }).sort((a, b) => a.label.localeCompare(b.label));
 
             const existingSelect = document.getElementById('existing-folder-select');
             if (existingSelect) {
                 const current = existingSelect.value;
                 existingSelect.innerHTML = '<option value="__none__">(No folder)</option>';
-                allFolders.forEach(path => {
+                folderList.forEach(item => {
                     const opt = document.createElement('option');
-                    opt.value = path;
-                    opt.textContent = path;
+                    opt.value = item.id;
+                    opt.textContent = item.label;
                     existingSelect.appendChild(opt);
                 });
-                if (current && current !== '__none__') {
+                if (current && current !== '__none__' && existingSelect.querySelector(`option[value="${current}"]`)) {
                     existingSelect.value = current;
+                }
+            }
+
+            const parentSelect = document.getElementById('new-folder-parent');
+            if (parentSelect) {
+                const currentParent = parentSelect.value;
+                parentSelect.innerHTML = '<option value="">No parent (root)</option>';
+                folderList.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.textContent = item.label;
+                    parentSelect.appendChild(opt);
+                });
+                if (currentParent && parentSelect.querySelector(`option[value="${currentParent}"]`)) {
+                    parentSelect.value = currentParent;
                 }
             }
 
@@ -1198,19 +1187,18 @@
             if (finalFolderSelect) {
                 const currentFinal = finalFolderSelect.value;
                 finalFolderSelect.innerHTML = '<option value="">-- Select folder --</option>';
-                allFolders.forEach(path => {
+                folderList.forEach(item => {
                     const opt = document.createElement('option');
-                    opt.value = path;
-                    opt.textContent = path;
+                    opt.value = item.id;
+                    opt.textContent = item.label;
                     finalFolderSelect.appendChild(opt);
                 });
-                if (currentFinal) {
+                if (currentFinal && finalFolderSelect.querySelector(`option[value="${currentFinal}"]`)) {
                     finalFolderSelect.value = currentFinal;
                 }
             }
         }
 
-        // Check if competition name is unique
         function checkCompetitionName() {
             const name = document.getElementById('comp-name').value.trim().toLowerCase();
             const statusEl = document.getElementById('name-status');
@@ -1312,8 +1300,14 @@
             if (element) element.remove();
         }
 
-        // Initialize
         loadCompetitions();
+        function loadFolders() {
+            database.ref('folders').on('value', snapshot => {
+                allFolders = snapshot.val() || {};
+                updateFolderOptions();
+            });
+        }
+        loadFolders();
         addContestant();
         addContestant();
         addScoreCategory();
@@ -1356,44 +1350,16 @@
                 description: description,
                 mode: mode,
                 contestants: contestants,
-                awards: {},
                 referees: {},
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending'
             };
 
-            const excellenceNameInput = document.getElementById('award-excellence-name');
-            const excellenceCountInput = document.getElementById('award-excellence-count');
-            const consolationNameInput = document.getElementById('award-consolation-name');
-
-            if (excellenceNameInput && excellenceCountInput && consolationNameInput) {
-                const excellenceName = excellenceNameInput.value.trim() || 'Award of Excellence';
-                const excellenceCount = parseInt(excellenceCountInput.value) || 0;
-                const consolationName = consolationNameInput.value.trim() || 'Consolation Prize';
-                if (excellenceCount > 0) {
-                    competition.awards = {
-                        excellenceName,
-                        excellenceCount,
-                        consolationName
-                    };
-                } else {
-                    delete competition.awards;
-                }
-            }
-
             const existingFolderSelect = document.getElementById('existing-folder-select');
-            const newFolderInput = document.getElementById('new-folder-input');
-            if (existingFolderSelect && newFolderInput) {
-                const existingFolder = existingFolderSelect.value;
-                const newFolder = newFolderInput.value.trim();
-                let folderPath = null;
-                if (newFolder) {
-                    folderPath = newFolder;
-                } else if (existingFolder && existingFolder !== '__none__') {
-                    folderPath = existingFolder;
-                }
-                if (folderPath) {
-                    competition.folderPath = folderPath;
+            if (existingFolderSelect) {
+                const folderId = existingFolderSelect.value;
+                if (folderId && folderId !== '__none__') {
+                    competition.folderId = folderId;
                 }
             }
 
@@ -1435,7 +1401,6 @@
                 competition.status = 'pending';
             }
 
-            // Use sanitized name as ID (remove special chars, lowercase)
             const compId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
 
             database.ref(`competitions/${compId}`).set(competition)
@@ -1457,7 +1422,6 @@
         }
 
         function onCompetitionSelect() {
-            // Optional: Could pre-load competition info
         }
 
         function joinCompetition() {
@@ -1473,7 +1437,6 @@
                 return;
             }
         
-            // Find competition by name (with safety checks)
             let compId = null;
             for (const id in allCompetitions) {
                 const comp = allCompetitions[id];
@@ -1818,7 +1781,6 @@ function updateRefTimer() {
                 return;
             }
         
-            // Find competition by name (with safety checks)
             let compId = null;
             for (const id in allCompetitions) {
                 const comp = allCompetitions[id];
@@ -2227,7 +2189,7 @@ function startCompetition() {
             const wrapper = document.getElementById('final-scoreboard-display');
 
             titleEl.textContent = comp.name;
-            subtitleEl.textContent = (comp.description || '') + (comp.folderPath ? ` (Folder: ${comp.folderPath})` : '');
+            subtitleEl.textContent = comp.description || '';
             podiumEl.innerHTML = '';
             awardsEl.innerHTML = '';
 
@@ -2261,48 +2223,49 @@ function startCompetition() {
                 podiumEl.appendChild(slot);
             });
 
-            const awardsConfig = comp.awards || {};
-            const excellenceCount = awardsConfig.excellenceCount || 0;
-            const excellenceName = awardsConfig.excellenceName || 'Award of Excellence';
-            const consolationName = awardsConfig.consolationName || 'Consolation Prize';
-
             const rest = contestants.slice(3);
-            let excellence = [];
-            let consolation = [];
+            const folderId = comp.folderId;
+            const folder = folderId && allFolders ? allFolders[folderId] : null;
+            const awardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
 
-            if (excellenceCount > 0) {
-                excellence = rest.slice(0, excellenceCount);
-                consolation = rest.slice(excellenceCount);
-            } else {
-                consolation = rest;
-            }
-
-            if (excellence.length > 0) {
-                const section = document.createElement('div');
-                section.className = 'final-awards-section';
-                section.innerHTML = `<h3>${excellenceName}</h3>`;
-                const list = document.createElement('div');
-                list.className = 'final-awards-list';
-                excellence.forEach(entry => {
-                    const item = document.createElement('div');
-                    item.className = 'final-award-item';
-                    item.innerHTML = `
-                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
-                    `;
-                    list.appendChild(item);
+            let remaining = rest.slice();
+            if (awardsConfig.length > 0) {
+                awardsConfig.forEach(award => {
+                    const maxWinners = parseInt(award.maxWinners) || 0;
+                    if (!award.name || maxWinners <= 0 || remaining.length === 0) {
+                        return;
+                    }
+                    const winners = remaining.slice(0, maxWinners);
+                    remaining = remaining.slice(maxWinners);
+                    if (winners.length === 0) {
+                        return;
+                    }
+                    const section = document.createElement('div');
+                    section.className = 'final-awards-section';
+                    section.innerHTML = `<h3>${award.name}</h3>`;
+                    const list = document.createElement('div');
+                    list.className = 'final-awards-list';
+                    winners.forEach(entry => {
+                        const item = document.createElement('div');
+                        item.className = 'final-award-item';
+                        item.innerHTML = `
+                            <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                            <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
+                        `;
+                        list.appendChild(item);
+                    });
+                    section.appendChild(list);
+                    awardsEl.appendChild(section);
                 });
-                section.appendChild(list);
-                awardsEl.appendChild(section);
             }
 
-            if (consolation.length > 0) {
+            if (remaining.length > 0) {
                 const section = document.createElement('div');
                 section.className = 'final-awards-section';
-                section.innerHTML = `<h3>${consolationName}</h3>`;
+                section.innerHTML = `<h3>Others</h3>`;
                 const list = document.createElement('div');
                 list.className = 'final-awards-list';
-                consolation.forEach(entry => {
+                remaining.forEach(entry => {
                     const item = document.createElement('div');
                     item.className = 'final-award-item';
                     item.innerHTML = `
@@ -2318,16 +2281,19 @@ function startCompetition() {
             wrapper.classList.remove('hidden');
         }
 
-        function renderFinalScoreboardForFolder(folderPath) {
-            const normalized = folderPath.trim().toLowerCase();
+        function renderFinalScoreboardForFolder(folderId) {
+            const folder = allFolders && allFolders[folderId] ? allFolders[folderId] : null;
+            if (!folder) {
+                showStatus('Folder not found', 'error');
+                return;
+            }
             const aggregated = {};
             let competitionCount = 0;
 
             Object.values(allCompetitions).forEach(comp => {
                 if (!comp || !comp.contestants) return;
-                const compFolder = (comp.folderPath || '').toLowerCase();
-                if (!compFolder) return;
-                if (compFolder === normalized || compFolder.startsWith(normalized + '/')) {
+                if (comp.folderId !== folderId) return;
+                if (!comp.contestants) return;
                     competitionCount++;
                     comp.contestants.forEach((c, i) => {
                         const name = c.name;
@@ -2344,8 +2310,7 @@ function startCompetition() {
                         aggregated[name].totalScore += finalScore;
                         aggregated[name].competitions += 1;
                     });
-                }
-            });
+                });
 
             if (competitionCount === 0) {
                 showStatus('No competitions found in this folder', 'error');
@@ -2360,7 +2325,7 @@ function startCompetition() {
             const awardsEl = document.getElementById('final-awards');
             const wrapper = document.getElementById('final-scoreboard-display');
 
-            titleEl.textContent = `Folder: ${folderPath}`;
+            titleEl.textContent = buildFolderLabel(folderId);
             subtitleEl.textContent = `Aggregated over ${competitionCount} competition(s).`;
             podiumEl.innerHTML = '';
             awardsEl.innerHTML = '';
@@ -2395,14 +2360,47 @@ function startCompetition() {
                 podiumEl.appendChild(slot);
             });
 
-            const others = contestants.slice(3);
-            if (others.length > 0) {
+            const rest = contestants.slice(3);
+            const awardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
+            let remaining = rest.slice();
+
+            if (awardsConfig.length > 0) {
+                awardsConfig.forEach(award => {
+                    const maxWinners = parseInt(award.maxWinners) || 0;
+                    if (!award.name || maxWinners <= 0 || remaining.length === 0) {
+                        return;
+                    }
+                    const winners = remaining.slice(0, maxWinners);
+                    remaining = remaining.slice(maxWinners);
+                    if (winners.length === 0) {
+                        return;
+                    }
+                    const section = document.createElement('div');
+                    section.className = 'final-awards-section';
+                    section.innerHTML = `<h3>${award.name}</h3>`;
+                    const list = document.createElement('div');
+                    list.className = 'final-awards-list';
+                    winners.forEach(entry => {
+                        const item = document.createElement('div');
+                        item.className = 'final-award-item';
+                        item.innerHTML = `
+                            <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                            <span class="final-award-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</span>
+                        `;
+                        list.appendChild(item);
+                    });
+                    section.appendChild(list);
+                    awardsEl.appendChild(section);
+                });
+            }
+
+            if (remaining.length > 0) {
                 const section = document.createElement('div');
                 section.className = 'final-awards-section';
                 section.innerHTML = `<h3>Others</h3>`;
                 const list = document.createElement('div');
                 list.className = 'final-awards-list';
-                others.forEach(entry => {
+                remaining.forEach(entry => {
                     const item = document.createElement('div');
                     item.className = 'final-award-item';
                     item.innerHTML = `
@@ -2416,6 +2414,88 @@ function startCompetition() {
             }
 
             wrapper.classList.remove('hidden');
+        }
+
+        function buildFolderLabel(folderId) {
+            const visited = new Set();
+            let parts = [];
+            let currentId = folderId;
+            while (currentId && allFolders[currentId] && !visited.has(currentId)) {
+                visited.add(currentId);
+                const folder = allFolders[currentId];
+                parts.unshift(folder.name || '');
+                currentId = folder.parentId || null;
+            }
+            return parts.filter(Boolean).join(' / ');
+        }
+
+        function addFolderAward() {
+            folderAwardCount += 1;
+            const id = folderAwardCount;
+            const container = document.getElementById('folder-awards-list');
+            const div = document.createElement('div');
+            div.className = 'score-category-item';
+            div.id = `folder-award-${id}`;
+            div.innerHTML = `
+                <input type="text" placeholder="Award name" class="folder-award-name">
+                <input type="number" value="1" min="1" max="100" class="folder-award-count">
+                <span style="color: rgba(255,255,255,0.5);">winners</span>
+                <button type="button" onclick="removeFolderAward(${id})">✕</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function removeFolderAward(id) {
+            const el = document.getElementById(`folder-award-${id}`);
+            if (el) el.remove();
+        }
+
+        function collectFolderAwards() {
+            const awards = [];
+            document.querySelectorAll('#folder-awards-list .score-category-item').forEach(item => {
+                const nameInput = item.querySelector('.folder-award-name');
+                const countInput = item.querySelector('.folder-award-count');
+                const name = nameInput.value.trim();
+                const maxWinners = parseInt(countInput.value) || 0;
+                if (name && maxWinners > 0) {
+                    awards.push({ name, maxWinners });
+                }
+            });
+            return awards;
+        }
+
+        function createFolder() {
+            const nameInput = document.getElementById('new-folder-name');
+            const parentSelect = document.getElementById('new-folder-parent');
+            const name = nameInput.value.trim();
+            if (!name) {
+                showStatus('Please enter folder name', 'error');
+                return;
+            }
+            if (name.includes('/')) {
+                showStatus('Folder name cannot contain "/"', 'error');
+                return;
+            }
+            const parentId = parentSelect.value || null;
+            const awards = collectFolderAwards();
+            const folderId = name.replace(/[^a-zA-Z0-9]/g, '_').substring(0, 30) + '_' + Date.now().toString(36);
+            const folder = {
+                name,
+                parentId,
+                awards
+            };
+            database.ref(`folders/${folderId}`).set(folder).then(() => {
+                nameInput.value = '';
+                document.getElementById('folder-awards-list').innerHTML = '';
+                folderAwardCount = 0;
+                showStatus('Folder saved', 'success');
+                const existingSelect = document.getElementById('existing-folder-select');
+                if (existingSelect) {
+                    existingSelect.value = folderId;
+                }
+            }).catch(err => {
+                showStatus('Error saving folder: ' + err.message, 'error');
+            });
         }
     </script>
 </body>
