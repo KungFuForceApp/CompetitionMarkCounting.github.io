@@ -19,7 +19,6 @@
 
         .container { max-width: 1300px; margin: 0 auto; padding: 25px; }
 
-        /* Header */
         header {
             text-align: center;
             padding: 40px 0 30px;
@@ -48,7 +47,6 @@
             color: rgba(255,255,255,0.4);
         }
 
-        /* Navigation */
         .nav-buttons {
             display: flex;
             justify-content: center;
@@ -97,7 +95,6 @@
 
         .nav-btn .icon { font-size: 1.2rem; }
 
-        /* Panels */
         .panel {
             display: none;
             background: rgba(255, 255, 255, 0.03);
@@ -307,7 +304,6 @@
 
         .copy-btn:hover { transform: translateY(-2px); }
 
-        /* Competition Select Dropdown */
         .competition-select-wrapper {
             position: relative;
             max-width: 500px;
@@ -349,7 +345,6 @@
 
         .no-competitions .icon { font-size: 3rem; margin-bottom: 15px; }
 
-        /* Folder selector */
         .folder-selector {
             display: flex;
             flex-direction: column;
@@ -360,7 +355,105 @@
             color: rgba(255,255,255,0.5);
         }
 
-        /* Referee Panel */
+        .final-podium {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+            margin: 30px 0 10px;
+        }
+
+        .podium-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .podium-card {
+            width: 100%;
+            border-radius: 18px 18px 8px 8px;
+            padding: 18px 14px 12px;
+            text-align: center;
+            border: 3px solid;
+        }
+
+        .podium-rank {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 6px;
+        }
+
+        .podium-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .podium-score {
+            font-size: 2.4rem;
+            font-weight: 800;
+        }
+
+        .podium-base {
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+            background: rgba(255,255,255,0.08);
+        }
+
+        .podium-base.first {
+            height: 80px;
+        }
+
+        .podium-base.second {
+            height: 60px;
+        }
+
+        .podium-base.third {
+            height: 50px;
+        }
+
+        .final-awards {
+            margin-top: 24px;
+            text-align: left;
+        }
+
+        .final-awards-section {
+            margin-bottom: 18px;
+        }
+
+        .final-awards-section h3 {
+            font-size: 1.1rem;
+            color: #fbbf24;
+            margin-bottom: 10px;
+        }
+
+        .final-awards-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .final-award-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: rgba(255,255,255,0.04);
+        }
+
+        .final-award-name {
+            font-weight: 600;
+        }
+
+        .final-award-score {
+            font-weight: 700;
+        }
+
         .referee-panel { text-align: center; }
 
         .referee-info {
@@ -561,7 +654,6 @@
         .modal-buttons .confirm-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
         .modal-buttons .cancel-btn { background: rgba(255, 255, 255, 0.1); color: white; border: 2px solid rgba(255, 255, 255, 0.2); }
 
-        /* Scoreboard */
         .scoreboard { text-align: center; }
 
         .scoreboard-header {
@@ -581,7 +673,6 @@
 
         .scoreboard-header .description { color: rgba(255,255,255,0.6); margin-bottom: 18px; font-size: 1.05rem; }
 
-        /* Score Cards */
         .scores-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -623,7 +714,6 @@
             border-color: #cd7f32;
         }
 
-        /* Vote Indicator */
         .vote-indicator {
             margin-top: 18px;
             padding: 12px;
@@ -634,7 +724,6 @@
 
         .vote-indicator .vote-count { font-size: 0.9rem; color: #fbbf24; }
 
-        /* Mark History */
         .mark-history {
             margin-top: 18px;
             font-size: 0.85rem;
@@ -650,7 +739,6 @@
 
         .mark-history-item.consensus { color: #38ef7d; font-weight: 600; }
 
-        /* Status Message */
         .status-message {
             position: fixed;
             bottom: 25px;
@@ -672,7 +760,6 @@
         .status-message.error { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
         .status-message.info { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
 
-        /* Score Categories */
         .score-categories-list { margin: 20px 0; }
 
         .score-category-item {
@@ -712,7 +799,6 @@
             border-color: rgba(239, 68, 68, 0.3);
         }
 
-        /* Category Score Rows */
         .category-scores { margin-top: 18px; }
 
         .category-score-row {
@@ -761,7 +847,6 @@
 
         .submit-all-scores-btn:hover { transform: translateY(-2px); }
 
-        /* Referee Controls */
         .referee-controls {
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
             padding: 24px;
@@ -777,7 +862,6 @@
             font-size: 1.15rem;
         }
 
-        /* Section Headers */
         .section-header {
             margin: 30px 0 18px;
             color: #fbbf24;
@@ -788,7 +872,6 @@
             gap: 10px;
         }
 
-        /* Loading */
         .loading {
             display: inline-block;
             width: 24px;
@@ -864,6 +947,23 @@
             </div>
 
             <div class="form-group">
+                <label>Awards (optional)</label>
+                <div class="folder-selector">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <input type="text" id="award-excellence-name" placeholder="Award of Excellence">
+                        </div>
+                        <div class="form-group">
+                            <input type="number" id="award-excellence-count" value="0" min="0" max="50" placeholder="Max winners (e.g. 5)">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="award-consolation-name" placeholder="Consolation Prize">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
                 <label>Scoring Mode</label>
                 <select id="comp-mode" onchange="updateModeInfo()">
                     <option value="1">📊 Mode 1: Average Scoring (weighted categories)</option>
@@ -881,7 +981,6 @@
                 <p>Real-time scoring where referees press buttons simultaneously. When the required number of referees press the same score within the time window, points are awarded.</p>
             </div>
 
-            <!-- Mode 1: Score Categories -->
             <div id="mode1-settings">
                 <h3 class="section-header">📋 Score Categories</h3>
                 <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 18px;">Define categories and their weights (must total 100%)</p>
@@ -890,7 +989,6 @@
                 <div id="weight-total" class="weight-total">Total Weight: 0%</div>
             </div>
 
-            <!-- Mode 2: Settings -->
             <div id="mode2-settings" class="hidden">
                 <div class="form-row">
                     <div class="form-group">
@@ -971,7 +1069,6 @@
             </div>
         </div>
 
-        <!-- SCOREBOARD PANEL -->
         <div id="scoreboard-panel" class="panel">
             <h2>📊 Live Scoreboard</h2>
 
@@ -992,7 +1089,6 @@
             </div>
         </div>
 
-        <!-- FINAL SCOREBOARD PANEL -->
         <div id="final-panel" class="panel">
             <h2>🏅 Final Scoreboard</h2>
             <div class="form-group" style="max-width: 500px; margin: 0 auto 10px;">
@@ -1021,7 +1117,8 @@
                     <h2 id="final-title">Final Results</h2>
                     <p class="description" id="final-subtitle"></p>
                 </div>
-                <div id="final-scores-grid" class="scores-grid"></div>
+                <div id="final-podium" class="final-podium"></div>
+                <div id="final-awards" class="final-awards"></div>
             </div>
         </div>
     </div>
@@ -1259,10 +1356,30 @@
                 description: description,
                 mode: mode,
                 contestants: contestants,
+                awards: {},
                 referees: {},
                 createdAt: firebase.database.ServerValue.TIMESTAMP,
                 status: 'pending'
             };
+
+            const excellenceNameInput = document.getElementById('award-excellence-name');
+            const excellenceCountInput = document.getElementById('award-excellence-count');
+            const consolationNameInput = document.getElementById('award-consolation-name');
+
+            if (excellenceNameInput && excellenceCountInput && consolationNameInput) {
+                const excellenceName = excellenceNameInput.value.trim() || 'Award of Excellence';
+                const excellenceCount = parseInt(excellenceCountInput.value) || 0;
+                const consolationName = consolationNameInput.value.trim() || 'Consolation Prize';
+                if (excellenceCount > 0) {
+                    competition.awards = {
+                        excellenceName,
+                        excellenceCount,
+                        consolationName
+                    };
+                } else {
+                    delete competition.awards;
+                }
+            }
 
             const existingFolderSelect = document.getElementById('existing-folder-select');
             const newFolderInput = document.getElementById('new-folder-input');
@@ -2105,25 +2222,98 @@ function startCompetition() {
 
             const titleEl = document.getElementById('final-title');
             const subtitleEl = document.getElementById('final-subtitle');
-            const grid = document.getElementById('final-scores-grid');
+            const podiumEl = document.getElementById('final-podium');
+            const awardsEl = document.getElementById('final-awards');
             const wrapper = document.getElementById('final-scoreboard-display');
 
             titleEl.textContent = comp.name;
             subtitleEl.textContent = (comp.description || '') + (comp.folderPath ? ` (Folder: ${comp.folderPath})` : '');
-            grid.innerHTML = '';
+            podiumEl.innerHTML = '';
+            awardsEl.innerHTML = '';
 
-            contestants.forEach((contestant, index) => {
+            const first = contestants[0];
+            const second = contestants[1];
+            const third = contestants[2];
+
+            const podiumOrder = [second, first, third];
+            const podiumNames = ['2nd', '1st', '3rd'];
+            const podiumBaseClasses = ['second', 'first', 'third'];
+
+            podiumOrder.forEach((contestant, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'podium-slot';
+                if (!contestant) {
+                    podiumEl.appendChild(slot);
+                    return;
+                }
                 const card = document.createElement('div');
-                const rankClass = index < 3 ? ` rank-${index + 1}` : '';
-                card.className = `score-card${rankClass}`;
+                card.className = 'podium-card';
                 card.style.borderColor = contestant.color;
                 card.innerHTML = `
-                    <div class="rank">#${index + 1}</div>
-                    <h3 style="color: ${contestant.color}">${contestant.name}</h3>
-                    <div class="score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>
+                    <div class="podium-rank">${podiumNames[idx]}</div>
+                    <div class="podium-name" style="color: ${contestant.color}">${contestant.name}</div>
+                    <div class="podium-score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>
                 `;
-                grid.appendChild(card);
+                const base = document.createElement('div');
+                base.className = `podium-base ${podiumBaseClasses[idx]}`;
+                slot.appendChild(card);
+                slot.appendChild(base);
+                podiumEl.appendChild(slot);
             });
+
+            const awardsConfig = comp.awards || {};
+            const excellenceCount = awardsConfig.excellenceCount || 0;
+            const excellenceName = awardsConfig.excellenceName || 'Award of Excellence';
+            const consolationName = awardsConfig.consolationName || 'Consolation Prize';
+
+            const rest = contestants.slice(3);
+            let excellence = [];
+            let consolation = [];
+
+            if (excellenceCount > 0) {
+                excellence = rest.slice(0, excellenceCount);
+                consolation = rest.slice(excellenceCount);
+            } else {
+                consolation = rest;
+            }
+
+            if (excellence.length > 0) {
+                const section = document.createElement('div');
+                section.className = 'final-awards-section';
+                section.innerHTML = `<h3>${excellenceName}</h3>`;
+                const list = document.createElement('div');
+                list.className = 'final-awards-list';
+                excellence.forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'final-award-item';
+                    item.innerHTML = `
+                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
+                    `;
+                    list.appendChild(item);
+                });
+                section.appendChild(list);
+                awardsEl.appendChild(section);
+            }
+
+            if (consolation.length > 0) {
+                const section = document.createElement('div');
+                section.className = 'final-awards-section';
+                section.innerHTML = `<h3>${consolationName}</h3>`;
+                const list = document.createElement('div');
+                list.className = 'final-awards-list';
+                consolation.forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'final-award-item';
+                    item.innerHTML = `
+                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
+                    `;
+                    list.appendChild(item);
+                });
+                section.appendChild(list);
+                awardsEl.appendChild(section);
+            }
 
             wrapper.classList.remove('hidden');
         }
@@ -2166,26 +2356,64 @@ function startCompetition() {
 
             const titleEl = document.getElementById('final-title');
             const subtitleEl = document.getElementById('final-subtitle');
-            const grid = document.getElementById('final-scores-grid');
+            const podiumEl = document.getElementById('final-podium');
+            const awardsEl = document.getElementById('final-awards');
             const wrapper = document.getElementById('final-scoreboard-display');
 
             titleEl.textContent = `Folder: ${folderPath}`;
             subtitleEl.textContent = `Aggregated over ${competitionCount} competition(s).`;
-            grid.innerHTML = '';
+            podiumEl.innerHTML = '';
+            awardsEl.innerHTML = '';
 
-            contestants.forEach((entry, index) => {
+            const first = contestants[0];
+            const second = contestants[1];
+            const third = contestants[2];
+
+            const podiumOrder = [second, first, third];
+            const podiumNames = ['2nd', '1st', '3rd'];
+            const podiumBaseClasses = ['second', 'first', 'third'];
+
+            podiumOrder.forEach((entry, idx) => {
+                const slot = document.createElement('div');
+                slot.className = 'podium-slot';
+                if (!entry) {
+                    podiumEl.appendChild(slot);
+                    return;
+                }
                 const card = document.createElement('div');
-                const rankClass = index < 3 ? ` rank-${index + 1}` : '';
-                card.className = `score-card${rankClass}`;
+                card.className = 'podium-card';
                 card.style.borderColor = entry.color;
                 card.innerHTML = `
-                    <div class="rank">#${index + 1}</div>
-                    <h3 style="color: ${entry.color}">${entry.name}</h3>
-                    <div class="score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</div>
-                    <p style="color: rgba(255,255,255,0.6); font-size: 0.9rem; margin-top: 8px;">From ${entry.competitions} competition(s)</p>
+                    <div class="podium-rank">${podiumNames[idx]}</div>
+                    <div class="podium-name" style="color: ${entry.color}">${entry.name}</div>
+                    <div class="podium-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</div>
                 `;
-                grid.appendChild(card);
+                const base = document.createElement('div');
+                base.className = `podium-base ${podiumBaseClasses[idx]}`;
+                slot.appendChild(card);
+                slot.appendChild(base);
+                podiumEl.appendChild(slot);
             });
+
+            const others = contestants.slice(3);
+            if (others.length > 0) {
+                const section = document.createElement('div');
+                section.className = 'final-awards-section';
+                section.innerHTML = `<h3>Others</h3>`;
+                const list = document.createElement('div');
+                list.className = 'final-awards-list';
+                others.forEach(entry => {
+                    const item = document.createElement('div');
+                    item.className = 'final-award-item';
+                    item.innerHTML = `
+                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                        <span class="final-award-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</span>
+                    `;
+                    list.appendChild(item);
+                });
+                section.appendChild(list);
+                awardsEl.appendChild(section);
+            }
 
             wrapper.classList.remove('hidden');
         }
