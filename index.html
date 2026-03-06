@@ -1366,9 +1366,10 @@
             if (mode === 1) {
                 const categories = [];
                 let totalWeight = 0;
-                document.querySelectorAll('.score-category-item').forEach(item => {
+                document.querySelectorAll('#score-categories-list .score-category-item').forEach(item => {
                     const nameInput = item.querySelector('.category-name');
                     const weightInput = item.querySelector('.category-weight');
+                    if (!nameInput || !weightInput) return;
                     if (nameInput.value.trim()) {
                         const weight = parseFloat(weightInput.value) || 0;
                         categories.push({ name: nameInput.value.trim(), weight: weight });
