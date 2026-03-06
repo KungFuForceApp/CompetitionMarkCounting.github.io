@@ -106,6 +106,142 @@
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
+        .panel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .panel::before {
+            content: "";
+            position: absolute;
+            inset: -120px;
+            background: radial-gradient(circle at 20% 10%, rgba(102, 126, 234, 0.18), transparent 40%),
+                        radial-gradient(circle at 80% 30%, rgba(240, 147, 251, 0.14), transparent 45%),
+                        radial-gradient(circle at 55% 90%, rgba(56, 239, 125, 0.12), transparent 45%);
+            filter: blur(30px);
+            pointer-events: none;
+        }
+
+        .panel > * { position: relative; }
+
+        .nav-btn:active { transform: translateY(-1px); }
+
+        .competition-dropdown, .form-group input, .form-group textarea, .form-group select {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .submit-btn, .nav-btn, .add-btn, .copy-btn, .timer-controls button {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::after, .nav-btn::after, .add-btn::after, .copy-btn::after, .timer-controls button::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.25), transparent 45%);
+            opacity: 0;
+            transition: opacity 0.25s ease;
+            pointer-events: none;
+        }
+
+        .submit-btn:hover::after, .nav-btn:hover::after, .add-btn:hover::after, .copy-btn:hover::after, .timer-controls button:hover::after {
+            opacity: 1;
+        }
+
+        .board-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .mini-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.06);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .mini-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.09);
+        }
+
+        .mini-btn.primary {
+            border-color: rgba(102, 126, 234, 0.45);
+            background: rgba(102, 126, 234, 0.16);
+        }
+
+        .mini-btn.danger {
+            border-color: rgba(239, 68, 68, 0.35);
+            background: rgba(239, 68, 68, 0.12);
+        }
+
+        .fullscreen-surface:fullscreen {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 22px;
+            overflow: auto;
+        }
+
+        .fullscreen-surface:fullscreen .scoreboard-header {
+            margin-top: 10px;
+        }
+
+        .fullscreen-surface:fullscreen .scores-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .fullscreen-surface:fullscreen .final-podium {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .final-podium {
+            grid-template-columns: 1fr 1.15fr 1fr;
+            gap: 22px;
+        }
+
+        .podium-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            box-shadow: 0 14px 50px rgba(0,0,0,0.22);
+        }
+
+        .podium-slot:nth-child(2) .podium-card {
+            transform: translateY(-10px);
+        }
+
+        .podium-score {
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 24px rgba(255,255,255,0.10);
+        }
+
+        .podium-base {
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
+        }
+
+        .podium-base.first {
+            background: linear-gradient(180deg, rgba(255,215,0,0.18), rgba(255,215,0,0.04));
+        }
+
+        .podium-base.second {
+            background: linear-gradient(180deg, rgba(192,192,192,0.18), rgba(192,192,192,0.04));
+        }
+
+        .podium-base.third {
+            background: linear-gradient(180deg, rgba(205,127,50,0.18), rgba(205,127,50,0.04));
+        }
+
+        .final-award-item {
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+
         .panel.active {
             display: block;
             animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -505,6 +641,19 @@
             justify-content: center;
             flex-wrap: wrap;
             margin-top: 18px;
+        }
+
+        .quick-marks.mode1 {
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .quick-mark-btn.small {
+            width: auto;
+            height: auto;
+            border-radius: 14px;
+            padding: 10px 12px;
+            font-size: 0.95rem;
         }
 
         .quick-mark-btn {
@@ -966,6 +1115,10 @@
                 <div id="score-categories-list" class="score-categories-list"></div>
                 <button class="add-btn blue" onclick="addScoreCategory()">+ Add Category</button>
                 <div id="weight-total" class="weight-total">Total Weight: 0%</div>
+                <div class="form-group" style="margin-top: 18px;">
+                    <label>Quick Score Buttons (Mode 1)</label>
+                    <input type="text" id="mode1-quick-buttons" value="60,70,80,90,95,100" placeholder="e.g., 60,70,80,90,95,100">
+                </div>
             </div>
 
             <div id="mode2-settings" class="hidden">
@@ -1033,13 +1186,10 @@
                 <div id="referee-controls" class="referee-controls hidden">
                     <h3>🎮 Competition Controls</h3>
                     <div id="ref-timer-controls" class="timer-controls">
-                        <button class="start-btn" onclick="toggleTimer()">▶ Start</button>
+                        <button id="ref-toggle-btn" class="start-btn" onclick="toggleTimer()">▶ Start</button>
                         <button class="reset-btn" onclick="resetTimer()">↺ Reset</button>
                         <button class="export-btn" onclick="exportToGoogleSheets()">📤 Export</button>
                         <button class="delete-btn" onclick="confirmDeleteCompetition()">🗑️ Delete</button>
-                    </div>
-                    <div id="ref-start-competition" class="hidden" style="margin-top: 18px;">
-                        <button id="ref-start-btn" class="start-competition-btn" onclick="startCompetition()">🚀 Start Competition</button>
                     </div>
                 </div>
 
@@ -1062,6 +1212,9 @@
                     <p style="color: rgba(255,255,255,0.6);">Mode: <strong id="sb-comp-mode" style="color: #a78bfa;"></strong></p>
                     <div id="sb-timer" class="competition-timer hidden">00:00</div>
                     <div id="sb-competition-status" class="competition-status pending hidden">⏳ Waiting to Start</div>
+                    <div class="board-actions">
+                        <button class="mini-btn primary" type="button" onclick="toggleFullscreen('scoreboard-display')">Full Screen</button>
+                    </div>
                 </div>
                 <div id="scores-grid" class="scores-grid"></div>
             </div>
@@ -1085,8 +1238,6 @@
                 <select id="final-folder-select" class="competition-dropdown">
                     <option value="">-- Select folder --</option>
                 </select>
-                <input type="text" id="final-folder-input" placeholder="Or type folder path, e.g. 2026/Finals">
-                <small style="color: rgba(255,255,255,0.6);">If both are filled, typed folder path is used.</small>
             </div>
             <button class="submit-btn" style="max-width: 500px; margin: 10px auto 0; display: block;" onclick="showFinalScoreboard()">Show Final Scoreboard</button>
 
@@ -1094,6 +1245,9 @@
                 <div class="scoreboard-header">
                     <h2 id="final-title">Final Results</h2>
                     <p class="description" id="final-subtitle"></p>
+                    <div class="board-actions">
+                        <button class="mini-btn primary" type="button" onclick="toggleFullscreen('final-scoreboard-display')">Full Screen</button>
+                    </div>
                 </div>
                 <div id="final-podium" class="final-podium"></div>
                 <div id="final-awards" class="final-awards"></div>
@@ -1385,6 +1539,14 @@
                     return;
                 }
                 competition.scoreCategories = categories;
+
+                const quickInput = document.getElementById('mode1-quick-buttons');
+                if (quickInput) {
+                    const arr = quickInput.value.split(',').map(x => parseFloat(x.trim())).filter(x => !isNaN(x) && x >= 0 && x <= 100);
+                    if (arr.length > 0) {
+                        competition.mode1QuickButtons = arr.slice(0, 12);
+                    }
+                }
             }
 
             if (mode === 2) {
@@ -1481,7 +1643,6 @@ function setupRefereeInterface() {
     document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
     document.getElementById('referee-controls').classList.remove('hidden');
 
-    const refStartComp = document.getElementById('ref-start-competition');
     const refTimer = document.getElementById('ref-timer');
     const refStatus = document.getElementById('ref-status');
     const refTimerControls = document.getElementById('ref-timer-controls');
@@ -1489,18 +1650,11 @@ function setupRefereeInterface() {
     if (competitionData.mode === 2) {
         refTimer.classList.remove('hidden');
         refStatus.classList.remove('hidden');
-        
-        if (competitionData.status === 'running' || competitionData.timerState?.running) {
-            refStartComp.classList.add('hidden');
-            refTimerControls.classList.remove('hidden');
-        } else {
-            refStartComp.classList.remove('hidden');
-            refTimerControls.classList.add('hidden');
-        }
+        refTimerControls.classList.remove('hidden');
+        updateRefToggleButton();
     } else {
         refTimer.classList.add('hidden');
         refStatus.classList.add('hidden');
-        refStartComp.classList.add('hidden');
         refTimerControls.classList.add('hidden');
     }
 
@@ -1513,16 +1667,15 @@ function setupRefereeInterface() {
             if (competitionData.mode === 2) {
                 updateRefTimer();
                 updateRefereeStatus();
+                updateRefToggleButton();
                 
                 if (competitionData.status === 'running' || competitionData.timerState?.running) {
-                    document.getElementById('ref-start-competition').classList.add('hidden');
                     document.getElementById('ref-timer-controls').classList.remove('hidden');
                     
                     if (!timerInterval) {
                         startTimerSync();
                     }
                 } else {
-                    document.getElementById('ref-start-competition').classList.remove('hidden');
                     document.getElementById('ref-timer-controls').classList.add('hidden');
                     
                     stopTimerSync();
@@ -1563,15 +1716,24 @@ function setupRefereeInterface() {
                 if (competitionData.mode === 1) {
                     const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
                     const myScores = getMyScores(index);
+                    const quickButtons = Array.isArray(competitionData.mode1QuickButtons) && competitionData.mode1QuickButtons.length > 0
+                        ? competitionData.mode1QuickButtons
+                        : [60, 70, 80, 90, 95, 100];
 
                     let categoryInputsHtml = categories.map((cat, catIndex) => {
                         const myScore = myScores[cat.name] || '';
+                        const quickHtml = `
+                            <div class="quick-marks mode1">
+                                ${quickButtons.map(val => `<button type="button" class="quick-mark-btn small" onclick="setMode1QuickScore(${index}, ${catIndex}, ${val})">${val}</button>`).join('')}
+                            </div>
+                        `;
                         return `
                             <div class="category-score-row">
                                 <label>${cat.name}</label>
                                 <span class="weight-badge">${cat.weight}%</span>
                                 <input type="number" id="score-input-${index}-${catIndex}" min="0" max="100" step="0.1" placeholder="0-100" value="${myScore}">
                             </div>
+                            ${quickHtml}
                         `;
                     }).join('');
 
@@ -1666,6 +1828,13 @@ function updateRefTimer() {
     }
 }
 
+function updateRefToggleButton() {
+    const btn = document.getElementById('ref-toggle-btn');
+    if (!btn) return;
+    const running = competitionData?.timerState?.running || false;
+    btn.textContent = running ? '⏸ Stop' : '▶ Start';
+}
+
         function submitMode1Scores(contestantIndex) {
             const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
             const scores = {};
@@ -1694,6 +1863,13 @@ function updateRefTimer() {
                 .catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
+        function setMode1QuickScore(contestantIndex, catIndex, val) {
+            const input = document.getElementById(`score-input-${contestantIndex}-${catIndex}`);
+            if (!input) return;
+            input.value = String(val);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
         function submitMode2Vote(contestantIndex, mark) {
             if (!competitionData.timerState || !competitionData.timerState.running) {
                 showStatus('Competition not running', 'error');
@@ -1716,7 +1892,7 @@ function updateRefTimer() {
                 mark: mark,
                 refereeId: currentRefereeId,
                 refereeName: currentRefereeName,
-                timestamp: firebase.database.ServerValue.TIMESTAMP
+                timestamp: Date.now()
             }).then(() => {
                 database.ref(`competitions/${currentCompetitionId}/refereeCooldowns/${currentRefereeId}`).set(now);
                 
@@ -1729,42 +1905,45 @@ function updateRefTimer() {
                         btn.disabled = false;
                     }, timeWindow);
                 }
-                checkConsensus(contestantIndex);
+                checkConsensusFromDb(contestantIndex);
             });
         }
 
-        function checkConsensus(contestantIndex) {
-            const votes = competitionData.votes?.[contestantIndex];
-            if (!votes) return;
+        function checkConsensusFromDb(contestantIndex) {
+            const votesRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`);
+            votesRef.once('value').then(snapshot => {
+                const votes = snapshot.val();
+                if (!votes) return;
 
-            const now = Date.now();
-            const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-            const requiredVotes = competitionData.consensusThreshold || 2;
+                const now = Date.now();
+                const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
+                const requiredVotes = competitionData.consensusThreshold || 2;
 
-            const voteArray = Object.values(votes);
-            const recentVotes = voteArray.filter(v => now - v.timestamp < timeWindow);
+                const voteArray = Object.values(votes);
+                const recentVotes = voteArray.filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
 
-            const markCounts = {};
-            recentVotes.forEach(v => {
-                markCounts[v.mark] = (markCounts[v.mark] || 0) + 1;
-            });
+                const markCounts = {};
+                recentVotes.forEach(v => {
+                    markCounts[v.mark] = (markCounts[v.mark] || 0) + 1;
+                });
 
-            for (const [mark, count] of Object.entries(markCounts)) {
-                if (count >= requiredVotes) {
-                    const newScore = (competitionData.contestants[contestantIndex].score || 0) + parseInt(mark);
-                    database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/score`).set(newScore);
-                    database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({
-                        mark: parseInt(mark),
-                        votes: count,
-                        timestamp: firebase.database.ServerValue.TIMESTAMP
-                    });
-                    database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).remove();
-                    showStatus(`+${mark} scored!`, 'success');
-                    break;
+                for (const [mark, count] of Object.entries(markCounts)) {
+                    if (count >= requiredVotes) {
+                        const newScore = (competitionData.contestants[contestantIndex].score || 0) + parseInt(mark);
+                        database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/score`).set(newScore);
+                        database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({
+                            mark: parseInt(mark),
+                            votes: count,
+                            timestamp: Date.now()
+                        });
+                        votesRef.remove();
+                        showStatus(`+${mark} scored!`, 'success');
+                        break;
+                    }
                 }
-            }
 
-            updateVoteStatus(contestantIndex, markCounts, requiredVotes);
+                updateVoteStatus(contestantIndex, markCounts, requiredVotes);
+            });
         }
 
         function updateVoteStatus(contestantIndex, markCounts, requiredVotes) {
@@ -1898,7 +2077,6 @@ function toggleTimer() {
     if (!currentCompetitionId || !competitionData) return;
     
     const newState = !competitionData.timerState.running;
-    const now = Date.now();
     const currentRemaining = competitionData.timerState.remaining;
     
     const updates = {
@@ -1913,10 +2091,12 @@ function toggleTimer() {
     database.ref(`competitions/${currentCompetitionId}/timerState`).update(updates)
         .then(() => {
             if (newState) {
+                database.ref(`competitions/${currentCompetitionId}/status`).set('running');
                 startTimerSync();
             } else {
                 stopTimerSync();
             }
+            updateRefToggleButton();
         });
 }
 
@@ -2139,6 +2319,17 @@ function startCompetition() {
             document.getElementById('final-folder-wrapper').classList.toggle('hidden', type !== 'folder');
         }
 
+        function toggleFullscreen(elementId) {
+            const el = document.getElementById(elementId);
+            if (!el) return;
+            el.classList.add('fullscreen-surface');
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            } else {
+                el.requestFullscreen?.();
+            }
+        }
+
         function showFinalScoreboard() {
             const type = document.getElementById('final-type').value;
             if (type === 'competition') {
@@ -2163,13 +2354,12 @@ function startCompetition() {
                 renderFinalScoreboardForCompetition(comp);
             } else {
                 const selectFolder = document.getElementById('final-folder-select').value;
-                const inputFolder = document.getElementById('final-folder-input').value.trim();
-                const folderPath = inputFolder || selectFolder;
-                if (!folderPath) {
-                    showStatus('Please select or type a folder path', 'error');
+                const folderId = selectFolder;
+                if (!folderId) {
+                    showStatus('Please select a folder', 'error');
                     return;
                 }
-                renderFinalScoreboardForFolder(folderPath);
+                renderFinalScoreboardForFolder(folderId);
             }
         }
 
