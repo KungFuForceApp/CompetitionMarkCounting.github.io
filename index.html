@@ -3066,20 +3066,26 @@
         ];
 
         function getDynamicExportFields() {
-            // Returns extra per-category and per-referee field defs based on current competition
             if (!competitionData || competitionData.mode !== 1) return [];
             const extra = [];
             const categories = competitionData.scoreCategories || [];
+            // Per-category average columns
             categories.forEach(cat => {
-                extra.push({ key: `cat_${cat.name}`, label: `Avg: ${cat.name}`, modes: [1], dynamic: true });
+                extra.push({ key: `${cat.name}_avg`, label: `Avg: ${cat.name}`, modes: [1], dynamic: true });
             });
-            // Count max referees across contestants
+            // Per-referee columns
             const mode1Scores = competitionData.mode1Scores || {};
             let maxRefs = 0;
-            Object.values(mode1Scores).forEach(cs => { maxRefs = Math.max(maxRefs, Object.keys(cs).length); });
+            Object.values(mode1Scores).forEach(cs => {
+                const count = Object.values(cs).filter(v => typeof v === 'object').length;
+                maxRefs = Math.max(maxRefs, count);
+            });
             for (let r = 1; r <= maxRefs; r++) {
-                extra.push({ key: `ref_${r}_name`, label: `Referee ${r} Name`, modes: [1], dynamic: true });
-                extra.push({ key: `ref_${r}`,      label: `Referee ${r} Score`, modes: [1], dynamic: true });
+                extra.push({ key: `Ref${r}_name`, label: `Referee ${r} Name`, modes: [1], dynamic: true });
+                categories.forEach(cat => {
+                    extra.push({ key: `Ref${r}_${cat.name}`, label: `Ref ${r}: ${cat.name}`, modes: [1], dynamic: true });
+                });
+                extra.push({ key: `Ref${r}_total`, label: `Ref ${r}: Total`, modes: [1], dynamic: true });
             }
             return extra;
         }
@@ -3103,9 +3109,23 @@
             const fieldOrder = [...savedOrder, ...remaining];
             const disabledFields = new Set(saved.disabledFields || []);
 
-            const sheetUrl = saved.sheetUrl || GOOGLE_SHEETS_URL;
+            const spreadsheetId = saved.spreadsheetId || '';
             const sheetName = saved.sheetName || 'Competition-Score-Manager';
             const startRow = saved.startRow || '';
+
+            // Show category columns preview for mode 1
+            const categories = (competitionData.scoreCategories || []);
+            const catPreviewHtml = mode === 1 && categories.length ? `
+                <div class="mode-info" style="margin: 12px 0; padding: 12px 16px;">
+                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">📋 Score Categories → each gets its own column in sheet</div>
+                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
+                        ${categories.map((cat, i) => `<span class="award-chip">${i+1}. ${cat.name} <span style="opacity:0.6">(${cat.weight}%)</span></span>`).join('')}
+                    </div>
+                    <div style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">
+                        Columns exported: <strong>${categories.map(c => c.name + '_avg').join(', ')}</strong>
+                        ${Object.keys(competitionData.mode1Scores || {}).length > 0 ? `<br>+ per-referee: <strong>${categories.map(c => 'Ref1_' + c.name + ', Ref2_' + c.name + '…').join(' ')}</strong>` : ''}
+                    </div>
+                </div>` : '';
 
             // Build modal
             const overlay = document.createElement('div');
@@ -3128,12 +3148,12 @@
             overlay.innerHTML = `
                 <div class="export-modal-content">
                     <h3>📤 Export to Google Sheets</h3>
-                    <p class="sub">Configure which data to export and in what order. Drag rows to reorder columns.</p>
+                    <p class="sub">Data goes directly into your spreadsheet. Columns are auto-created if missing.</p>
 
                     <div class="export-section-title">🔗 Google Sheet Settings</div>
                     <div class="form-group" style="margin-bottom:10px;">
-                        <label style="font-size:0.82rem;">Apps Script URL</label>
-                        <input type="text" id="export-sheet-url" value="${sheetUrl}" placeholder="https://script.google.com/..." style="font-size:0.82rem;">
+                        <label style="font-size:0.82rem;">Spreadsheet ID <span style="color:var(--text-muted); font-weight:400;">(from the URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit)</span></label>
+                        <input type="text" id="export-spreadsheet-id" value="${spreadsheetId}" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" style="font-size:0.82rem; font-family:monospace;">
                     </div>
                     <div style="display:flex; gap:10px;">
                         <div class="form-group" style="flex:2; margin-bottom:0;">
@@ -3146,14 +3166,16 @@
                         </div>
                     </div>
 
-                    <div class="export-section-title" style="margin-top:20px;">📋 Columns — drag to reorder, tap ✅ to toggle</div>
+                    ${catPreviewHtml}
+
+                    <div class="export-section-title" style="margin-top:16px;">📋 Columns — drag to reorder, ✅ to toggle</div>
                     <div id="export-fields-list" style="display:flex; flex-direction:column; gap:7px;">
                         ${fieldsHtml}
                     </div>
 
                     <div class="export-actions">
                         <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
-                        <button class="export-cancel-btn" onclick="previewExportData()" style="border-color:#fbbf24; color:#fbbf24;">🔍 Preview Data</button>
+                        <button class="export-cancel-btn" onclick="previewExportData()" style="border-color:#fbbf24; color:#fbbf24;">🔍 Preview</button>
                         <button class="export-run-btn" onclick="runExport()">📤 Export Now</button>
                     </div>
                     <div id="export-preview" style="margin-top:16px; display:none;">
@@ -3230,14 +3252,18 @@
             if (!competitionData || !currentCompetitionId) return;
 
             const list = document.getElementById('export-fields-list');
-            const sheetUrl = document.getElementById('export-sheet-url').value.trim();
+            const spreadsheetId = document.getElementById('export-spreadsheet-id').value.trim();
             const sheetName = document.getElementById('export-sheet-name').value.trim();
             const startRow = parseInt(document.getElementById('export-start-row').value) || 0;
+
+            if (!spreadsheetId) {
+                showStatus('Please enter a Spreadsheet ID', 'error');
+                return;
+            }
 
             // Collect current field order + enabled state
             const fieldOrder = [];
             const disabledFields = [];
-            const allDefs = [...EXPORT_FIELD_DEFS, ...getDynamicExportFields()];
             list.querySelectorAll('.export-field-row').forEach(row => {
                 const key = row.dataset.key;
                 fieldOrder.push(key);
@@ -3245,11 +3271,12 @@
                 if (!enabled) disabledFields.push(key);
             });
 
-            // Save settings
-            saveExportSettings({ sheetUrl, sheetName, startRow, fieldOrder, disabledFields });
+            saveExportSettings({ spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
             closeExportModal();
 
             const mode = competitionData.mode;
+            const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
+
             const contestants = [...competitionData.contestants].map((c, i) => ({
                 ...c, _index: i,
                 finalScore: mode === 1 ? calculateWeightedAverageScoreForCompetition(competitionData, i) : (c.score || 0)
@@ -3263,7 +3290,6 @@
                 const c = contestants[rankIdx];
                 const i = c._index;
 
-                // Build full data object
                 const allData = {
                     competition_id:   currentCompetitionId,
                     competition_name: competitionData.name,
@@ -3276,47 +3302,46 @@
                 };
 
                 if (mode === 1) {
-                    const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
-                    // Firebase stores numeric keys as strings — use String(i) to match
-                    const contestantScores = competitionData.mode1Scores?.[i] 
-                        || competitionData.mode1Scores?.[String(i)] 
-                        || {};
-                    // Filter out metadata keys (refereeName, timestamp) — only keep referee entries
-                    const refereeEntries = Object.entries(contestantScores).filter(([, v]) => typeof v === 'object' && v !== null);
-
-                    console.log(`[Export] Contestant ${i} (${c.name}): ${refereeEntries.length} referee(s)`, contestantScores);
+                    const contestantScores = competitionData.mode1Scores?.[i]
+                        || competitionData.mode1Scores?.[String(i)] || {};
+                    const refereeEntries = Object.entries(contestantScores)
+                        .filter(([, v]) => typeof v === 'object' && v !== null);
 
                     allData.referee_count = refereeEntries.length;
-                    allData.categories = categories.map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
 
-                    // Per-referee weighted totals
-                    const refWeightedScores = refereeEntries.map(([refId, refCatScores]) => {
-                        const refName = refCatScores.refereeName || refId.substring(0, 8);
-                        const weighted = categories.reduce((sum, cat) => {
-                            const val = parseFloat(refCatScores[cat.name]) || 0;
-                            return sum + val * (cat.weight / 100);
-                        }, 0);
-                        console.log(`  Referee ${refName}: weighted=${weighted.toFixed(2)}`, refCatScores);
-                        return { refName, weighted, refCatScores };
-                    });
-                    allData.ref_scores = refWeightedScores.map(r => `${r.refName}:${r.weighted.toFixed(1)}`).join(' | ');
-
-                    // Per-category averages
-                    const catAvgs = categories.map(cat => {
+                    // Per-category average columns — one column per category, in defined order
+                    categories.forEach(cat => {
                         const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
                         const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-                        return { name: cat.name, avg };
+                        allData[`${cat.name}_avg`] = avg.toFixed(2);
                     });
-                    allData.cat_scores = catAvgs.map(ca => `${ca.name}:${ca.avg.toFixed(1)}`).join(' | ');
 
-                    // Individual per-category columns
-                    catAvgs.forEach(ca => { allData[`cat_${ca.name}`] = ca.avg.toFixed(2); });
-
-                    // Individual per-referee columns
-                    refWeightedScores.forEach((r, ri) => {
-                        allData[`ref_${ri + 1}_name`] = r.refName;
-                        allData[`ref_${ri + 1}`] = r.weighted.toFixed(2);
+                    // Per-referee × per-category columns — Ref1_Technique, Ref1_Power, Ref2_Technique...
+                    refereeEntries.forEach(([, refScores], ri) => {
+                        const refLabel = `Ref${ri + 1}`;
+                        allData[`${refLabel}_name`] = refScores.refereeName || `Ref${ri + 1}`;
+                        categories.forEach(cat => {
+                            allData[`${refLabel}_${cat.name}`] = (parseFloat(refScores[cat.name]) || 0).toFixed(2);
+                        });
+                        // Ref weighted total
+                        const weighted = categories.reduce((sum, cat) =>
+                            sum + (parseFloat(refScores[cat.name]) || 0) * (cat.weight / 100), 0);
+                        allData[`${refLabel}_total`] = weighted.toFixed(2);
                     });
+
+                    // Summary strings (optional, toggleable)
+                    allData.ref_scores = refereeEntries.map(([, s], ri) => {
+                        const name = s.refereeName || `Ref${ri+1}`;
+                        const weighted = categories.reduce((sum, cat) =>
+                            sum + (parseFloat(s[cat.name]) || 0) * (cat.weight / 100), 0);
+                        return `${name}:${weighted.toFixed(1)}`;
+                    }).join(' | ');
+                    allData.cat_scores = categories.map(cat => {
+                        const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
+                        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+                        return `${cat.name}:${avg.toFixed(1)}`;
+                    }).join(' | ');
+                    allData.categories = categories.map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
 
                 } else {
                     const markHistory = c.markHistory ? Object.values(c.markHistory) : [];
@@ -3324,16 +3349,19 @@
                     allData.total_score = c.score || 0;
                 }
 
-                // Build form data with only enabled fields in chosen order, plus sheet_name + insert_after_row
+                // Build ordered form data
                 const formData = new URLSearchParams();
+                formData.append('_spreadsheet_id', spreadsheetId);
                 formData.append('_sheet_name', sheetName);
                 if (startRow > 0) formData.append('_insert_after_row', startRow + rankIdx);
+                // Send column order hint so Apps Script writes them in the right order
+                formData.append('_col_order', enabledFields.join(','));
                 enabledFields.forEach(key => {
                     formData.append(key, String(allData[key] ?? ''));
                 });
 
                 try {
-                    const resp = await fetch(sheetUrl, {
+                    const resp = await fetch(GOOGLE_SHEETS_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
