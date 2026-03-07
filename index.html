@@ -812,6 +812,60 @@
         .modal-buttons .confirm-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
         .modal-buttons .cancel-btn { background: var(--item-bg); color: var(--text-primary); border: 2px solid var(--input-border); }
 
+        /* ===== EXPORT MODAL ===== */
+        .export-modal-content {
+            background: var(--modal-bg);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 600px;
+            width: 94%;
+            max-height: 90vh;
+            overflow-y: auto;
+            text-align: left;
+            border: 2px solid #11998e;
+        }
+        .export-modal-content h3 { color: #38ef7d; margin-bottom: 6px; font-size: 1.3rem; }
+        .export-modal-content .sub { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 22px; }
+        .export-section-title {
+            font-size: 0.78rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text-muted); margin: 18px 0 8px;
+        }
+        .export-field-row {
+            display: flex; align-items: center; gap: 10px;
+            padding: 9px 12px;
+            background: var(--item-bg); border: 1px solid var(--item-border);
+            border-radius: 10px; cursor: grab; user-select: none;
+            transition: box-shadow 0.15s;
+        }
+        .export-field-row.drag-over { box-shadow: 0 0 0 2px #38ef7d; opacity: 0.75; }
+        .export-field-row:active { cursor: grabbing; }
+        .export-field-drag { color: var(--text-muted); font-size: 1rem; }
+        .export-field-label { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+        .export-field-key {
+            font-size: 0.75rem; color: var(--text-muted); font-family: monospace;
+            background: var(--input-bg); padding: 2px 7px; border-radius: 6px;
+        }
+        .export-field-toggle { cursor: pointer; font-size: 1.1rem; }
+        .export-actions { display: flex; gap: 12px; margin-top: 24px; justify-content: flex-end; flex-wrap: wrap; }
+        .export-run-btn {
+            background: linear-gradient(135deg, #11998e, #38ef7d);
+            color: #0d2b1e; font-weight: 700; padding: 12px 28px;
+            border: none; border-radius: 12px; cursor: pointer; font-size: 0.95rem;
+        }
+        .export-cancel-btn {
+            background: var(--item-bg); color: var(--text-primary);
+            border: 2px solid var(--input-border); padding: 12px 22px;
+            border-radius: 12px; cursor: pointer; font-size: 0.95rem;
+        }
+        .export-toggle-row {
+            display: flex; align-items: center; gap: 12px;
+            padding: 10px 14px; background: var(--item-bg);
+            border: 1px solid var(--item-border); border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .export-toggle-label { flex: 1; font-size: 0.9rem; color: var(--text-primary); }
+        .export-toggle-row input[type=checkbox] { width: 18px; height: 18px; cursor: pointer; accent-color: #38ef7d; }
+
         .scoreboard { text-align: center; }
 
         .scoreboard-header {
@@ -1449,37 +1503,28 @@
         #rankings-fullscreen-surface:fullscreen .rankings-table th { color: #a78bfa; }
         #rankings-fullscreen-surface:fullscreen .rankings-podium { max-width: 820px; }
 
-        .award-weight-row {
+        .award-order-item {
             display: flex;
             align-items: center;
             gap: 10px;
             padding: 10px 14px;
             background: var(--item-bg);
-            border-radius: 10px;
             border: 1px solid var(--item-border);
-            flex-wrap: wrap;
+            border-radius: 10px;
+            cursor: grab;
+            user-select: none;
+            transition: opacity 0.15s, box-shadow 0.15s;
         }
-
-        .award-weight-name {
-            flex: 1;
-            font-weight: 600;
-            font-size: 0.92rem;
-            color: var(--text-primary);
-            min-width: 120px;
+        .award-order-item:active { cursor: grabbing; }
+        .award-order-item.drag-over { box-shadow: 0 0 0 2px #667eea; opacity: 0.7; }
+        .award-order-item .drag-handle { color: var(--text-muted); font-size: 1.1rem; }
+        .award-order-item .award-order-rank {
+            font-size: 0.78rem; font-weight: 700;
+            color: var(--text-muted); min-width: 22px;
         }
-
-        .award-weight-pts-input {
-            width: 80px;
-            padding: 8px 10px;
-            border: 2px solid var(--input-border);
-            border-radius: 8px;
-            background: var(--input-bg);
-            color: var(--text-primary);
-            font-size: 0.9rem;
-            text-align: center;
+        .award-order-item .award-order-name {
+            flex: 1; font-weight: 600; font-size: 0.92rem; color: var(--text-primary);
         }
-
-        .award-chip {
             display: inline-flex;
             align-items: center;
             gap: 5px;
@@ -1494,21 +1539,6 @@
         }
 
         body.light-mode .award-chip { color: #5b21b6; background: rgba(91,33,182,0.1); }
-
-        .award-chip .pts-tag {
-            font-size: 0.7rem;
-            font-weight: 600;
-            padding: 1px 5px;
-            border-radius: 8px;
-            background: rgba(102,126,234,0.3);
-        }
-
-        .award-weight-display-wrap {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            align-items: center;
-        }
 
         /* Per-award column badges in table */
         .award-col-badge {
@@ -1783,7 +1813,7 @@
                     <div id="ref-timer-controls" class="timer-controls">
                         <button id="ref-toggle-btn" class="start-btn" onclick="toggleTimer()">▶ Start</button>
                         <button class="reset-btn" onclick="resetTimer()">↺ Reset</button>
-                        <button class="export-btn" onclick="exportToGoogleSheets()">📤 Export</button>
+                        <button class="export-btn" onclick="openExportModal()">📤 Export</button>
                         <button class="delete-btn" onclick="confirmDeleteCompetition()">🗑️ Delete</button>
                     </div>
                 </div>
@@ -1813,6 +1843,7 @@
                     <div id="sb-competition-status" class="competition-status pending hidden">⏳ Waiting to Start</div>
                     <div class="board-actions">
                         <button class="mini-btn primary" type="button" onclick="toggleFullscreen('scoreboard-display')">Full Screen</button>
+                        <button class="mini-btn" style="background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,87,108,0.15)); border-color:rgba(251,191,36,0.4); color:#fbbf24;" type="button" onclick="showPanel('final')">🏅 Go to Final</button>
                         <button class="mini-btn" type="button" onclick="toggleShareLinks('sb-share-links', competitionData?.name)">🔗 Share Links</button>
                     </div>
                     <div id="sb-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
@@ -1831,8 +1862,11 @@
                 </select>
             </div>
             <div id="final-comp-wrapper" class="form-group" style="max-width: 500px; margin: 0 auto;">
-                <label>Competition Name</label>
-                <input type="text" id="final-comp-name" placeholder="Enter competition name">
+                <label>Competition</label>
+                <select id="final-comp-select" class="competition-dropdown" onchange="document.getElementById('final-comp-name').value = this.options[this.selectedIndex]?.dataset?.name || ''">
+                    <option value="">— Select a competition —</option>
+                </select>
+                <input type="text" id="final-comp-name" placeholder="Or type competition name" style="margin-top: 10px;">
             </div>
             <div id="final-folder-wrapper" class="form-group hidden" style="max-width: 500px; margin: 0 auto;">
                 <label>Folder Path</label>
@@ -1881,17 +1915,17 @@
                 </div>
             </div>
 
-            <!-- Award Weight Configuration -->
-            <div id="award-weights-section" class="mode-info" style="margin-bottom: 22px;">
-                <h4 style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
-                    🏅 Award Point Weights
-                    <button class="mini-btn" onclick="toggleAwardWeightsEditor()" id="award-weights-toggle-btn" style="font-size:0.8rem; padding:5px 12px;">✏️ Edit</button>
+            <!-- Award Order Info -->
+            <div class="mode-info" style="margin-bottom: 22px;">
+                <h4 style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    🏅 Award Ranking Order
+                    <button class="mini-btn" onclick="toggleAwardOrderEditor()" id="award-order-toggle-btn" style="font-size:0.8rem; padding:5px 12px;">✏️ Edit Order</button>
                 </h4>
-                <p style="margin-bottom: 12px;">Set how many ranking points each award type is worth. Higher = more impact on the leaderboard.</p>
-                <div id="award-weights-display"></div>
-                <div id="award-weights-editor" class="hidden" style="margin-top:14px;">
-                    <div id="award-weights-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:14px;"></div>
-                    <button class="add-btn" onclick="saveAwardWeights()" style="margin:0;">💾 Save Weights</button>
+                <p style="margin-bottom:10px;">The first award beats the second, and so on. Drag to reorder.</p>
+                <div id="award-order-display"></div>
+                <div id="award-order-editor" class="hidden" style="margin-top:14px;">
+                    <div id="award-order-list" style="display:flex; flex-direction:column; gap:8px; margin-bottom:14px;"></div>
+                    <button class="add-btn" onclick="saveAwardOrder()" style="margin:0;">💾 Save Order</button>
                 </div>
             </div>
 
@@ -1956,6 +1990,25 @@
         }
 
         function updateCompetitionDropdowns() {
+            const sel = document.getElementById('final-comp-select');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">— Select a competition —</option>';
+            // Sort competitions by name
+            const sorted = Object.entries(allCompetitions)
+                .filter(([, c]) => c && c.name)
+                .sort(([, a], [, b]) => a.name.localeCompare(b.name));
+            sorted.forEach(([id, comp]) => {
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.dataset.name = comp.name;
+                const statusBadge = comp.status === 'ended' ? ' ✅' : comp.status === 'running' ? ' 🔴' : '';
+                opt.textContent = comp.name + statusBadge;
+                sel.appendChild(opt);
+            });
+            if (current && sel.querySelector(`option[value="${current}"]`)) {
+                sel.value = current;
+            }
         }
 
         function updateFolderOptions() {
@@ -2044,6 +2097,23 @@
             }
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
+
+            // Auto-fill final scoreboard if we have a current competition
+            if (panelName === 'final' && currentCompetitionId && allCompetitions[currentCompetitionId]) {
+                const comp = allCompetitions[currentCompetitionId];
+                // Set dropdown
+                const sel = document.getElementById('final-comp-select');
+                if (sel) {
+                    sel.value = currentCompetitionId;
+                    // If not found (dropdown not yet populated), set text fallback
+                    if (!sel.value) {
+                        document.getElementById('final-comp-name').value = comp.name;
+                    }
+                }
+                document.getElementById('final-comp-name').value = comp.name;
+                document.getElementById('final-type').value = 'competition';
+                updateFinalType();
+            }
         }
 
         function updateModeInfo() {
@@ -2964,65 +3034,238 @@
                 });
         }
 
-        async function exportToGoogleSheets() {
+        // ===== EXPORT TO GOOGLE SHEETS (with settings modal) =====
+
+        const EXPORT_STORAGE_KEY = 'exportSettings';
+
+        function getExportSettings() {
+            try { return JSON.parse(localStorage.getItem(EXPORT_STORAGE_KEY)) || {}; } catch { return {}; }
+        }
+        function saveExportSettings(s) { localStorage.setItem(EXPORT_STORAGE_KEY, JSON.stringify(s)); }
+
+        // All possible fields for export, with labels and which modes they apply to
+        const EXPORT_FIELD_DEFS = [
+            { key: 'competition_name',  label: 'Competition Name',   modes: [1,2] },
+            { key: 'contestant_name',   label: 'Contestant Name',    modes: [1,2] },
+            { key: 'final_score',       label: 'Final Score',        modes: [1,2] },
+            { key: 'rank',              label: 'Rank',               modes: [1,2] },
+            { key: 'mode',              label: 'Mode',               modes: [1,2] },
+            { key: 'color',             label: 'Colour Tag',         modes: [1,2] },
+            { key: 'competition_id',    label: 'Competition ID',     modes: [1,2] },
+            // Mode 1 specific
+            { key: 'referee_count',     label: 'Referee Count',      modes: [1] },
+            { key: 'categories',        label: 'Score Categories',   modes: [1] },
+            { key: 'ref_scores',        label: 'Per-Referee Scores', modes: [1] },
+            { key: 'cat_scores',        label: 'Per-Category Avg',   modes: [1] },
+            // Mode 2 specific
+            { key: 'mark_history',      label: 'Mark History',       modes: [2] },
+            { key: 'total_score',       label: 'Total Score (raw)',  modes: [2] },
+            { key: 'Timestamp',         label: 'Timestamp',          modes: [1,2] },
+        ];
+
+        function openExportModal() {
             if (!competitionData || !currentCompetitionId) {
-                showStatus('No competition data', 'error');
+                showStatus('No competition loaded', 'error');
                 return;
             }
-
-            const contestants = competitionData.contestants;
             const mode = competitionData.mode;
-            let successCount = 0, errorCount = 0;
+            const saved = getExportSettings();
 
+            // Field order: use saved order, append any new ones at end
+            const applicableFields = EXPORT_FIELD_DEFS.filter(f => f.modes.includes(mode));
+            const savedOrder = (saved.fieldOrder || []).filter(k => applicableFields.find(f => f.key === k));
+            const remaining = applicableFields.filter(f => !savedOrder.includes(f.key)).map(f => f.key);
+            const fieldOrder = [...savedOrder, ...remaining];
+            const disabledFields = new Set(saved.disabledFields || []);
+
+            const sheetUrl = saved.sheetUrl || GOOGLE_SHEETS_URL;
+            const sheetName = saved.sheetName || 'Competition-Score-Manager';
+            const startRow = saved.startRow || '';
+
+            // Build modal
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay';
+            overlay.id = 'export-modal';
+
+            const fieldsHtml = fieldOrder.map((key, i) => {
+                const def = applicableFields.find(f => f.key === key);
+                if (!def) return '';
+                const enabled = !disabledFields.has(key);
+                return `
+                    <div class="export-field-row" draggable="true" data-key="${key}" data-index="${i}">
+                        <span class="export-field-drag">☰</span>
+                        <span class="export-field-label">${def.label}</span>
+                        <span class="export-field-key">${key}</span>
+                        <span class="export-field-toggle" onclick="toggleExportField(this, '${key}')" title="Enable/disable">${enabled ? '✅' : '⬜'}</span>
+                    </div>`;
+            }).join('');
+
+            overlay.innerHTML = `
+                <div class="export-modal-content">
+                    <h3>📤 Export to Google Sheets</h3>
+                    <p class="sub">Configure which data to export and in what order. Drag rows to reorder columns.</p>
+
+                    <div class="export-section-title">🔗 Google Sheet Settings</div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:0.82rem;">Apps Script URL</label>
+                        <input type="text" id="export-sheet-url" value="${sheetUrl}" placeholder="https://script.google.com/..." style="font-size:0.82rem;">
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <div class="form-group" style="flex:2; margin-bottom:0;">
+                            <label style="font-size:0.82rem;">Sheet Tab Name</label>
+                            <input type="text" id="export-sheet-name" value="${sheetName}" placeholder="Competition-Score-Manager">
+                        </div>
+                        <div class="form-group" style="flex:1; margin-bottom:0;">
+                            <label style="font-size:0.82rem;">Insert After Row (0 = append)</label>
+                            <input type="number" id="export-start-row" value="${startRow}" min="0" placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="export-section-title" style="margin-top:20px;">📋 Columns — drag to reorder, tap ✅ to toggle</div>
+                    <div id="export-fields-list" style="display:flex; flex-direction:column; gap:7px;">
+                        ${fieldsHtml}
+                    </div>
+
+                    <div class="export-actions">
+                        <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
+                        <button class="export-run-btn" onclick="runExport()">📤 Export Now</button>
+                    </div>
+                </div>`;
+
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', e => { if (e.target === overlay) closeExportModal(); });
+            initExportDrag();
+        }
+
+        function closeExportModal() {
+            const m = document.getElementById('export-modal');
+            if (m) m.remove();
+        }
+
+        function toggleExportField(el, key) {
+            const isEnabled = el.textContent === '✅';
+            el.textContent = isEnabled ? '⬜' : '✅';
+        }
+
+        let exportDragSrc = null;
+        function initExportDrag() {
+            const list = document.getElementById('export-fields-list');
+            if (!list) return;
+            list.querySelectorAll('.export-field-row').forEach(row => {
+                row.addEventListener('dragstart', e => { exportDragSrc = row; e.dataTransfer.effectAllowed = 'move'; });
+                row.addEventListener('dragover', e => { e.preventDefault(); list.querySelectorAll('.export-field-row').forEach(r => r.classList.remove('drag-over')); row.classList.add('drag-over'); });
+                row.addEventListener('dragleave', () => row.classList.remove('drag-over'));
+                row.addEventListener('drop', e => {
+                    e.preventDefault(); row.classList.remove('drag-over');
+                    if (!exportDragSrc || exportDragSrc === row) return;
+                    const rows = [...list.querySelectorAll('.export-field-row')];
+                    const srcIdx = rows.indexOf(exportDragSrc);
+                    const tgtIdx = rows.indexOf(row);
+                    if (srcIdx < tgtIdx) row.after(exportDragSrc);
+                    else row.before(exportDragSrc);
+                });
+            });
+        }
+
+        async function runExport() {
+            if (!competitionData || !currentCompetitionId) return;
+
+            const list = document.getElementById('export-fields-list');
+            const sheetUrl = document.getElementById('export-sheet-url').value.trim();
+            const sheetName = document.getElementById('export-sheet-name').value.trim();
+            const startRow = parseInt(document.getElementById('export-start-row').value) || 0;
+
+            // Collect current field order + enabled state
+            const fieldOrder = [];
+            const disabledFields = [];
+            list.querySelectorAll('.export-field-row').forEach(row => {
+                const key = row.dataset.key;
+                fieldOrder.push(key);
+                const enabled = row.querySelector('.export-field-toggle').textContent === '✅';
+                if (!enabled) disabledFields.push(key);
+            });
+
+            // Save settings
+            saveExportSettings({ sheetUrl, sheetName, startRow, fieldOrder, disabledFields });
+            closeExportModal();
+
+            const mode = competitionData.mode;
+            const contestants = [...competitionData.contestants].map((c, i) => ({
+                ...c, _index: i,
+                finalScore: mode === 1 ? calculateWeightedAverageScoreForCompetition(competitionData, i) : (c.score || 0)
+            })).sort((a, b) => b.finalScore - a.finalScore);
+
+            const enabledFields = fieldOrder.filter(k => !disabledFields.includes(k));
+            let successCount = 0, errorCount = 0;
             showStatus('Exporting...', 'info');
 
-            for (let index = 0; index < contestants.length; index++) {
-                const contestant = contestants[index];
-                const finalScore = mode === 1 ? calculateWeightedAverageScoreForCompetition(competitionData, index) : (contestant.score || 0);
+            for (let rankIdx = 0; rankIdx < contestants.length; rankIdx++) {
+                const c = contestants[rankIdx];
+                const i = c._index;
 
-                const data = {
-                    competition_id: currentCompetitionId,
+                // Build full data object
+                const allData = {
+                    competition_id:   currentCompetitionId,
                     competition_name: competitionData.name,
-                    mode: `Mode ${mode}`,
-                    contestant_name: contestant.name,
-                    final_score: finalScore.toFixed(2),
-                    color: contestant.color
+                    contestant_name:  c.name,
+                    final_score:      c.finalScore.toFixed(2),
+                    rank:             rankIdx + 1,
+                    mode:             `Mode ${mode}`,
+                    color:            c.color || '',
+                    Timestamp:        new Date().toISOString(),
                 };
 
                 if (mode === 1) {
-                    data.referee_count = competitionData.mode1Scores?.[index] ? Object.keys(competitionData.mode1Scores[index]).length : 0;
-                    if (competitionData.scoreCategories) {
-                        data.categories = competitionData.scoreCategories.map(c => `${c.name}(${c.weight}%)`).join(', ');
+                    allData.referee_count = competitionData.mode1Scores?.[i]
+                        ? Object.keys(competitionData.mode1Scores[i]).length : 0;
+                    allData.categories = (competitionData.scoreCategories || [])
+                        .map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
+                    // Per-referee scores
+                    if (competitionData.mode1Scores?.[i]) {
+                        const refScores = Object.entries(competitionData.mode1Scores[i]).map(([refId, scores]) => {
+                            const total = Object.entries(scores).reduce((sum, [catIdx, val]) => {
+                                const w = (competitionData.scoreCategories?.[catIdx]?.weight || 0) / 100;
+                                return sum + val * w;
+                            }, 0);
+                            return `${refId.substring(0,6)}:${total.toFixed(1)}`;
+                        });
+                        allData.ref_scores = refScores.join(' | ');
+                    }
+                    // Per-category averages
+                    if (competitionData.scoreCategories && competitionData.mode1Scores?.[i]) {
+                        const catAvgs = competitionData.scoreCategories.map((cat, catIdx) => {
+                            const vals = Object.values(competitionData.mode1Scores[i]).map(s => parseFloat(s[catIdx]) || 0);
+                            const avg = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+                            return `${cat.name}:${avg.toFixed(1)}`;
+                        });
+                        allData.cat_scores = catAvgs.join(' | ');
                     }
                 } else {
-                    const markHistory = contestant.markHistory ? Object.values(contestant.markHistory) : [];
-                    data.mark_history = markHistory.map(h => `+${h.mark}`).join(', ');
-                    data.total_score = contestant.score || 0;
+                    const markHistory = c.markHistory ? Object.values(c.markHistory) : [];
+                    allData.mark_history = markHistory.map(h => `+${h.mark}`).join(', ');
+                    allData.total_score = c.score || 0;
                 }
 
+                // Build form data with only enabled fields in chosen order, plus sheet_name + insert_after_row
                 const formData = new URLSearchParams();
-                for (const [key, value] of Object.entries(data)) {
-                    formData.append(key, String(value));
-                }
+                formData.append('_sheet_name', sheetName);
+                if (startRow > 0) formData.append('_insert_after_row', startRow + rankIdx);
+                enabledFields.forEach(key => {
+                    formData.append(key, String(allData[key] ?? ''));
+                });
 
                 try {
-                    const response = await fetch(GOOGLE_SHEETS_URL, {
+                    const resp = await fetch(sheetUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
                     });
-                    if (response.ok) successCount++;
-                    else errorCount++;
-                } catch (error) {
-                    errorCount++;
-                }
+                    if (resp.ok) successCount++; else errorCount++;
+                } catch { errorCount++; }
             }
 
-            if (errorCount === 0) {
-                showStatus(`Exported ${successCount} contestants!`, 'success');
-            } else {
-                showStatus(`Export: ${successCount} success, ${errorCount} failed`, 'error');
-            }
+            if (errorCount === 0) showStatus(`✅ Exported ${successCount} rows!`, 'success');
+            else showStatus(`Export: ${successCount} ok, ${errorCount} failed`, 'error');
         }
 
         function showStatus(message, type) {
@@ -3062,9 +3305,12 @@
         function showFinalScoreboard() {
             const type = document.getElementById('final-type').value;
             if (type === 'competition') {
-                const compName = document.getElementById('final-comp-name').value.trim();
+                // Prefer dropdown selection, fallback to text input
+                const sel = document.getElementById('final-comp-select');
+                const selectedName = sel?.options[sel.selectedIndex]?.dataset?.name || '';
+                const compName = selectedName || document.getElementById('final-comp-name').value.trim();
                 if (!compName) {
-                    showStatus('Please enter a competition name', 'error');
+                    showStatus('Please select or enter a competition name', 'error');
                     return;
                 }
                 let compId = null;
@@ -3345,11 +3591,9 @@
             div.className = 'score-category-item';
             div.id = `folder-award-${id}`;
             div.innerHTML = `
-                <input type="text" placeholder="Award name (e.g. Best Kick)" class="folder-award-name" style="flex:2;">
+                <input type="text" placeholder="Award name (e.g. Award of Excellence)" class="folder-award-name" style="flex:2;">
                 <input type="number" value="1" min="1" max="100" class="folder-award-count" style="width:60px;" title="Max winners">
                 <span style="color: var(--text-muted); font-size:0.85rem;">winners</span>
-                <input type="number" value="10" min="1" max="9999" class="folder-award-points" style="width:70px;" title="Award points/weight">
-                <span style="color: var(--text-muted); font-size:0.85rem;">pts</span>
                 <button type="button" onclick="removeFolderAward(${id})">✕</button>
             `;
             container.appendChild(div);
@@ -3365,12 +3609,10 @@
             document.querySelectorAll('#folder-awards-list .score-category-item').forEach(item => {
                 const nameInput = item.querySelector('.folder-award-name');
                 const countInput = item.querySelector('.folder-award-count');
-                const pointsInput = item.querySelector('.folder-award-points');
                 const name = nameInput.value.trim();
                 const maxWinners = parseInt(countInput.value) || 0;
-                const points = parseInt(pointsInput?.value) || 10;
                 if (name && maxWinners > 0) {
-                    awards.push({ name, maxWinners, points });
+                    awards.push({ name, maxWinners });
                 }
             });
             return awards;
@@ -3513,20 +3755,6 @@
 
         // ===== ALL-TIME RANKINGS =====
 
-        let allAwardWeights = {}; // awardName -> points (loaded from Firebase)
-
-        function loadAwardWeights() {
-            database.ref('awardWeights').on('value', snap => {
-                allAwardWeights = snap.val() || {};
-                // Refresh rankings display if panel is open
-                const panel = document.getElementById('rankings-panel');
-                if (panel && panel.classList.contains('active')) {
-                    buildRankings();
-                }
-            });
-        }
-        loadAwardWeights();
-
         function updateRankingsFolderFilter() {
             const sel = document.getElementById('rankings-folder-filter');
             if (!sel) return;
@@ -3542,93 +3770,167 @@
             sel.value = current;
         }
 
-        // Collect all unique award names from all folders used by competitions
-        function collectAllAwardNames(compsToAnalyse) {
-            const namesSet = new Set();
-            compsToAnalyse.forEach(comp => {
-                const folderId = comp.folderId;
-                const folder = folderId && allFolders ? allFolders[folderId] : null;
-                const awards = folder && Array.isArray(folder.awards) ? folder.awards : [];
-                awards.forEach(a => { if (a.name) namesSet.add(a.name); });
+        // Collect all unique award names from competitions, preserving defined order.
+        // Order = first award defined in any folder (index 0 = highest rank, index 1 = next, etc.)
+        // Across folders, we merge by first-seen order; higher-index = lower priority.
+        // ===== AWARD ORDER =====
+        let customAwardOrder = []; // saved order from Firebase
+
+        function loadAwardOrder() {
+            database.ref('awardOrder').on('value', snap => {
+                customAwardOrder = snap.val() || [];
+                const panel = document.getElementById('rankings-panel');
+                if (panel && panel.classList.contains('active')) buildRankings();
             });
-            return [...namesSet].sort();
+        }
+        loadAwardOrder();
+
+        function collectOrderedAwardNames(compsToAnalyse) {
+            // Gather all award names from folders
+            const seen = [];
+            compsToAnalyse.forEach(comp => {
+                const folder = comp.folderId && allFolders ? allFolders[comp.folderId] : null;
+                (folder?.awards || []).forEach(a => { if (a.name && !seen.includes(a.name)) seen.push(a.name); });
+            });
+            // Apply custom order: customAwardOrder first (filtered to only existing), then any new ones appended
+            const ordered = customAwardOrder.filter(n => seen.includes(n));
+            seen.forEach(n => { if (!ordered.includes(n)) ordered.push(n); });
+            return ordered;
         }
 
-        function getAwardPoints(awardName) {
-            // Priority: Firebase saved weight → folder-defined points → default 10
-            if (allAwardWeights[awardName] !== undefined) return allAwardWeights[awardName];
-            // Try to find from any folder award definition
-            for (const folder of Object.values(allFolders || {})) {
-                if (!folder || !Array.isArray(folder.awards)) continue;
-                const found = folder.awards.find(a => a.name === awardName);
-                if (found && found.points) return found.points;
+        function renderAwardOrderDisplay(orderedAwardNames) {
+            const display = document.getElementById('award-order-display');
+            if (!display) return;
+            if (orderedAwardNames.length === 0) {
+                display.innerHTML = `<span style="color:var(--text-muted); font-size:0.85rem;">No awards defined yet. Add awards to folders.</span>`;
+                return;
             }
-            return 10;
+            display.innerHTML = `<div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center;">` +
+                orderedAwardNames.map((name, i) =>
+                    `<span class="award-chip">${i + 1}. 🏅 ${name}</span>`
+                ).join('<span style="color:var(--text-muted);font-size:0.9rem;margin:0 2px;"> › </span>') +
+                `</div>`;
         }
 
-        function toggleAwardWeightsEditor() {
-            const editor = document.getElementById('award-weights-editor');
-            const btn = document.getElementById('award-weights-toggle-btn');
+        function toggleAwardOrderEditor() {
+            const editor = document.getElementById('award-order-editor');
+            const btn = document.getElementById('award-order-toggle-btn');
             const isHidden = editor.classList.contains('hidden');
             editor.classList.toggle('hidden', !isHidden);
-            btn.textContent = isHidden ? '✕ Close' : '✏️ Edit';
-            if (isHidden) renderAwardWeightsEditor();
+            btn.textContent = isHidden ? '✕ Close' : '✏️ Edit Order';
+            if (isHidden) renderAwardOrderEditor();
         }
 
-        function renderAwardWeightsEditor() {
-            const list = document.getElementById('award-weights-list');
+        let dragSrcIndex = null;
+
+        function renderAwardOrderEditor() {
+            const list = document.getElementById('award-order-list');
             if (!list) return;
-
             const allComps = Object.values(allCompetitions).filter(c => c && c.contestants);
-            const allAwardNames = collectAllAwardNames(allComps);
-
-            if (allAwardNames.length === 0) {
-                list.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">No awards found. Add awards to folders when creating competitions.</p>`;
+            const names = collectOrderedAwardNames(allComps);
+            if (names.length === 0) {
+                list.innerHTML = `<p style="color:var(--text-muted); font-size:0.88rem;">No awards found. Add awards to folders first.</p>`;
                 return;
             }
-
-            list.innerHTML = allAwardNames.map(name => {
-                const pts = getAwardPoints(name);
-                const safeName = name.replace(/'/g, "\\'");
-                return `
-                    <div class="award-weight-row">
-                        <span class="award-weight-name">🏅 ${name}</span>
-                        <input type="number" class="award-weight-pts-input" value="${pts}" min="0" max="9999" data-award="${safeName}" title="Points for ${name}">
-                        <span style="color:var(--text-muted); font-size:0.82rem;">ranking points</span>
-                    </div>`;
-            }).join('');
-        }
-
-        function saveAwardWeights() {
-            const inputs = document.querySelectorAll('#award-weights-list .award-weight-pts-input');
-            const updates = {};
-            inputs.forEach(input => {
-                const name = input.dataset.award;
-                const pts = parseInt(input.value) || 0;
-                if (name) updates[name] = pts;
+            list.innerHTML = '';
+            names.forEach((name, i) => {
+                const div = document.createElement('div');
+                div.className = 'award-order-item';
+                div.draggable = true;
+                div.dataset.index = i;
+                div.innerHTML = `
+                    <span class="drag-handle">☰</span>
+                    <span class="award-order-rank">#${i + 1}</span>
+                    <span class="award-order-name">🏅 ${name}</span>
+                    <span style="color:var(--text-muted);font-size:0.78rem;">${i === 0 ? 'Highest' : i === names.length - 1 ? 'Lowest' : ''}</span>
+                `;
+                div.addEventListener('dragstart', e => {
+                    dragSrcIndex = i;
+                    e.dataTransfer.effectAllowed = 'move';
+                });
+                div.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    list.querySelectorAll('.award-order-item').forEach(el => el.classList.remove('drag-over'));
+                    div.classList.add('drag-over');
+                });
+                div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+                div.addEventListener('drop', e => {
+                    e.preventDefault();
+                    div.classList.remove('drag-over');
+                    if (dragSrcIndex === null || dragSrcIndex === i) return;
+                    // Reorder names array
+                    const items = [...list.querySelectorAll('.award-order-item')].map(el => el.querySelector('.award-order-name').textContent.replace('🏅 ', '').trim());
+                    const moved = items.splice(dragSrcIndex, 1)[0];
+                    items.splice(i, 0, moved);
+                    dragSrcIndex = null;
+                    // Re-render with new order
+                    list.innerHTML = '';
+                    items.forEach((n, idx) => {
+                        const d = document.createElement('div');
+                        d.className = 'award-order-item';
+                        d.draggable = true;
+                        d.dataset.index = idx;
+                        d.innerHTML = `
+                            <span class="drag-handle">☰</span>
+                            <span class="award-order-rank">#${idx + 1}</span>
+                            <span class="award-order-name">🏅 ${n}</span>
+                            <span style="color:var(--text-muted);font-size:0.78rem;">${idx === 0 ? 'Highest' : idx === items.length - 1 ? 'Lowest' : ''}</span>
+                        `;
+                        attachDragEvents(d, list, items.length);
+                        list.appendChild(d);
+                    });
+                });
+                list.appendChild(div);
             });
-            database.ref('awardWeights').update(updates).then(() => {
-                showStatus('Award weights saved!', 'success');
-                toggleAwardWeightsEditor();
-                buildRankings();
-            }).catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
-        function renderAwardWeightsDisplay(allAwardNames) {
-            const display = document.getElementById('award-weights-display');
-            if (!display) return;
-            if (allAwardNames.length === 0) {
-                display.innerHTML = `<span style="color:var(--text-muted); font-size:0.85rem;">No awards defined yet.</span>`;
-                return;
-            }
-            const sorted = [...allAwardNames].sort((a, b) => getAwardPoints(b) - getAwardPoints(a));
-            display.innerHTML = `<div class="award-weight-display-wrap">` +
-                sorted.map(name => `
-                    <span class="award-chip">
-                        🏅 ${name}
-                        <span class="pts-tag">${getAwardPoints(name)}pts</span>
-                    </span>`).join('') +
-                `</div>`;
+        function attachDragEvents(div, list, total) {
+            const i = parseInt(div.dataset.index);
+            div.addEventListener('dragstart', e => {
+                dragSrcIndex = i;
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            div.addEventListener('dragover', e => {
+                e.preventDefault();
+                list.querySelectorAll('.award-order-item').forEach(el => el.classList.remove('drag-over'));
+                div.classList.add('drag-over');
+            });
+            div.addEventListener('dragleave', () => div.classList.remove('drag-over'));
+            div.addEventListener('drop', e => {
+                e.preventDefault();
+                div.classList.remove('drag-over');
+                if (dragSrcIndex === null || dragSrcIndex === i) return;
+                const items = [...list.querySelectorAll('.award-order-item')].map(el => el.querySelector('.award-order-name').textContent.replace('🏅 ', '').trim());
+                const moved = items.splice(dragSrcIndex, 1)[0];
+                items.splice(i, 0, moved);
+                dragSrcIndex = null;
+                list.innerHTML = '';
+                items.forEach((n, idx) => {
+                    const d = document.createElement('div');
+                    d.className = 'award-order-item';
+                    d.draggable = true;
+                    d.dataset.index = idx;
+                    d.innerHTML = `
+                        <span class="drag-handle">☰</span>
+                        <span class="award-order-rank">#${idx + 1}</span>
+                        <span class="award-order-name">🏅 ${n}</span>
+                        <span style="color:var(--text-muted);font-size:0.78rem;">${idx === 0 ? 'Highest' : idx === items.length - 1 ? 'Lowest' : ''}</span>
+                    `;
+                    attachDragEvents(d, list, items.length);
+                    list.appendChild(d);
+                });
+            });
+        }
+
+        function saveAwardOrder() {
+            const list = document.getElementById('award-order-list');
+            if (!list) return;
+            const newOrder = [...list.querySelectorAll('.award-order-item')]
+                .map(el => el.querySelector('.award-order-name').textContent.replace('🏅 ', '').trim());
+            database.ref('awardOrder').set(newOrder).then(() => {
+                showStatus('Award order saved!', 'success');
+                toggleAwardOrderEditor();
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
         function buildRankings() {
@@ -3644,16 +3946,16 @@
                 return true;
             });
 
-            // Collect all award names and update display
-            const allAwardNames = collectAllAwardNames(compsToAnalyse);
-            renderAwardWeightsDisplay(allAwardNames);
+            // Award names in priority order (index 0 = highest)
+            const awardColNames = collectOrderedAwardNames(compsToAnalyse);
+            renderAwardOrderDisplay(awardColNames);
 
             if (compsToAnalyse.length === 0) {
                 container.innerHTML = `<div class="no-data-rankings"><div class="icon">🏆</div><p>No competitions found. Create some competitions first!</p></div>`;
                 return;
             }
 
-            // playerStats: name -> { color, gold, silver, bronze, awardCounts: {awardName: count}, awardPts, totalScore, comps }
+            // playerStats: name -> { color, gold, silver, bronze, awardCounts: {awardName: count}, totalScore, comps }
             const playerStats = {};
 
             compsToAnalyse.forEach(comp => {
@@ -3666,7 +3968,7 @@
                     const name = c.name;
                     if (!name) return;
                     if (!playerStats[name]) {
-                        playerStats[name] = { color: c.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awardCounts: {}, awardPts: 0, totalScore: 0, comps: 0 };
+                        playerStats[name] = { color: c.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awardCounts: {}, totalScore: 0, comps: 0 };
                     }
                     playerStats[name].totalScore += c.finalScore;
                     playerStats[name].comps += 1;
@@ -3675,35 +3977,33 @@
                     else if (rank === 2) playerStats[name].bronze += 1;
                 });
 
-                // Count per-award wins with points
+                // Count per-award wins
                 const folderId = comp.folderId;
                 const folder = folderId && allFolders ? allFolders[folderId] : null;
                 const awards = folder && Array.isArray(folder.awards) ? folder.awards : [];
-
-                if (awards.length > 0) {
-                    let startIndex = 3;
-                    awards.forEach(award => {
-                        const winners = contestants.slice(startIndex, startIndex + award.maxWinners);
-                        const pts = getAwardPoints(award.name);
-                        winners.forEach(w => {
-                            if (!w.name) return;
-                            if (!playerStats[w.name]) {
-                                playerStats[w.name] = { color: w.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awardCounts: {}, awardPts: 0, totalScore: 0, comps: 0 };
-                            }
-                            playerStats[w.name].awardCounts[award.name] = (playerStats[w.name].awardCounts[award.name] || 0) + 1;
-                            playerStats[w.name].awardPts += pts;
-                        });
-                        startIndex += award.maxWinners;
+                let startIndex = 3;
+                awards.forEach(award => {
+                    const winners = contestants.slice(startIndex, startIndex + award.maxWinners);
+                    winners.forEach(w => {
+                        if (!w.name) return;
+                        if (!playerStats[w.name]) {
+                            playerStats[w.name] = { color: w.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awardCounts: {}, totalScore: 0, comps: 0 };
+                        }
+                        playerStats[w.name].awardCounts[award.name] = (playerStats[w.name].awardCounts[award.name] || 0) + 1;
                     });
-                }
+                    startIndex += award.maxWinners;
+                });
             });
 
-            // Sort: gold → silver → bronze → awardPts → totalScore
+            // Sort: gold → silver → bronze → award[0] count → award[1] count → ... → totalScore
             const sorted = Object.entries(playerStats).sort(([, a], [, b]) => {
                 if (b.gold !== a.gold) return b.gold - a.gold;
                 if (b.silver !== a.silver) return b.silver - a.silver;
                 if (b.bronze !== a.bronze) return b.bronze - a.bronze;
-                if (b.awardPts !== a.awardPts) return b.awardPts - a.awardPts;
+                for (const awardName of awardColNames) {
+                    const diff = (b.awardCounts[awardName] || 0) - (a.awardCounts[awardName] || 0);
+                    if (diff !== 0) return diff;
+                }
                 return b.totalScore - a.totalScore;
             });
 
@@ -3723,15 +4023,13 @@
                 const [name, stats] = top3[idx];
                 const actualRank = idx;
 
-                // Award chips for podium
-                const awardChipsHtml = Object.entries(stats.awardCounts)
-                    .sort((a, b) => getAwardPoints(b[0]) - getAwardPoints(a[0]))
-                    .map(([aName, count]) =>
-                        `<span class="award-chip" style="font-size:0.72rem; padding:2px 7px;">🏅 ${aName}${count > 1 ? ` ×${count}` : ''}<span class="pts-tag">${getAwardPoints(aName)}pts</span></span>`
-                    ).join('');
+                const awardChipsHtml = awardColNames
+                    .filter(aName => stats.awardCounts[aName])
+                    .map(aName => `<span class="award-chip" style="font-size:0.72rem; padding:2px 8px;">🏅 ${aName}${stats.awardCounts[aName] > 1 ? ` ×${stats.awardCounts[aName]}` : ''}</span>`)
+                    .join('');
 
                 const badgesHtml = [
-                    stats.gold ? `<span class="rank-badge gold">🥇 ${stats.gold}</span>` : '',
+                    stats.gold   ? `<span class="rank-badge gold">🥇 ${stats.gold}</span>` : '',
                     stats.silver ? `<span class="rank-badge silver">🥈 ${stats.silver}</span>` : '',
                     stats.bronze ? `<span class="rank-badge bronze">🥉 ${stats.bronze}</span>` : '',
                 ].filter(Boolean).join('');
@@ -3743,19 +4041,15 @@
                             <div class="rankings-podium-name" style="color:${stats.color}">${name}</div>
                             <div class="rankings-podium-badges">${badgesHtml}</div>
                             ${awardChipsHtml ? `<div style="margin-top:6px;">${awardChipsHtml}</div>` : ''}
-                            ${stats.awardPts ? `<div style="font-size:0.76rem; color:#a78bfa; margin-top:4px;">🏅 ${stats.awardPts} award pts</div>` : ''}
-                            <div style="font-size:0.75rem; color: var(--text-muted); margin-top:4px;">${stats.comps} comp${stats.comps !== 1 ? 's' : ''} • ${stats.totalScore.toFixed(1)} pts</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">${stats.comps} comp${stats.comps !== 1 ? 's' : ''} · ${stats.totalScore.toFixed(1)} pts</div>
                         </div>
                         <div class="rankings-podium-base ${podiumClasses[actualRank]}"></div>
                     </div>`;
             }).join('');
 
             // ---- TABLE ----
-            // Sort award columns by points descending
-            const awardColNames = [...allAwardNames].sort((a, b) => getAwardPoints(b) - getAwardPoints(a));
-
-            const awardHeaderCols = awardColNames.map(name =>
-                `<th title="${name} (${getAwardPoints(name)} pts)">🏅 ${name}<br><span style="font-size:0.7rem; font-weight:500; color:var(--text-muted);">${getAwardPoints(name)}pts</span></th>`
+            const awardHeaderCols = awardColNames.map((name, i) =>
+                `<th>🏅 ${name}<br><span style="font-size:0.68rem; font-weight:400; color:var(--text-muted);">rank ${i + 1}</span></th>`
             ).join('');
 
             const tableRows = sorted.map(([name, stats], i) => {
@@ -3778,21 +4072,19 @@
                         <td><span class="rank-badge silver">${stats.silver}</span></td>
                         <td><span class="rank-badge bronze">${stats.bronze}</span></td>
                         ${awardCells}
-                        <td class="award-pts-score">${stats.awardPts || '—'}</td>
                         <td class="total-score-cell" style="color:${stats.color}">${stats.totalScore.toFixed(1)}</td>
                         <td style="color:var(--text-muted)">${stats.comps}</td>
                     </tr>`;
             }).join('');
 
+            const sortLabel = ['🥇 Gold', '🥈 Silver', '🥉 Bronze', ...awardColNames.map((a, i) => `🏅 ${a}`), 'Total Score'].join(' → ');
+
             container.innerHTML = `
                 <div class="rankings-podium-section">
                     <h3>🏆 Top Players Podium</h3>
-                    <p class="podium-subtitle">Ranked by 🥇 Gold → 🥈 Silver → 🥉 Bronze → 🏅 Award Pts → Total Score</p>
-                    <div class="rankings-podium">
-                        ${podiumHtml}
-                    </div>
+                    <p class="podium-subtitle">Ranked by: ${sortLabel}</p>
+                    <div class="rankings-podium">${podiumHtml}</div>
                 </div>
-
                 <div class="rankings-table-section">
                     <h3>📋 Full Leaderboard <span style="font-weight:400; font-size:0.9rem; color:var(--text-muted)">${sorted.length} players · ${compsToAnalyse.length} competitions</span></h3>
                     <div style="overflow-x: auto;">
@@ -3805,20 +4097,15 @@
                                     <th>🥈 2nd</th>
                                     <th>🥉 3rd</th>
                                     ${awardHeaderCols}
-                                    <th>🏅 Award Pts</th>
                                     <th>Total Score</th>
                                     <th>Comps</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                ${tableRows}
-                            </tbody>
+                            <tbody>${tableRows}</tbody>
                         </table>
                     </div>
-                </div>
-            `;
+                </div>`;
         }
-
         // Extend showPanel to build rankings when switching to it
         const _showPanelBase = showPanel;
         showPanel = function(panelName) {
