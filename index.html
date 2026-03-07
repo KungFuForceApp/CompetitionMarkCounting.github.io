@@ -1996,7 +1996,6 @@
             if (!sel) return;
             const current = sel.value;
             sel.innerHTML = '<option value="">— Select a competition —</option>';
-            // Sort competitions by name
             const sorted = Object.entries(allCompetitions)
                 .filter(([, c]) => c && c.name)
                 .sort(([, a], [, b]) => a.name.localeCompare(b.name));
@@ -2100,14 +2099,11 @@
             unsubscribers.forEach(unsub => unsub());
             unsubscribers = [];
 
-            // Auto-fill final scoreboard if we have a current competition
             if (panelName === 'final' && currentCompetitionId && allCompetitions[currentCompetitionId]) {
                 const comp = allCompetitions[currentCompetitionId];
-                // Set dropdown
                 const sel = document.getElementById('final-comp-select');
                 if (sel) {
                     sel.value = currentCompetitionId;
-                    // If not found (dropdown not yet populated), set text fallback
                     if (!sel.value) {
                         document.getElementById('final-comp-name').value = comp.name;
                     }
@@ -2540,7 +2536,6 @@
             const refereeIds = Object.keys(contestantScores);
             if (refereeIds.length === 0) return 0;
 
-            // Calculate each referee's weighted score
             const refWeightedScores = refereeIds.map(refId => {
                 const refScores = contestantScores[refId];
                 let refWeightedScore = 0;
@@ -2551,7 +2546,6 @@
                 return refWeightedScore;
             });
 
-            // Only trim highest & lowest if there are 3+ referees
             let scoresToAverage = refWeightedScores;
             if (refWeightedScores.length >= 3) {
                 const sorted = [...refWeightedScores].sort((a, b) => a - b);
@@ -3036,7 +3030,6 @@
                 });
         }
 
-        // ===== EXPORT TO GOOGLE SHEETS (with settings modal) =====
 
         const EXPORT_STORAGE_KEY = 'exportSettings';
 
@@ -3045,7 +3038,6 @@
         }
         function saveExportSettings(s) { localStorage.setItem(EXPORT_STORAGE_KEY, JSON.stringify(s)); }
 
-        // All possible fields for export, with labels and which modes they apply to
         const EXPORT_FIELD_DEFS = [
             { key: 'competition_name',  label: 'Competition Name',        modes: [1,2] },
             { key: 'contestant_name',   label: 'Contestant Name',         modes: [1,2] },
@@ -3054,12 +3046,10 @@
             { key: 'mode',              label: 'Mode',                    modes: [1,2] },
             { key: 'color',             label: 'Colour Tag',              modes: [1,2] },
             { key: 'competition_id',    label: 'Competition ID',          modes: [1,2] },
-            // Mode 1 specific
             { key: 'referee_count',     label: 'Referee Count',           modes: [1] },
             { key: 'categories',        label: 'Score Categories (info)', modes: [1] },
             { key: 'ref_scores',        label: 'All Referee Scores',      modes: [1] },
             { key: 'cat_scores',        label: 'All Category Averages',   modes: [1] },
-            // Mode 2 specific
             { key: 'mark_history',      label: 'Mark History',            modes: [2] },
             { key: 'total_score',       label: 'Total Score (raw)',       modes: [2] },
             { key: 'Timestamp',         label: 'Timestamp',               modes: [1,2] },
@@ -3069,11 +3059,9 @@
             if (!competitionData || competitionData.mode !== 1) return [];
             const extra = [];
             const categories = competitionData.scoreCategories || [];
-            // Per-category average columns
             categories.forEach(cat => {
                 extra.push({ key: `${cat.name}_avg`, label: `Avg: ${cat.name}`, modes: [1], dynamic: true });
             });
-            // Per-referee columns
             const mode1Scores = competitionData.mode1Scores || {};
             let maxRefs = 0;
             Object.values(mode1Scores).forEach(cs => {
@@ -3098,12 +3086,10 @@
             const mode = competitionData.mode;
             const saved = getExportSettings();
 
-            // Combine static + dynamic field defs
             const dynamicDefs = getDynamicExportFields();
             const allDefs = [...EXPORT_FIELD_DEFS, ...dynamicDefs];
             const applicableFields = allDefs.filter(f => f.modes.includes(mode));
 
-            // Field order: use saved order, append any new ones at end
             const savedOrder = (saved.fieldOrder || []).filter(k => applicableFields.find(f => f.key === k));
             const remaining = applicableFields.filter(f => !savedOrder.includes(f.key)).map(f => f.key);
             const fieldOrder = [...savedOrder, ...remaining];
@@ -3113,7 +3099,6 @@
             const sheetName = saved.sheetName || 'Competition-Score-Manager';
             const startRow = saved.startRow || '';
 
-            // Show category columns preview for mode 1
             const categories = (competitionData.scoreCategories || []);
             const catPreviewHtml = mode === 1 && categories.length ? `
                 <div class="mode-info" style="margin: 12px 0; padding: 12px 16px;">
@@ -3127,7 +3112,6 @@
                     </div>
                 </div>` : '';
 
-            // Build modal
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.id = 'export-modal';
@@ -3152,8 +3136,12 @@
 
                     <div class="export-section-title">🔗 Google Sheet Settings</div>
                     <div class="form-group" style="margin-bottom:10px;">
-                        <label style="font-size:0.82rem;">Spreadsheet ID <span style="color:var(--text-muted); font-weight:400;">(from the URL: docs.google.com/spreadsheets/d/<strong>ID</strong>/edit)</span></label>
-                        <input type="text" id="export-spreadsheet-id" value="${spreadsheetId}" placeholder="e.g. 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" style="font-size:0.82rem; font-family:monospace;">
+                        <label style="font-size:0.82rem;">Apps Script Deployment URL</label>
+                        <input type="text" id="export-sheet-url" value="${saved.sheetUrl || GOOGLE_SHEETS_URL}" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:0.82rem;">
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:0.82rem;">Spreadsheet ID <span style="color:var(--text-muted); font-weight:400;">(from URL: /spreadsheets/d/<strong>ID</strong>/edit)</span></label>
+                        <input type="text" id="export-spreadsheet-id" value="${spreadsheetId}" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" style="font-size:0.82rem; font-family:monospace;">
                     </div>
                     <div style="display:flex; gap:10px;">
                         <div class="form-group" style="flex:2; margin-bottom:0;">
@@ -3252,16 +3240,16 @@
             if (!competitionData || !currentCompetitionId) return;
 
             const list = document.getElementById('export-fields-list');
+            const sheetUrl = document.getElementById('export-sheet-url').value.trim();
             const spreadsheetId = document.getElementById('export-spreadsheet-id').value.trim();
             const sheetName = document.getElementById('export-sheet-name').value.trim();
             const startRow = parseInt(document.getElementById('export-start-row').value) || 0;
 
-            if (!spreadsheetId) {
-                showStatus('Please enter a Spreadsheet ID', 'error');
+            if (!sheetUrl) {
+                showStatus('Please enter the Apps Script deployment URL', 'error');
                 return;
             }
 
-            // Collect current field order + enabled state
             const fieldOrder = [];
             const disabledFields = [];
             list.querySelectorAll('.export-field-row').forEach(row => {
@@ -3271,7 +3259,7 @@
                 if (!enabled) disabledFields.push(key);
             });
 
-            saveExportSettings({ spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
+            saveExportSettings({ sheetUrl, spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
             closeExportModal();
 
             const mode = competitionData.mode;
@@ -3309,27 +3297,23 @@
 
                     allData.referee_count = refereeEntries.length;
 
-                    // Per-category average columns — one column per category, in defined order
                     categories.forEach(cat => {
                         const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
                         const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
                         allData[`${cat.name}_avg`] = avg.toFixed(2);
                     });
 
-                    // Per-referee × per-category columns — Ref1_Technique, Ref1_Power, Ref2_Technique...
                     refereeEntries.forEach(([, refScores], ri) => {
                         const refLabel = `Ref${ri + 1}`;
                         allData[`${refLabel}_name`] = refScores.refereeName || `Ref${ri + 1}`;
                         categories.forEach(cat => {
                             allData[`${refLabel}_${cat.name}`] = (parseFloat(refScores[cat.name]) || 0).toFixed(2);
                         });
-                        // Ref weighted total
                         const weighted = categories.reduce((sum, cat) =>
                             sum + (parseFloat(refScores[cat.name]) || 0) * (cat.weight / 100), 0);
                         allData[`${refLabel}_total`] = weighted.toFixed(2);
                     });
 
-                    // Summary strings (optional, toggleable)
                     allData.ref_scores = refereeEntries.map(([, s], ri) => {
                         const name = s.refereeName || `Ref${ri+1}`;
                         const weighted = categories.reduce((sum, cat) =>
@@ -3349,25 +3333,25 @@
                     allData.total_score = c.score || 0;
                 }
 
-                // Build ordered form data
                 const formData = new URLSearchParams();
                 formData.append('_spreadsheet_id', spreadsheetId);
                 formData.append('_sheet_name', sheetName);
                 if (startRow > 0) formData.append('_insert_after_row', startRow + rankIdx);
-                // Send column order hint so Apps Script writes them in the right order
                 formData.append('_col_order', enabledFields.join(','));
                 enabledFields.forEach(key => {
                     formData.append(key, String(allData[key] ?? ''));
                 });
 
                 try {
-                    const resp = await fetch(GOOGLE_SHEETS_URL, {
+                    const resp = await fetch(sheetUrl, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
                     });
-                    if (resp.ok) successCount++; else errorCount++;
-                } catch { errorCount++; }
+                    const text = await resp.text();
+                    console.log(`[Export row ${rankIdx+1}]`, resp.status, text);
+                    if (resp.ok) successCount++; else { errorCount++; console.error('Export error:', text); }
+                } catch(e) { errorCount++; console.error('Export fetch failed:', e); }
             }
 
             if (errorCount === 0) showStatus(`✅ Exported ${successCount} rows!`, 'success');
@@ -3411,7 +3395,6 @@
         function showFinalScoreboard() {
             const type = document.getElementById('final-type').value;
             if (type === 'competition') {
-                // Prefer dropdown selection, fallback to text input
                 const sel = document.getElementById('final-comp-select');
                 const selectedName = sel?.options[sel.selectedIndex]?.dataset?.name || '';
                 const compName = selectedName || document.getElementById('final-comp-name').value.trim();
@@ -3757,7 +3740,6 @@
                 showStatus('Error saving folder: ' + err.message, 'error');
             });
         }
-        // ===== SHARE LINKS & URL DEEP-LINKING =====
 
         function buildShareUrl(view, compName) {
             const base = window.location.href.split('?')[0].split('#')[0];
@@ -3803,14 +3785,12 @@
             }
         }
 
-        // Handle URL params on load — auto-navigate to the right panel/competition
         function handleDeepLink() {
             const params = new URLSearchParams(window.location.search);
             const view = params.get('view');
             const comp = params.get('comp');
             if (!view || !comp) return;
 
-            // Wait for competitions to load, then navigate
             const tryNavigate = (attempts) => {
                 if (attempts <= 0) return;
                 const found = Object.values(allCompetitions).some(c => c && c.name && c.name.toLowerCase() === comp.toLowerCase());
@@ -3833,14 +3813,11 @@
                     showFinalScoreboard();
                 }
             };
-            // Start trying after a short delay for Firebase to load
             setTimeout(() => tryNavigate(15), 600);
         }
 
-        // Call after competitions are loaded
         const _origLoadCompetitions = loadCompetitions;
 
-        // ===== THEME TOGGLE =====
         function toggleTheme() {
             const body = document.body;
             body.classList.toggle('light-mode');
@@ -3850,7 +3827,6 @@
             localStorage.setItem('theme', isLight ? 'light' : 'dark');
         }
 
-        // Restore saved theme
         (function() {
             if (localStorage.getItem('theme') === 'light') {
                 document.body.classList.add('light-mode');
@@ -3859,7 +3835,6 @@
             }
         })();
 
-        // ===== ALL-TIME RANKINGS =====
 
         function updateRankingsFolderFilter() {
             const sel = document.getElementById('rankings-folder-filter');
@@ -3876,10 +3851,6 @@
             sel.value = current;
         }
 
-        // Collect all unique award names from competitions, preserving defined order.
-        // Order = first award defined in any folder (index 0 = highest rank, index 1 = next, etc.)
-        // Across folders, we merge by first-seen order; higher-index = lower priority.
-        // ===== AWARD ORDER =====
         let customAwardOrder = []; // saved order from Firebase
 
         function loadAwardOrder() {
@@ -3892,13 +3863,11 @@
         loadAwardOrder();
 
         function collectOrderedAwardNames(compsToAnalyse) {
-            // Gather all award names from folders
             const seen = [];
             compsToAnalyse.forEach(comp => {
                 const folder = comp.folderId && allFolders ? allFolders[comp.folderId] : null;
                 (folder?.awards || []).forEach(a => { if (a.name && !seen.includes(a.name)) seen.push(a.name); });
             });
-            // Apply custom order: customAwardOrder first (filtered to only existing), then any new ones appended
             const ordered = customAwardOrder.filter(n => seen.includes(n));
             seen.forEach(n => { if (!ordered.includes(n)) ordered.push(n); });
             return ordered;
@@ -3964,12 +3933,10 @@
                     e.preventDefault();
                     div.classList.remove('drag-over');
                     if (dragSrcIndex === null || dragSrcIndex === i) return;
-                    // Reorder names array
                     const items = [...list.querySelectorAll('.award-order-item')].map(el => el.querySelector('.award-order-name').textContent.replace('🏅 ', '').trim());
                     const moved = items.splice(dragSrcIndex, 1)[0];
                     items.splice(i, 0, moved);
                     dragSrcIndex = null;
-                    // Re-render with new order
                     list.innerHTML = '';
                     items.forEach((n, idx) => {
                         const d = document.createElement('div');
@@ -4052,7 +4019,6 @@
                 return true;
             });
 
-            // Award names in priority order (index 0 = highest)
             const awardColNames = collectOrderedAwardNames(compsToAnalyse);
             renderAwardOrderDisplay(awardColNames);
 
@@ -4061,7 +4027,6 @@
                 return;
             }
 
-            // playerStats: name -> { color, gold, silver, bronze, awardCounts: {awardName: count}, totalScore, comps }
             const playerStats = {};
 
             compsToAnalyse.forEach(comp => {
@@ -4083,7 +4048,6 @@
                     else if (rank === 2) playerStats[name].bronze += 1;
                 });
 
-                // Count per-award wins
                 const folderId = comp.folderId;
                 const folder = folderId && allFolders ? allFolders[folderId] : null;
                 const awards = folder && Array.isArray(folder.awards) ? folder.awards : [];
@@ -4101,7 +4065,6 @@
                 });
             });
 
-            // Sort: gold → silver → bronze → award[0] count → award[1] count → ... → totalScore
             const sorted = Object.entries(playerStats).sort(([, a], [, b]) => {
                 if (b.gold !== a.gold) return b.gold - a.gold;
                 if (b.silver !== a.silver) return b.silver - a.silver;
@@ -4118,7 +4081,6 @@
                 return;
             }
 
-            // ---- PODIUM (top 3) ----
             const podiumMedals = ['🥇', '🥈', '🥉'];
             const podiumClasses = ['first', 'second', 'third'];
             const top3 = sorted.slice(0, 3);
@@ -4153,7 +4115,6 @@
                     </div>`;
             }).join('');
 
-            // ---- TABLE ----
             const awardHeaderCols = awardColNames.map((name, i) =>
                 `<th>🏅 ${name}<br><span style="font-size:0.68rem; font-weight:400; color:var(--text-muted);">rank ${i + 1}</span></th>`
             ).join('');
@@ -4212,7 +4173,6 @@
                     </div>
                 </div>`;
         }
-        // Extend showPanel to build rankings when switching to it
         const _showPanelBase = showPanel;
         showPanel = function(panelName) {
             _showPanelBase(panelName);
