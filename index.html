@@ -10,11 +10,125 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        :root {
+            --bg-gradient: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --text-primary: #fff;
+            --text-secondary: rgba(255,255,255,0.6);
+            --text-muted: rgba(255,255,255,0.4);
+            --text-label: rgba(255,255,255,0.8);
+            --panel-bg: rgba(255,255,255,0.03);
+            --panel-border: rgba(255,255,255,0.08);
+            --input-bg: rgba(255,255,255,0.05);
+            --input-border: rgba(255,255,255,0.1);
+            --item-bg: rgba(255,255,255,0.04);
+            --item-border: rgba(255,255,255,0.06);
+            --item-hover: rgba(255,255,255,0.06);
+            --nav-secondary-bg: rgba(255,255,255,0.08);
+            --modal-bg: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            --modal-text: rgba(255,255,255,0.7);
+            --heading-color: #a78bfa;
+            --weight-total-bg: rgba(251,191,36,0.1);
+            --fullscreen-bg: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            --dropdown-option-bg: #1a1a2e;
+            --scoreboard-header-bg: linear-gradient(135deg, rgba(102,126,234,0.15), rgba(118,75,162,0.1));
+            --scoreboard-header-border: rgba(102,126,234,0.2);
+            --reveal-controls-bg: rgba(255,255,255,0.04);
+            --reveal-controls-border: rgba(255,255,255,0.08);
+            --mini-btn-bg: rgba(255,255,255,0.06);
+            --mini-btn-border: rgba(255,255,255,0.14);
+            --mini-btn-primary-bg: rgba(102,126,234,0.16);
+            --mini-btn-primary-border: rgba(102,126,234,0.45);
+            --referee-controls-bg: linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.08));
+            --referee-controls-border: rgba(102,126,234,0.2);
+            --podium-card-bg: linear-gradient(135deg,rgba(255,255,255,0.06),rgba(255,255,255,0.02));
+            --podium-base-bg: rgba(255,255,255,0.08);
+            --podium-rank-color: rgba(255,255,255,0.7);
+            --rank-label-color: rgba(255,255,255,0.5);
+            --score-card-bg: rgba(255,255,255,0.04);
+            --catrow-bg: rgba(255,255,255,0.03);
+            --catrow-input-border: rgba(255,255,255,0.15);
+            --catrow-input-bg: rgba(255,255,255,0.08);
+            --mode-info-bg: linear-gradient(135deg,rgba(102,126,234,0.15),rgba(118,75,162,0.1));
+            --comp-created-bg: linear-gradient(135deg,rgba(17,153,142,0.15),rgba(56,239,125,0.1));
+            --comp-created-border: rgba(56,239,125,0.2);
+            --comp-name-display-bg: rgba(255,255,255,0.05);
+            --section-header-color: #fbbf24;
+            --vote-indicator-bg: rgba(251,191,36,0.1);
+            --vote-indicator-border: rgba(251,191,36,0.2);
+            --mark-history-color: rgba(255,255,255,0.6);
+            --mark-history-border: rgba(255,255,255,0.08);
+            --referee-badge-bg: rgba(102,126,234,0.2);
+            --referee-badge-color: rgba(255,255,255,0.8);
+            --score-submitted-bg: rgba(56,239,125,0.15);
+            --score-submitted-border: rgba(56,239,125,0.3);
+            --delete-btn-color: #ef4444;
+            --delete-btn-bg: rgba(239,68,68,0.2);
+            --delete-btn-border: rgba(239,68,68,0.3);
+            --current-highlight-bg: linear-gradient(135deg,rgba(251,191,36,0.15),rgba(251,191,36,0.05));
+        }
+
+        body.light-mode {
+            --bg-gradient: linear-gradient(135deg, #e8eaf6 0%, #d1c4e9 50%, #e3f2fd 100%);
+            --text-primary: #1a1a2e;
+            --text-secondary: rgba(30,30,60,0.7);
+            --text-muted: rgba(30,30,60,0.45);
+            --text-label: rgba(30,30,60,0.85);
+            --panel-bg: rgba(255,255,255,0.75);
+            --panel-border: rgba(100,100,200,0.15);
+            --input-bg: rgba(255,255,255,0.9);
+            --input-border: rgba(100,100,200,0.25);
+            --item-bg: rgba(255,255,255,0.6);
+            --item-border: rgba(100,100,200,0.12);
+            --item-hover: rgba(255,255,255,0.85);
+            --nav-secondary-bg: rgba(255,255,255,0.7);
+            --modal-bg: linear-gradient(135deg, #f0eeff 0%, #e8f0ff 100%);
+            --modal-text: rgba(30,30,60,0.75);
+            --heading-color: #5b21b6;
+            --weight-total-bg: rgba(180,130,0,0.08);
+            --fullscreen-bg: linear-gradient(135deg, #e8eaf6 0%, #d1c4e9 50%, #e3f2fd 100%);
+            --dropdown-option-bg: #f0eeff;
+            --scoreboard-header-bg: linear-gradient(135deg,rgba(102,126,234,0.12),rgba(118,75,162,0.08));
+            --scoreboard-header-border: rgba(102,126,234,0.25);
+            --reveal-controls-bg: rgba(255,255,255,0.5);
+            --reveal-controls-border: rgba(100,100,200,0.18);
+            --mini-btn-bg: rgba(255,255,255,0.7);
+            --mini-btn-border: rgba(100,100,200,0.2);
+            --mini-btn-primary-bg: rgba(102,126,234,0.12);
+            --mini-btn-primary-border: rgba(102,126,234,0.4);
+            --referee-controls-bg: linear-gradient(135deg,rgba(102,126,234,0.08),rgba(118,75,162,0.05));
+            --referee-controls-border: rgba(102,126,234,0.2);
+            --podium-card-bg: linear-gradient(135deg,rgba(255,255,255,0.85),rgba(255,255,255,0.6));
+            --podium-base-bg: rgba(100,100,200,0.12);
+            --podium-rank-color: rgba(30,30,60,0.6);
+            --rank-label-color: rgba(30,30,60,0.5);
+            --score-card-bg: rgba(255,255,255,0.7);
+            --catrow-bg: rgba(255,255,255,0.5);
+            --catrow-input-border: rgba(100,100,200,0.2);
+            --catrow-input-bg: rgba(255,255,255,0.9);
+            --mode-info-bg: linear-gradient(135deg,rgba(102,126,234,0.1),rgba(118,75,162,0.07));
+            --comp-created-bg: linear-gradient(135deg,rgba(17,153,142,0.1),rgba(56,239,125,0.07));
+            --comp-created-border: rgba(56,200,100,0.25);
+            --comp-name-display-bg: rgba(255,255,255,0.7);
+            --section-header-color: #b45309;
+            --vote-indicator-bg: rgba(180,130,0,0.08);
+            --vote-indicator-border: rgba(180,130,0,0.18);
+            --mark-history-color: rgba(30,30,60,0.6);
+            --mark-history-border: rgba(100,100,200,0.1);
+            --referee-badge-bg: rgba(102,126,234,0.12);
+            --referee-badge-color: rgba(30,30,60,0.8);
+            --score-submitted-bg: rgba(17,153,142,0.1);
+            --score-submitted-border: rgba(17,153,142,0.3);
+            --delete-btn-color: #dc2626;
+            --delete-btn-bg: rgba(220,38,38,0.1);
+            --delete-btn-border: rgba(220,38,38,0.25);
+            --current-highlight-bg: linear-gradient(135deg,rgba(251,191,36,0.18),rgba(251,191,36,0.08));
+        }
+
         body {
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: var(--bg-gradient);
             min-height: 100vh;
-            color: #fff;
+            color: var(--text-primary);
         }
 
         .container { max-width: 1300px; margin: 0 auto; padding: 25px; }
@@ -36,7 +150,7 @@
         }
 
         header .subtitle {
-            color: rgba(255,255,255,0.6);
+            color: var(--text-secondary);
             font-size: 1.1rem;
             font-weight: 400;
         }
@@ -44,7 +158,7 @@
         header .brand {
             margin-top: 15px;
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.4);
+            color: var(--text-muted);
         }
 
         .nav-buttons {
@@ -76,8 +190,8 @@
         }
 
         .nav-btn.secondary {
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+            background: var(--nav-secondary-bg);
+            color: var(--text-primary);
             border: 2px solid rgba(102, 126, 234, 0.5);
             backdrop-filter: blur(10px);
         }
@@ -97,12 +211,12 @@
 
         .panel {
             display: none;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--panel-bg);
             border-radius: 24px;
             padding: 35px;
             margin: 25px 0;
             backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--panel-border);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             position: relative;
             overflow: hidden;
@@ -132,7 +246,7 @@
         }
 
         .panel h2 {
-            color: #a78bfa;
+            color: var(--heading-color);
             margin-bottom: 30px;
             font-size: 1.9rem;
             font-weight: 700;
@@ -146,7 +260,7 @@
         .form-group label {
             display: block;
             margin-bottom: 10px;
-            color: rgba(255,255,255,0.8);
+            color: var(--text-label);
             font-weight: 500;
             font-size: 0.95rem;
         }
@@ -154,10 +268,10 @@
         .form-group input, .form-group textarea, .form-group select {
             width: 100%;
             padding: 14px 18px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--input-border);
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-size: 1rem;
             font-family: inherit;
             transition: all 0.3s ease;
@@ -170,9 +284,9 @@
             box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15);
         }
 
-        .form-group input::placeholder { color: rgba(255,255,255,0.3); }
+        .form-group input::placeholder { color: var(--text-muted); }
 
-        .form-group select option { background: #1a1a2e; color: #fff; }
+        .form-group select option { background: var(--dropdown-option-bg); color: var(--text-primary); }
 
         .form-row {
             display: grid;
@@ -188,13 +302,13 @@
             align-items: center;
             margin-bottom: 12px;
             padding: 14px;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--item-bg);
             border-radius: 14px;
-            border: 1px solid rgba(255,255,255,0.06);
+            border: 1px solid var(--item-border);
             transition: all 0.2s ease;
         }
 
-        .contestant-item:hover { background: rgba(255, 255, 255, 0.06); }
+        .contestant-item:hover { background: var(--item-hover); }
 
         .contestant-item input[type="text"] { flex: 1; }
 
@@ -209,10 +323,10 @@
 
         .contestant-item button {
             padding: 12px 16px;
-            background: rgba(239, 68, 68, 0.2);
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: var(--delete-btn-bg);
+            border: 1px solid var(--delete-btn-border);
             border-radius: 10px;
-            color: #ef4444;
+            color: var(--delete-btn-color);
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.2s ease;
@@ -243,7 +357,7 @@
         .add-btn.blue:hover { box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4); }
 
         .mode-info {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+            background: var(--mode-info-bg);
             border-left: 4px solid #667eea;
             padding: 18px 20px;
             border-radius: 0 14px 14px 0;
@@ -251,7 +365,7 @@
         }
 
         .mode-info h4 { color: #a78bfa; margin-bottom: 10px; font-size: 1.05rem; }
-        .mode-info p { color: rgba(255,255,255,0.7); font-size: 0.92rem; line-height: 1.5; }
+        .mode-info p { color: var(--text-secondary); font-size: 0.92rem; line-height: 1.5; }
 
         .submit-btn {
             width: 100%;
@@ -276,10 +390,10 @@
         .competition-created-display {
             text-align: center;
             padding: 35px;
-            background: linear-gradient(135deg, rgba(17, 153, 142, 0.15), rgba(56, 239, 125, 0.1));
+            background: var(--comp-created-bg);
             border-radius: 20px;
             margin: 25px 0;
-            border: 1px solid rgba(56, 239, 125, 0.2);
+            border: 1px solid var(--comp-created-border);
         }
 
         .competition-created-display h3 {
@@ -293,7 +407,7 @@
             font-weight: 700;
             color: #fbbf24;
             padding: 18px 25px;
-            background: rgba(255, 255, 255, 0.05);
+            background: var(--comp-name-display-bg);
             border-radius: 14px;
             display: inline-block;
             border: 2px dashed rgba(251, 191, 36, 0.3);
@@ -330,10 +444,10 @@
         .competition-dropdown {
             width: 100%;
             padding: 16px 20px;
-            border: 2px solid rgba(255, 255, 255, 0.1);
+            border: 2px solid var(--input-border);
             border-radius: 14px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
+            background: var(--input-bg);
+            color: var(--text-primary);
             font-size: 1.05rem;
             cursor: pointer;
             appearance: none;
@@ -349,7 +463,7 @@
         .no-competitions {
             text-align: center;
             padding: 40px;
-            color: rgba(255,255,255,0.5);
+            color: var(--text-muted);
         }
 
         .no-competitions .icon { font-size: 3rem; margin-bottom: 15px; }
@@ -361,7 +475,7 @@
         }
 
         .folder-selector small {
-            color: rgba(255,255,255,0.5);
+            color: var(--text-muted);
         }
 
         .final-podium {
@@ -386,7 +500,7 @@
             padding: 18px 14px 12px;
             text-align: center;
             border: 3px solid;
-            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            background: var(--podium-card-bg);
             box-shadow: 0 14px 50px rgba(0,0,0,0.22);
         }
 
@@ -398,7 +512,7 @@
             font-size: 0.85rem;
             text-transform: uppercase;
             letter-spacing: 1px;
-            color: rgba(255,255,255,0.7);
+            color: var(--podium-rank-color);
             margin-bottom: 6px;
         }
 
@@ -418,7 +532,7 @@
         .podium-base {
             width: 100%;
             border-radius: 8px 8px 0 0;
-            background: rgba(255,255,255,0.08);
+            background: var(--podium-base-bg);
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
         }
 
@@ -674,7 +788,7 @@
         }
 
         .modal-content {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: var(--modal-bg);
             border-radius: 24px;
             padding: 35px;
             max-width: 420px;
@@ -684,7 +798,7 @@
         }
 
         .modal-content h3 { color: #f5576c; margin-bottom: 18px; font-size: 1.4rem; }
-        .modal-content p { color: rgba(255,255,255,0.7); margin-bottom: 28px; line-height: 1.6; }
+        .modal-content p { color: var(--modal-text); margin-bottom: 28px; line-height: 1.6; }
 
         .modal-buttons { display: flex; gap: 15px; justify-content: center; }
         .modal-buttons button {
@@ -696,26 +810,26 @@
             transition: all 0.3s ease;
         }
         .modal-buttons .confirm-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
-        .modal-buttons .cancel-btn { background: rgba(255, 255, 255, 0.1); color: white; border: 2px solid rgba(255, 255, 255, 0.2); }
+        .modal-buttons .cancel-btn { background: var(--item-bg); color: var(--text-primary); border: 2px solid var(--input-border); }
 
         .scoreboard { text-align: center; }
 
         .scoreboard-header {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.1));
+            background: var(--scoreboard-header-bg);
             padding: 35px;
             border-radius: 20px;
             margin-bottom: 35px;
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            border: 1px solid var(--scoreboard-header-border);
         }
 
         .scoreboard-header h2 {
             font-size: 2.5rem;
             margin-bottom: 12px;
             justify-content: center;
-            color: #a78bfa;
+            color: var(--heading-color);
         }
 
-        .scoreboard-header .description { color: rgba(255,255,255,0.6); margin-bottom: 18px; font-size: 1.05rem; }
+        .scoreboard-header .description { color: var(--text-secondary); margin-bottom: 18px; font-size: 1.05rem; }
 
         .scores-grid {
             display: grid;
@@ -724,7 +838,7 @@
         }
 
         .score-card {
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--score-card-bg);
             border-radius: 20px;
             padding: 28px;
             text-align: center;
@@ -736,7 +850,7 @@
 
         .score-card .rank {
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.5);
+            color: var(--rank-label-color);
             margin-bottom: 8px;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -761,9 +875,9 @@
         .vote-indicator {
             margin-top: 18px;
             padding: 12px;
-            background: rgba(251, 191, 36, 0.1);
+            background: var(--vote-indicator-bg);
             border-radius: 12px;
-            border: 1px solid rgba(251, 191, 36, 0.2);
+            border: 1px solid var(--vote-indicator-border);
         }
 
         .vote-indicator .vote-count { font-size: 0.9rem; color: #fbbf24; }
@@ -771,14 +885,14 @@
         .mark-history {
             margin-top: 18px;
             font-size: 0.85rem;
-            color: rgba(255,255,255,0.6);
+            color: var(--mark-history-color);
             max-height: 100px;
             overflow-y: auto;
         }
 
         .mark-history-item {
             padding: 6px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-bottom: 1px solid var(--mark-history-border);
         }
 
         .mark-history-item.consensus { color: #38ef7d; font-weight: 600; }
@@ -812,10 +926,10 @@
             align-items: center;
             margin-bottom: 12px;
             padding: 14px;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--item-bg);
             border-radius: 14px;
             flex-wrap: wrap;
-            border: 1px solid rgba(255,255,255,0.06);
+            border: 1px solid var(--item-border);
         }
 
         .score-category-item input[type="text"] { flex: 2; min-width: 140px; }
@@ -824,7 +938,7 @@
         .weight-total {
             margin-top: 14px;
             padding: 14px 18px;
-            background: rgba(251, 191, 36, 0.1);
+            background: var(--weight-total-bg);
             border-radius: 12px;
             color: #fbbf24;
             font-weight: 600;
@@ -851,21 +965,21 @@
             align-items: center;
             margin-bottom: 10px;
             padding: 10px;
-            background: rgba(255, 255, 255, 0.03);
+            background: var(--catrow-bg);
             border-radius: 10px;
         }
 
-        .category-score-row label { flex: 1; font-size: 0.92rem; color: rgba(255,255,255,0.8); }
+        .category-score-row label { flex: 1; font-size: 0.92rem; color: var(--text-label); }
 
         .category-score-row input {
             width: 75px;
             padding: 10px;
             text-align: center;
             font-size: 1rem;
-            border: 2px solid rgba(255, 255, 255, 0.15);
+            border: 2px solid var(--catrow-input-border);
             border-radius: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            color: white;
+            background: var(--catrow-input-bg);
+            color: var(--text-primary);
         }
 
         .category-score-row .weight-badge {
@@ -892,15 +1006,15 @@
         .submit-all-scores-btn:hover { transform: translateY(-2px); }
 
         .referee-controls {
-            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.08));
+            background: var(--referee-controls-bg);
             padding: 24px;
             border-radius: 18px;
             margin: 24px 0;
-            border: 1px solid rgba(102, 126, 234, 0.2);
+            border: 1px solid var(--referee-controls-border);
         }
 
         .referee-controls h3 {
-            color: #a78bfa;
+            color: var(--heading-color);
             margin-bottom: 18px;
             text-align: center;
             font-size: 1.15rem;
@@ -908,7 +1022,7 @@
 
         .section-header {
             margin: 30px 0 18px;
-            color: #fbbf24;
+            color: var(--section-header-color);
             font-size: 1.15rem;
             font-weight: 600;
             display: flex;
@@ -939,9 +1053,9 @@
         .mini-btn {
             padding: 10px 16px;
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.14);
-            background: rgba(255,255,255,0.06);
-            color: white;
+            border: 1px solid var(--mini-btn-border);
+            background: var(--mini-btn-bg);
+            color: var(--text-primary);
             cursor: pointer;
             font-weight: 600;
             transition: all 0.25s ease;
@@ -949,12 +1063,12 @@
 
         .mini-btn:hover {
             transform: translateY(-2px);
-            background: rgba(255,255,255,0.09);
+            background: var(--item-hover);
         }
 
         .mini-btn.primary {
-            border-color: rgba(102, 126, 234, 0.45);
-            background: rgba(102, 126, 234, 0.16);
+            border-color: var(--mini-btn-primary-border);
+            background: var(--mini-btn-primary-bg);
         }
 
         .referee-header-actions {
@@ -967,10 +1081,10 @@
         .referee-badge {
             display: inline-block;
             padding: 8px 16px;
-            background: rgba(102, 126, 234, 0.2);
+            background: var(--referee-badge-bg);
             border-radius: 20px;
             font-size: 0.9rem;
-            color: rgba(255,255,255,0.8);
+            color: var(--referee-badge-color);
         }
 
         .referee-badge strong {
@@ -981,8 +1095,8 @@
         .score-submitted-badge {
             display: inline-block;
             padding: 4px 12px;
-            background: rgba(56, 239, 125, 0.15);
-            border: 1px solid rgba(56, 239, 125, 0.3);
+            background: var(--score-submitted-bg);
+            border: 1px solid var(--score-submitted-border);
             border-radius: 12px;
             color: #38ef7d;
             font-size: 0.8rem;
@@ -991,7 +1105,7 @@
         }
 
         .fullscreen-surface:fullscreen {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            background: var(--fullscreen-bg);
             padding: 22px;
             overflow: auto;
         }
@@ -1017,9 +1131,9 @@
             margin: 25px 0;
             flex-wrap: wrap;
             padding: 20px;
-            background: rgba(255,255,255,0.04);
+            background: var(--reveal-controls-bg);
             border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.08);
+            border: 1px solid var(--reveal-controls-border);
         }
 
         .reveal-btn {
@@ -1066,7 +1180,7 @@
         }
 
         .current-highlight {
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+            background: var(--current-highlight-bg);
             border: 2px solid #fbbf24;
             box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
             transform: scale(1.02);
@@ -1093,6 +1207,241 @@
             .reveal-btn { width: 100%; max-width: 200px; }
         }
 
+        .theme-toggle-btn {
+            margin-top: 18px;
+            padding: 10px 22px;
+            border-radius: 25px;
+            border: 2px solid rgba(102, 126, 234, 0.5);
+            background: var(--nav-secondary-bg);
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(102, 126, 234, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.rankings {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            box-shadow: 0 4px 20px rgba(240, 147, 251, 0.35);
+        }
+
+        /* ===== RANKINGS PAGE STYLES ===== */
+
+        .rankings-podium-section {
+            margin-bottom: 40px;
+        }
+
+        .rankings-podium-section h3 {
+            text-align: center;
+            font-size: 1.4rem;
+            color: var(--heading-color);
+            margin-bottom: 6px;
+        }
+
+        .rankings-podium-section .podium-subtitle {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.88rem;
+            margin-bottom: 24px;
+        }
+
+        .rankings-podium {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            align-items: flex-end;
+            max-width: 680px;
+            margin: 0 auto 30px;
+        }
+
+        .rankings-podium-slot {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+
+        .rankings-podium-card {
+            width: 100%;
+            border-radius: 18px 18px 8px 8px;
+            padding: 20px 14px 14px;
+            text-align: center;
+            border: 3px solid;
+            background: var(--podium-card-bg);
+            box-shadow: 0 14px 50px rgba(0,0,0,0.22);
+            position: relative;
+        }
+
+        .rankings-podium-slot:nth-child(2) .rankings-podium-card {
+            transform: translateY(-14px);
+        }
+
+        .rankings-podium-medal {
+            font-size: 2.2rem;
+            margin-bottom: 6px;
+        }
+
+        .rankings-podium-name {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .rankings-podium-badges {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 6px;
+        }
+
+        .rank-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .rank-badge.gold { background: rgba(255,215,0,0.2); color: #ffd700; border: 1px solid rgba(255,215,0,0.4); }
+        .rank-badge.silver { background: rgba(192,192,192,0.2); color: #c0c0c0; border: 1px solid rgba(192,192,192,0.4); }
+        .rank-badge.bronze { background: rgba(205,127,50,0.2); color: #cd7f32; border: 1px solid rgba(205,127,50,0.4); }
+        .rank-badge.award { background: rgba(102,126,234,0.2); color: #a78bfa; border: 1px solid rgba(102,126,234,0.4); }
+
+        body.light-mode .rank-badge.gold { color: #b8860b; background: rgba(255,215,0,0.18); }
+        body.light-mode .rank-badge.silver { color: #708090; background: rgba(100,100,120,0.12); }
+        body.light-mode .rank-badge.bronze { color: #8b4513; background: rgba(139,69,19,0.12); }
+        body.light-mode .rank-badge.award { color: #5b21b6; background: rgba(91,33,182,0.1); }
+
+        .rankings-podium-base {
+            width: 100%;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .rankings-podium-base.first {
+            height: 80px;
+            background: linear-gradient(180deg, rgba(255,215,0,0.25), rgba(255,215,0,0.06));
+        }
+        .rankings-podium-base.second {
+            height: 58px;
+            background: linear-gradient(180deg, rgba(192,192,192,0.22), rgba(192,192,192,0.05));
+        }
+        .rankings-podium-base.third {
+            height: 44px;
+            background: linear-gradient(180deg, rgba(205,127,50,0.22), rgba(205,127,50,0.05));
+        }
+
+        .rankings-table-section {
+            margin-top: 10px;
+        }
+
+        .rankings-table-section h3 {
+            font-size: 1.15rem;
+            color: var(--heading-color);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rankings-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rankings-table thead tr {
+            background: rgba(102, 126, 234, 0.15);
+        }
+
+        .rankings-table th {
+            padding: 14px 16px;
+            text-align: left;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #a78bfa;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.25);
+        }
+
+        body.light-mode .rankings-table th { color: #5b21b6; }
+
+        .rankings-table th:not(:first-child):not(:nth-child(2)) {
+            text-align: center;
+        }
+
+        .rankings-table td {
+            padding: 13px 16px;
+            border-bottom: 1px solid var(--item-border);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .rankings-table td:not(:first-child):not(:nth-child(2)) {
+            text-align: center;
+        }
+
+        .rankings-table tbody tr {
+            transition: background 0.2s;
+        }
+
+        .rankings-table tbody tr:hover {
+            background: var(--item-hover);
+        }
+
+        .rankings-table tbody tr.top-3 {
+            background: var(--item-bg);
+        }
+
+        .rank-num {
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        .rank-num.r1 { color: #ffd700; }
+        .rank-num.r2 { color: #c0c0c0; }
+        .rank-num.r3 { color: #cd7f32; }
+
+        body.light-mode .rank-num.r1 { color: #b8860b; }
+        body.light-mode .rank-num.r2 { color: #708090; }
+        body.light-mode .rank-num.r3 { color: #8b4513; }
+
+        .player-dot {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .total-score-cell {
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .no-data-rankings {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .no-data-rankings .icon { font-size: 3.5rem; margin-bottom: 14px; }
+
+        /* ===== END RANKINGS STYLES ===== */
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -1102,6 +1451,9 @@
             <h1>🏆 Competition Scoring</h1>
             <p class="subtitle">Real-time Competition Mark Counting System</p>
             <p class="brand">Kung Fu Force / Ryan Lee @ 2026</p>
+            <button class="theme-toggle-btn" onclick="toggleTheme()" id="theme-toggle-btn" title="Toggle light/dark mode">
+                <span id="theme-icon">☀️</span> <span id="theme-label">Light Mode</span>
+            </button>
         </header>
 
         <div class="nav-buttons">
@@ -1116,6 +1468,9 @@
             </button>
             <button class="nav-btn success" onclick="showPanel('final')">
                 <span class="icon">🏅</span> Final Scoreboard
+            </button>
+            <button class="nav-btn rankings" onclick="showPanel('rankings')">
+                <span class="icon">🥇</span> All-Time Rankings
             </button>
         </div>
 
@@ -1175,7 +1530,7 @@
 
             <div id="mode1-settings">
                 <h3 class="section-header">📋 Score Categories</h3>
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-bottom: 18px;">Define categories and their weights (must total 100%)</p>
+                <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 18px;">Define categories and their weights (must total 100%)</p>
                 <div id="score-categories-list" class="score-categories-list"></div>
                 <button class="add-btn blue" onclick="addScoreCategory()">+ Add Category</button>
                 <div id="weight-total" class="weight-total">Total Weight: 0%</div>
@@ -1330,6 +1685,27 @@
                     <button id="reveal-next-award" class="reveal-btn award" onclick="revealNextAward()">Next Award</button>
                     <button id="reveal-reset" class="reveal-btn reset" onclick="resetReveal()">Reset All</button>
                 </div>
+            </div>
+        </div>
+
+        <div id="rankings-panel" class="panel">
+            <h2>🥇 All-Time Player Rankings</h2>
+            <p style="color: var(--text-secondary); margin-bottom: 25px; font-size: 0.95rem;">Aggregated across all competitions — total 1st, 2nd, 3rd place finishes and awards won.</p>
+
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px;">
+                <div class="form-group" style="min-width: 220px; margin: 0;">
+                    <label>Filter by Folder (optional)</label>
+                    <select id="rankings-folder-filter" class="competition-dropdown" onchange="buildRankings()">
+                        <option value="">All Competitions</option>
+                    </select>
+                </div>
+                <div style="display:flex; align-items:flex-end;">
+                    <button class="add-btn" onclick="buildRankings()" style="margin:0;">🔄 Refresh</button>
+                </div>
+            </div>
+
+            <div id="rankings-content">
+                <div class="no-competitions"><div class="icon">🏆</div><p>Loading rankings…</p></div>
             </div>
         </div>
     </div>
@@ -2819,6 +3195,215 @@
             }).catch(err => {
                 showStatus('Error saving folder: ' + err.message, 'error');
             });
+        }
+        // ===== THEME TOGGLE =====
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('light-mode');
+            const isLight = body.classList.contains('light-mode');
+            document.getElementById('theme-icon').textContent = isLight ? '🌙' : '☀️';
+            document.getElementById('theme-label').textContent = isLight ? 'Dark Mode' : 'Light Mode';
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+        }
+
+        // Restore saved theme
+        (function() {
+            if (localStorage.getItem('theme') === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('theme-icon').textContent = '🌙';
+                document.getElementById('theme-label').textContent = 'Dark Mode';
+            }
+        })();
+
+        // ===== ALL-TIME RANKINGS =====
+        function updateRankingsFolderFilter() {
+            const sel = document.getElementById('rankings-folder-filter');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">All Competitions</option>';
+            Object.entries(allFolders).forEach(([id, folder]) => {
+                if (!folder || !folder.name) return;
+                const opt = document.createElement('option');
+                opt.value = id;
+                opt.textContent = buildFolderLabel(id);
+                sel.appendChild(opt);
+            });
+            sel.value = current;
+        }
+
+        function buildRankings() {
+            updateRankingsFolderFilter();
+            const container = document.getElementById('rankings-content');
+            if (!container) return;
+
+            const folderFilter = document.getElementById('rankings-folder-filter')?.value || '';
+
+            // Gather all competitions to analyse
+            const compsToAnalyse = Object.values(allCompetitions).filter(comp => {
+                if (!comp || !comp.contestants) return false;
+                if (folderFilter && comp.folderId !== folderFilter) return false;
+                return true;
+            });
+
+            if (compsToAnalyse.length === 0) {
+                container.innerHTML = `<div class="no-data-rankings"><div class="icon">🏆</div><p>No competitions found. Create some competitions first!</p></div>`;
+                return;
+            }
+
+            // Build per-player stats
+            const playerStats = {}; // name -> { color, gold, silver, bronze, awards, totalScore, comps }
+
+            compsToAnalyse.forEach(comp => {
+                const contestants = comp.contestants.map((c, i) => ({
+                    ...c,
+                    finalScore: comp.mode === 1 ? calculateWeightedAverageScoreForCompetition(comp, i) : (c.score || 0)
+                })).sort((a, b) => b.finalScore - a.finalScore);
+
+                contestants.forEach((c, rank) => {
+                    const name = c.name;
+                    if (!name) return;
+                    if (!playerStats[name]) {
+                        playerStats[name] = { color: c.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awards: 0, totalScore: 0, comps: 0 };
+                    }
+                    playerStats[name].totalScore += c.finalScore;
+                    playerStats[name].comps += 1;
+
+                    if (rank === 0) playerStats[name].gold += 1;
+                    else if (rank === 1) playerStats[name].silver += 1;
+                    else if (rank === 2) playerStats[name].bronze += 1;
+                });
+
+                // Count awards from folder config
+                const folderId = comp.folderId;
+                const folder = folderId && allFolders ? allFolders[folderId] : null;
+                const awards = folder && Array.isArray(folder.awards) ? folder.awards : [];
+                
+                if (awards.length > 0) {
+                    let startIndex = 3;
+                    awards.forEach(award => {
+                        const winners = contestants.slice(startIndex, startIndex + award.maxWinners);
+                        winners.forEach(w => {
+                            if (!w.name) return;
+                            if (!playerStats[w.name]) {
+                                playerStats[w.name] = { color: w.color || '#ffffff', gold: 0, silver: 0, bronze: 0, awards: 0, totalScore: 0, comps: 0 };
+                            }
+                            playerStats[w.name].awards += 1;
+                        });
+                        startIndex += award.maxWinners;
+                    });
+                }
+            });
+
+            // Sort: gold > silver > bronze > awards > totalScore
+            const sorted = Object.entries(playerStats).sort(([, a], [, b]) => {
+                if (b.gold !== a.gold) return b.gold - a.gold;
+                if (b.silver !== a.silver) return b.silver - a.silver;
+                if (b.bronze !== a.bronze) return b.bronze - a.bronze;
+                if (b.awards !== a.awards) return b.awards - a.awards;
+                return b.totalScore - a.totalScore;
+            });
+
+            if (sorted.length === 0) {
+                container.innerHTML = `<div class="no-data-rankings"><div class="icon">🏆</div><p>No player data available yet.</p></div>`;
+                return;
+            }
+
+            // Build podium for top 3
+            const podiumMedals = ['🥇', '🥈', '🥉'];
+            const podiumClasses = ['first', 'second', 'third'];
+            const podiumOrder = [1, 0, 2]; // display: 2nd, 1st, 3rd
+            const top3 = sorted.slice(0, 3);
+
+            let podiumHtml = '';
+            // We show [1], [0], [2] left-to-right so 1st is in center
+            const displayOrder = top3.length >= 3 ? [1, 0, 2] : (top3.length === 2 ? [1, 0] : [0]);
+
+            podiumHtml = displayOrder.map(idx => {
+                if (!top3[idx]) return '';
+                const [name, stats] = top3[idx];
+                const actualRank = idx; // 0=1st,1=2nd,2=3rd
+                const badgesHtml = [
+                    stats.gold ? `<span class="rank-badge gold">🥇 ${stats.gold}</span>` : '',
+                    stats.silver ? `<span class="rank-badge silver">🥈 ${stats.silver}</span>` : '',
+                    stats.bronze ? `<span class="rank-badge bronze">🥉 ${stats.bronze}</span>` : '',
+                    stats.awards ? `<span class="rank-badge award">🏅 ${stats.awards}</span>` : '',
+                ].filter(Boolean).join('');
+
+                return `
+                    <div class="rankings-podium-slot">
+                        <div class="rankings-podium-card" style="border-color: ${stats.color}">
+                            <div class="rankings-podium-medal">${podiumMedals[actualRank]}</div>
+                            <div class="rankings-podium-name" style="color:${stats.color}">${name}</div>
+                            <div class="rankings-podium-badges">${badgesHtml}</div>
+                            <div style="font-size:0.78rem; color: var(--text-muted);">${stats.comps} comp${stats.comps !== 1 ? 's' : ''} • ${stats.totalScore.toFixed(1)} pts</div>
+                        </div>
+                        <div class="rankings-podium-base ${podiumClasses[actualRank]}"></div>
+                    </div>`;
+            }).join('');
+
+            // Build full table
+            const tableRows = sorted.map(([name, stats], i) => {
+                const rank = i + 1;
+                const rankClass = rank <= 3 ? `r${rank}` : '';
+                const rankDisplay = rank === 1 ? `<span class="rank-num r1">🥇</span>` :
+                                    rank === 2 ? `<span class="rank-num r2">🥈</span>` :
+                                    rank === 3 ? `<span class="rank-num r3">🥉</span>` :
+                                    `<span class="rank-num" style="color:var(--text-muted)">#${rank}</span>`;
+                return `
+                    <tr class="${rank <= 3 ? 'top-3' : ''}">
+                        <td>${rankDisplay}</td>
+                        <td><span class="player-dot" style="background:${stats.color}"></span>${name}</td>
+                        <td><span class="rank-badge gold">${stats.gold}</span></td>
+                        <td><span class="rank-badge silver">${stats.silver}</span></td>
+                        <td><span class="rank-badge bronze">${stats.bronze}</span></td>
+                        <td><span class="rank-badge award">${stats.awards}</span></td>
+                        <td class="total-score-cell" style="color:${stats.color}">${stats.totalScore.toFixed(1)}</td>
+                        <td style="color:var(--text-muted)">${stats.comps}</td>
+                    </tr>`;
+            }).join('');
+
+            container.innerHTML = `
+                <div class="rankings-podium-section">
+                    <h3>🏆 Top Players Podium</h3>
+                    <p class="podium-subtitle">Ranked by 🥇 Gold → 🥈 Silver → 🥉 Bronze → 🏅 Awards → Total Score</p>
+                    <div class="rankings-podium">
+                        ${podiumHtml}
+                    </div>
+                </div>
+
+                <div class="rankings-table-section">
+                    <h3>📋 Full Leaderboard (${sorted.length} players, ${compsToAnalyse.length} competitions)</h3>
+                    <div style="overflow-x: auto;">
+                        <table class="rankings-table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Player</th>
+                                    <th>🥇 1st</th>
+                                    <th>🥈 2nd</th>
+                                    <th>🥉 3rd</th>
+                                    <th>🏅 Awards</th>
+                                    <th>Total Pts</th>
+                                    <th>Comps</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Patch showPanel to build rankings when switching to it
+        const _origShowPanel = showPanel;
+        function showPanel(panelName) {
+            _origShowPanel(panelName);
+            if (panelName === 'rankings') {
+                updateRankingsFolderFilter();
+                buildRankings();
+            }
         }
     </script>
 </body>
