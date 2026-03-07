@@ -3045,23 +3045,42 @@
 
         // All possible fields for export, with labels and which modes they apply to
         const EXPORT_FIELD_DEFS = [
-            { key: 'competition_name',  label: 'Competition Name',   modes: [1,2] },
-            { key: 'contestant_name',   label: 'Contestant Name',    modes: [1,2] },
-            { key: 'final_score',       label: 'Final Score',        modes: [1,2] },
-            { key: 'rank',              label: 'Rank',               modes: [1,2] },
-            { key: 'mode',              label: 'Mode',               modes: [1,2] },
-            { key: 'color',             label: 'Colour Tag',         modes: [1,2] },
-            { key: 'competition_id',    label: 'Competition ID',     modes: [1,2] },
+            { key: 'competition_name',  label: 'Competition Name',        modes: [1,2] },
+            { key: 'contestant_name',   label: 'Contestant Name',         modes: [1,2] },
+            { key: 'final_score',       label: 'Final Score',             modes: [1,2] },
+            { key: 'rank',              label: 'Rank',                    modes: [1,2] },
+            { key: 'mode',              label: 'Mode',                    modes: [1,2] },
+            { key: 'color',             label: 'Colour Tag',              modes: [1,2] },
+            { key: 'competition_id',    label: 'Competition ID',          modes: [1,2] },
             // Mode 1 specific
-            { key: 'referee_count',     label: 'Referee Count',      modes: [1] },
-            { key: 'categories',        label: 'Score Categories',   modes: [1] },
-            { key: 'ref_scores',        label: 'Per-Referee Scores', modes: [1] },
-            { key: 'cat_scores',        label: 'Per-Category Avg',   modes: [1] },
+            { key: 'referee_count',     label: 'Referee Count',           modes: [1] },
+            { key: 'categories',        label: 'Score Categories (info)', modes: [1] },
+            { key: 'ref_scores',        label: 'All Referee Scores',      modes: [1] },
+            { key: 'cat_scores',        label: 'All Category Averages',   modes: [1] },
             // Mode 2 specific
-            { key: 'mark_history',      label: 'Mark History',       modes: [2] },
-            { key: 'total_score',       label: 'Total Score (raw)',  modes: [2] },
-            { key: 'Timestamp',         label: 'Timestamp',          modes: [1,2] },
+            { key: 'mark_history',      label: 'Mark History',            modes: [2] },
+            { key: 'total_score',       label: 'Total Score (raw)',       modes: [2] },
+            { key: 'Timestamp',         label: 'Timestamp',               modes: [1,2] },
         ];
+
+        function getDynamicExportFields() {
+            // Returns extra per-category and per-referee field defs based on current competition
+            if (!competitionData || competitionData.mode !== 1) return [];
+            const extra = [];
+            const categories = competitionData.scoreCategories || [];
+            categories.forEach(cat => {
+                extra.push({ key: `cat_${cat.name}`, label: `Avg: ${cat.name}`, modes: [1], dynamic: true });
+            });
+            // Count max referees across contestants
+            const mode1Scores = competitionData.mode1Scores || {};
+            let maxRefs = 0;
+            Object.values(mode1Scores).forEach(cs => { maxRefs = Math.max(maxRefs, Object.keys(cs).length); });
+            for (let r = 1; r <= maxRefs; r++) {
+                extra.push({ key: `ref_${r}_name`, label: `Referee ${r} Name`, modes: [1], dynamic: true });
+                extra.push({ key: `ref_${r}`,      label: `Referee ${r} Score`, modes: [1], dynamic: true });
+            }
+            return extra;
+        }
 
         function openExportModal() {
             if (!competitionData || !currentCompetitionId) {
@@ -3071,8 +3090,12 @@
             const mode = competitionData.mode;
             const saved = getExportSettings();
 
+            // Combine static + dynamic field defs
+            const dynamicDefs = getDynamicExportFields();
+            const allDefs = [...EXPORT_FIELD_DEFS, ...dynamicDefs];
+            const applicableFields = allDefs.filter(f => f.modes.includes(mode));
+
             // Field order: use saved order, append any new ones at end
-            const applicableFields = EXPORT_FIELD_DEFS.filter(f => f.modes.includes(mode));
             const savedOrder = (saved.fieldOrder || []).filter(k => applicableFields.find(f => f.key === k));
             const remaining = applicableFields.filter(f => !savedOrder.includes(f.key)).map(f => f.key);
             const fieldOrder = [...savedOrder, ...remaining];
@@ -3178,6 +3201,7 @@
             // Collect current field order + enabled state
             const fieldOrder = [];
             const disabledFields = [];
+            const allDefs = [...EXPORT_FIELD_DEFS, ...getDynamicExportFields()];
             list.querySelectorAll('.export-field-row').forEach(row => {
                 const key = row.dataset.key;
                 fieldOrder.push(key);
@@ -3216,30 +3240,46 @@
                 };
 
                 if (mode === 1) {
-                    allData.referee_count = competitionData.mode1Scores?.[i]
-                        ? Object.keys(competitionData.mode1Scores[i]).length : 0;
-                    allData.categories = (competitionData.scoreCategories || [])
-                        .map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
-                    // Per-referee scores
-                    if (competitionData.mode1Scores?.[i]) {
-                        const refScores = Object.entries(competitionData.mode1Scores[i]).map(([refId, scores]) => {
-                            const total = Object.entries(scores).reduce((sum, [catIdx, val]) => {
-                                const w = (competitionData.scoreCategories?.[catIdx]?.weight || 0) / 100;
-                                return sum + val * w;
-                            }, 0);
-                            return `${refId.substring(0,6)}:${total.toFixed(1)}`;
-                        });
-                        allData.ref_scores = refScores.join(' | ');
-                    }
-                    // Per-category averages
-                    if (competitionData.scoreCategories && competitionData.mode1Scores?.[i]) {
-                        const catAvgs = competitionData.scoreCategories.map((cat, catIdx) => {
-                            const vals = Object.values(competitionData.mode1Scores[i]).map(s => parseFloat(s[catIdx]) || 0);
-                            const avg = vals.length ? (vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
-                            return `${cat.name}:${avg.toFixed(1)}`;
-                        });
-                        allData.cat_scores = catAvgs.join(' | ');
-                    }
+                    const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
+                    const contestantScores = competitionData.mode1Scores?.[i] || {};
+                    const refereeEntries = Object.entries(contestantScores);
+
+                    allData.referee_count = refereeEntries.length;
+                    allData.categories = categories.map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
+
+                    // Per-referee weighted totals (using category NAME as key, matching Firebase structure)
+                    const refWeightedScores = refereeEntries.map(([refId, refCatScores]) => {
+                        const refName = refCatScores.refereeName || refId.substring(0, 8);
+                        const weighted = categories.reduce((sum, cat) => {
+                            const val = parseFloat(refCatScores[cat.name]) || 0;
+                            return sum + val * (cat.weight / 100);
+                        }, 0);
+                        return { refName, weighted, refCatScores };
+                    });
+                    allData.ref_scores = refWeightedScores.map(r => `${r.refName}:${r.weighted.toFixed(1)}`).join(' | ');
+
+                    // Per-category averages across all referees (using category NAME as key)
+                    const catAvgs = categories.map(cat => {
+                        const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
+                        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+                        return { name: cat.name, avg };
+                    });
+                    allData.cat_scores = catAvgs.map(c => `${c.name}:${c.avg.toFixed(1)}`).join(' | ');
+
+                    // Individual per-category columns (e.g. "cat_Technique", "cat_Power")
+                    categories.forEach(cat => {
+                        const key = `cat_${cat.name}`;
+                        const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
+                        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+                        allData[key] = avg.toFixed(2);
+                    });
+
+                    // Individual per-referee columns (e.g. "ref_1", "ref_2")
+                    refWeightedScores.forEach((r, ri) => {
+                        allData[`ref_${ri + 1}`] = r.weighted.toFixed(2);
+                        allData[`ref_${ri + 1}_name`] = r.refName;
+                    });
+
                 } else {
                     const markHistory = c.markHistory ? Object.values(c.markHistory) : [];
                     allData.mark_history = markHistory.map(h => `+${h.mark}`).join(', ');
