@@ -124,124 +124,6 @@
 
         .panel > * { position: relative; }
 
-        .nav-btn:active { transform: translateY(-1px); }
-
-        .competition-dropdown, .form-group input, .form-group textarea, .form-group select {
-            background: rgba(255, 255, 255, 0.06);
-        }
-
-        .submit-btn, .nav-btn, .add-btn, .copy-btn, .timer-controls button {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .submit-btn::after, .nav-btn::after, .add-btn::after, .copy-btn::after, .timer-controls button::after {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: radial-gradient(circle at 20% 0%, rgba(255,255,255,0.25), transparent 45%);
-            opacity: 0;
-            transition: opacity 0.25s ease;
-            pointer-events: none;
-        }
-
-        .submit-btn:hover::after, .nav-btn:hover::after, .add-btn:hover::after, .copy-btn:hover::after, .timer-controls button:hover::after {
-            opacity: 1;
-        }
-
-        .board-actions {
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            margin-top: 14px;
-            flex-wrap: wrap;
-        }
-
-        .mini-btn {
-            padding: 10px 16px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.14);
-            background: rgba(255,255,255,0.06);
-            color: white;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.25s ease;
-        }
-
-        .mini-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(255,255,255,0.09);
-        }
-
-        .mini-btn.primary {
-            border-color: rgba(102, 126, 234, 0.45);
-            background: rgba(102, 126, 234, 0.16);
-        }
-
-        .mini-btn.danger {
-            border-color: rgba(239, 68, 68, 0.35);
-            background: rgba(239, 68, 68, 0.12);
-        }
-
-        .fullscreen-surface:fullscreen {
-            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
-            padding: 22px;
-            overflow: auto;
-        }
-
-        .fullscreen-surface:fullscreen .scoreboard-header {
-            margin-top: 10px;
-        }
-
-        .fullscreen-surface:fullscreen .scores-grid {
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-        }
-
-        .fullscreen-surface:fullscreen .final-podium {
-            max-width: 1100px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .final-podium {
-            grid-template-columns: 1fr 1.15fr 1fr;
-            gap: 22px;
-        }
-
-        .podium-card {
-            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-            box-shadow: 0 14px 50px rgba(0,0,0,0.22);
-        }
-
-        .podium-slot:nth-child(2) .podium-card {
-            transform: translateY(-10px);
-        }
-
-        .podium-score {
-            letter-spacing: -0.5px;
-            text-shadow: 0 0 24px rgba(255,255,255,0.10);
-        }
-
-        .podium-base {
-            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
-        }
-
-        .podium-base.first {
-            background: linear-gradient(180deg, rgba(255,215,0,0.18), rgba(255,215,0,0.04));
-        }
-
-        .podium-base.second {
-            background: linear-gradient(180deg, rgba(192,192,192,0.18), rgba(192,192,192,0.04));
-        }
-
-        .podium-base.third {
-            background: linear-gradient(180deg, rgba(205,127,50,0.18), rgba(205,127,50,0.04));
-        }
-
-        .final-award-item {
-            border: 1px solid rgba(255,255,255,0.06);
-        }
-
         .panel.active {
             display: block;
             animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -507,6 +389,12 @@
             padding: 18px 14px 12px;
             text-align: center;
             border: 3px solid;
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            box-shadow: 0 14px 50px rgba(0,0,0,0.22);
+        }
+
+        .podium-slot:nth-child(2) .podium-card {
+            transform: translateY(-10px);
         }
 
         .podium-rank {
@@ -526,24 +414,30 @@
         .podium-score {
             font-size: 2.4rem;
             font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 24px rgba(255,255,255,0.10);
         }
 
         .podium-base {
             width: 100%;
             border-radius: 8px 8px 0 0;
             background: rgba(255,255,255,0.08);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.10);
         }
 
         .podium-base.first {
             height: 80px;
+            background: linear-gradient(180deg, rgba(255,215,0,0.18), rgba(255,215,0,0.04));
         }
 
         .podium-base.second {
             height: 60px;
+            background: linear-gradient(180deg, rgba(192,192,192,0.18), rgba(192,192,192,0.04));
         }
 
         .podium-base.third {
             height: 50px;
+            background: linear-gradient(180deg, rgba(205,127,50,0.18), rgba(205,127,50,0.04));
         }
 
         .final-awards {
@@ -574,6 +468,7 @@
             padding: 10px 14px;
             border-radius: 10px;
             background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.06);
         }
 
         .final-award-name {
@@ -612,7 +507,7 @@
 
         .contestant-cards {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 24px;
             margin: 30px 0;
         }
@@ -708,8 +603,9 @@
         }
 
         .timer-controls .start-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
-        .timer-controls .reset-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
-        .timer-controls .delete-btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        .timer-controls .stop-btn { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+        .timer-controls .reset-btn { background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%); color: white; }
+        .timer-controls .delete-btn { background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; }
         .timer-controls .export-btn { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; }
 
         .timer-controls button:hover { transform: translateY(-2px); }
@@ -1020,6 +916,88 @@
 
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        .board-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .mini-btn {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(255,255,255,0.06);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.25s ease;
+        }
+
+        .mini-btn:hover {
+            transform: translateY(-2px);
+            background: rgba(255,255,255,0.09);
+        }
+
+        .mini-btn.primary {
+            border-color: rgba(102, 126, 234, 0.45);
+            background: rgba(102, 126, 234, 0.16);
+        }
+
+        .referee-header-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 15px 0;
+        }
+
+        .referee-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: rgba(102, 126, 234, 0.2);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.8);
+        }
+
+        .referee-badge strong {
+            color: #a78bfa;
+            margin-right: 5px;
+        }
+
+        .score-submitted-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: rgba(56, 239, 125, 0.15);
+            border: 1px solid rgba(56, 239, 125, 0.3);
+            border-radius: 12px;
+            color: #38ef7d;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .fullscreen-surface:fullscreen {
+            background: linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%);
+            padding: 22px;
+            overflow: auto;
+        }
+
+        .fullscreen-surface:fullscreen .scoreboard-header {
+            margin-top: 10px;
+        }
+
+        .fullscreen-surface:fullscreen .scores-grid {
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        }
+
+        .fullscreen-surface:fullscreen .final-podium {
+            max-width: 1100px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         @media (max-width: 768px) {
             header h1 { font-size: 2rem; }
             .nav-buttons { flex-direction: column; align-items: center; }
@@ -1027,6 +1005,8 @@
             .panel { padding: 22px; }
             .contestant-cards { grid-template-columns: 1fr; }
             .competition-created-display .comp-name-display { font-size: 1.3rem; word-break: break-word; }
+            .timer-controls { flex-direction: column; align-items: center; }
+            .timer-controls button { width: 100%; max-width: 200px; }
         }
 
         .hidden { display: none !important; }
@@ -1180,6 +1160,10 @@
                     <span class="referee-count">👥 Online: <span id="ref-count">0</span></span>
                 </div>
 
+                <div id="referee-mode2-start" class="hidden">
+                    <button class="start-competition-btn" onclick="startCompetition()">🚀 Start Competition</button>
+                </div>
+
                 <div id="ref-timer" class="competition-timer hidden">00:00</div>
                 <div id="ref-status" class="competition-status pending hidden">⏳ Waiting to start...</div>
 
@@ -1191,6 +1175,10 @@
                         <button class="export-btn" onclick="exportToGoogleSheets()">📤 Export</button>
                         <button class="delete-btn" onclick="confirmDeleteCompetition()">🗑️ Delete</button>
                     </div>
+                </div>
+
+                <div class="referee-badge" id="referee-name-badge">
+                    <strong>You:</strong> <span id="referee-name-display"></span>
                 </div>
 
                 <div id="referee-cards" class="contestant-cards"></div>
@@ -1298,7 +1286,7 @@
         }
 
         function updateCompetitionDropdowns() {
-
+            // Update any competition dropdowns if needed
         }
 
         function updateFolderOptions() {
@@ -1577,14 +1565,12 @@
                     showStatus('Error creating competition: ' + err.message, 'error');
                 });
         }
+
         function copyCompetitionName() {
             const name = document.getElementById('new-comp-name').textContent;
             navigator.clipboard.writeText(name).then(() => {
                 showStatus('Competition name copied!', 'success');
             });
-        }
-
-        function onCompetitionSelect() {
         }
 
         function joinCompetition() {
@@ -1625,66 +1611,87 @@
                     }
                     competitionData = snapshot.val();
                     currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
-                    database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({
+                    
+                    // Add referee to database
+                    const refereeRef = database.ref(`competitions/${compId}/referees/${currentRefereeId}`);
+                    refereeRef.set({
                         name: refereeName,
                         joinedAt: firebase.database.ServerValue.TIMESTAMP,
                         online: true
                     });
+                    
+                    // Set up disconnect
                     database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
+                    
+                    // Show referee name
+                    document.getElementById('referee-name-display').textContent = refereeName;
+                    
                     setupRefereeInterface();
                 })
                 .catch(err => {
                     showStatus('Error joining: ' + err.message, 'error');
                 });
         }
-function setupRefereeInterface() {
-    document.getElementById('referee-interface').classList.remove('hidden');
-    document.getElementById('ref-comp-name').textContent = competitionData.name;
-    document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
-    document.getElementById('referee-controls').classList.remove('hidden');
 
-    const refTimer = document.getElementById('ref-timer');
-    const refStatus = document.getElementById('ref-status');
-    const refTimerControls = document.getElementById('ref-timer-controls');
+        function setupRefereeInterface() {
+            document.getElementById('referee-interface').classList.remove('hidden');
+            document.getElementById('ref-comp-name').textContent = competitionData.name;
+            document.getElementById('ref-comp-mode').textContent = competitionData.mode === 1 ? 'Average Scoring' : 'Consensus Scoring';
+            document.getElementById('referee-controls').classList.remove('hidden');
 
-    if (competitionData.mode === 2) {
-        refTimer.classList.remove('hidden');
-        refStatus.classList.remove('hidden');
-        refTimerControls.classList.remove('hidden');
-        updateRefToggleButton();
-    } else {
-        refTimer.classList.add('hidden');
-        refStatus.classList.add('hidden');
-        refTimerControls.classList.add('hidden');
-    }
+            const refTimer = document.getElementById('ref-timer');
+            const refStatus = document.getElementById('ref-status');
+            const refTimerControls = document.getElementById('ref-timer-controls');
+            const mode2Start = document.getElementById('referee-mode2-start');
 
-    const compRef = database.ref(`competitions/${currentCompetitionId}`);
-    const unsub = compRef.on('value', snapshot => {
-        competitionData = snapshot.val();
-        if (competitionData) {
-            updateRefereeCards();
-            updateRefereeCount();
             if (competitionData.mode === 2) {
-                updateRefTimer();
-                updateRefereeStatus();
-                updateRefToggleButton();
+                refTimer.classList.remove('hidden');
+                refStatus.classList.remove('hidden');
                 
-                if (competitionData.status === 'running' || competitionData.timerState?.running) {
-                    document.getElementById('ref-timer-controls').classList.remove('hidden');
-                    
-                    if (!timerInterval) {
-                        startTimerSync();
-                    }
+                // Show/hide start button based on competition status
+                if (competitionData.status === 'pending' && (!competitionData.timerState || !competitionData.timerState.running)) {
+                    mode2Start.classList.remove('hidden');
+                    refTimerControls.classList.add('hidden');
                 } else {
-                    document.getElementById('ref-timer-controls').classList.add('hidden');
-                    
-                    stopTimerSync();
+                    mode2Start.classList.add('hidden');
+                    refTimerControls.classList.remove('hidden');
                 }
+            } else {
+                refTimer.classList.add('hidden');
+                refStatus.classList.add('hidden');
+                mode2Start.classList.add('hidden');
+                refTimerControls.classList.add('hidden');
             }
+
+            const compRef = database.ref(`competitions/${currentCompetitionId}`);
+            const unsub = compRef.on('value', snapshot => {
+                competitionData = snapshot.val();
+                if (competitionData) {
+                    updateRefereeCards();
+                    updateRefereeCount();
+                    if (competitionData.mode === 2) {
+                        updateRefTimer();
+                        updateRefereeStatus();
+                        updateRefToggleButton();
+                        
+                        // Update start button visibility
+                        if (competitionData.status === 'pending' && (!competitionData.timerState || !competitionData.timerState.running)) {
+                            mode2Start.classList.remove('hidden');
+                            refTimerControls.classList.add('hidden');
+                        } else {
+                            mode2Start.classList.add('hidden');
+                            refTimerControls.classList.remove('hidden');
+                        }
+                        
+                        if ((competitionData.status === 'running' || competitionData.timerState?.running) && !timerInterval) {
+                            startTimerSync();
+                        }
+                    }
+                }
+            });
+            unsubscribers.push(() => compRef.off('value', unsub));
         }
-    });
-    unsubscribers.push(() => compRef.off('value', unsub));
-}
+
         function updateRefereeStatus() {
             const statusEl = document.getElementById('ref-status');
             if (!statusEl || !competitionData) return;
@@ -1720,6 +1727,10 @@ function setupRefereeInterface() {
                         ? competitionData.mode1QuickButtons
                         : [60, 70, 80, 90, 95, 100];
 
+                    // Check if user has already submitted scores
+                    const hasSubmitted = myScores && Object.keys(myScores).length > 0;
+                    const submittedBadge = hasSubmitted ? '<span class="score-submitted-badge">✓ Submitted</span>' : '';
+
                     let categoryInputsHtml = categories.map((cat, catIndex) => {
                         const myScore = myScores[cat.name] || '';
                         const quickHtml = `
@@ -1738,7 +1749,7 @@ function setupRefereeInterface() {
                     }).join('');
 
                     card.innerHTML = `
-                        <h3 style="color: ${contestant.color}">${contestant.name}</h3>
+                        <h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3>
                         <div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div>
                         <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">/100</p>
                         <div class="category-scores">
@@ -1749,6 +1760,18 @@ function setupRefereeInterface() {
                 } else {
                     const quickMarks = competitionData.quickMarks || [1, 2, 3, 5, 10];
                     const threshold = competitionData.consensusThreshold || 2;
+                    
+                    // Get current votes for this contestant
+                    const votes = competitionData.votes?.[index] || {};
+                    const recentVotes = Object.values(votes).filter(v => 
+                        v.timestamp && (Date.now() - v.timestamp) < (competitionData.timeWindow || 0.5) * 1000
+                    );
+                    
+                    const markCounts = {};
+                    recentVotes.forEach(v => {
+                        markCounts[v.mark] = (markCounts[v.mark] || 0) + 1;
+                    });
+
                     card.innerHTML = `
                         <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                         <div class="current-score" style="color: ${contestant.color}">${contestant.score || 0}</div>
@@ -1757,12 +1780,17 @@ function setupRefereeInterface() {
                             ${quickMarks.map(mark => `<button class="quick-mark-btn" onclick="submitMode2Vote(${index}, ${mark})" data-mark="${mark}">+${mark}</button>`).join('')}
                         </div>
                         <div class="vote-indicator">
-                            <span class="vote-count" id="vote-status-${index}">Waiting for votes...</span>
+                            <span class="vote-count" id="vote-status-${index}">${formatVoteStatus(markCounts, threshold)}</span>
                         </div>
                     `;
                 }
                 container.appendChild(card);
             });
+        }
+
+        function formatVoteStatus(markCounts, threshold) {
+            if (Object.keys(markCounts).length === 0) return 'Waiting for votes...';
+            return Object.entries(markCounts).map(([mark, count]) => `+${mark}: ${count}/${threshold}`).join(' | ');
         }
 
         function calculateWeightedAverageScoreForCompetition(comp, contestantIndex) {
@@ -1812,28 +1840,29 @@ function setupRefereeInterface() {
             document.getElementById('ref-count').textContent = onlineCount;
         }
 
-function updateRefTimer() {
-    if (competitionData && competitionData.timerState) {
-        const remaining = competitionData.timerState.remaining;
-        const minutes = Math.floor(remaining / 60);
-        const seconds = remaining % 60;
-        document.getElementById('ref-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        isTimerRunning = competitionData.timerState.running;
-        remainingTime = remaining;
-        
-        if (isTimerRunning && !timerInterval) {
-            startTimerSync();
+        function updateRefTimer() {
+            if (competitionData && competitionData.timerState) {
+                const remaining = competitionData.timerState.remaining;
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('ref-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                isTimerRunning = competitionData.timerState.running;
+                remainingTime = remaining;
+                
+                if (isTimerRunning && !timerInterval) {
+                    startTimerSync();
+                }
+            }
         }
-    }
-}
 
-function updateRefToggleButton() {
-    const btn = document.getElementById('ref-toggle-btn');
-    if (!btn) return;
-    const running = competitionData?.timerState?.running || false;
-    btn.textContent = running ? '⏸ Stop' : '▶ Start';
-}
+        function updateRefToggleButton() {
+            const btn = document.getElementById('ref-toggle-btn');
+            if (!btn) return;
+            const running = competitionData?.timerState?.running || false;
+            btn.textContent = running ? '⏸ Stop' : '▶ Start';
+            btn.className = running ? 'stop-btn' : 'start-btn';
+        }
 
         function submitMode1Scores(contestantIndex) {
             const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
@@ -1859,7 +1888,11 @@ function updateRefToggleButton() {
             scores.timestamp = firebase.database.ServerValue.TIMESTAMP;
 
             database.ref(`competitions/${currentCompetitionId}/mode1Scores/${contestantIndex}/${currentRefereeId}`).set(scores)
-                .then(() => showStatus('Scores submitted!', 'success'))
+                .then(() => {
+                    showStatus('Scores submitted!', 'success');
+                    // Force immediate update
+                    updateRefereeCards();
+                })
                 .catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
@@ -1929,28 +1962,37 @@ function updateRefToggleButton() {
 
                 for (const [mark, count] of Object.entries(markCounts)) {
                     if (count >= requiredVotes) {
-                        const newScore = (competitionData.contestants[contestantIndex].score || 0) + parseInt(mark);
-                        database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/score`).set(newScore);
-                        database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({
+                        const currentScore = competitionData.contestants[contestantIndex].score || 0;
+                        const newScore = currentScore + parseInt(mark);
+                        
+                        // Update score and clear votes
+                        const updates = {};
+                        updates[`contestants/${contestantIndex}/score`] = newScore;
+                        updates[`contestants/${contestantIndex}/markHistory`] = firebase.database.ServerValue.increment(1);
+                        updates[`votes/${contestantIndex}`] = null;
+                        
+                        // Add to mark history with more detail
+                        const historyRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
+                        historyRef.set({
                             mark: parseInt(mark),
                             votes: count,
-                            timestamp: Date.now()
+                            timestamp: Date.now(),
+                            referees: recentVotes.map(v => v.refereeName).join(', ')
                         });
-                        votesRef.remove();
+                        
+                        database.ref(`competitions/${currentCompetitionId}`).update(updates);
+                        
                         showStatus(`+${mark} scored!`, 'success');
                         break;
                     }
                 }
 
-                updateVoteStatus(contestantIndex, markCounts, requiredVotes);
+                // Update vote status
+                const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
+                if (statusEl) {
+                    statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
+                }
             });
-        }
-
-        function updateVoteStatus(contestantIndex, markCounts, requiredVotes) {
-            const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
-            if (!statusEl) return;
-            const statusParts = Object.entries(markCounts).map(([mark, count]) => `+${mark}: ${count}/${requiredVotes}`);
-            statusEl.textContent = statusParts.length > 0 ? statusParts.join(' | ') : 'Waiting for votes...';
         }
 
         function viewScoreboard() {
@@ -1979,19 +2021,20 @@ function updateRefToggleButton() {
             const compRef = database.ref(`competitions/${compId}`);
         
             const unsub = compRef.on('value', snapshot => {
-if (!snapshot.exists()) {
-    showStatus('Competition not found', 'error');
-    return;
-}
-competitionData = snapshot.val();
-updateScoreboard();
+                if (!snapshot.exists()) {
+                    showStatus('Competition not found', 'error');
+                    return;
+                }
+                competitionData = snapshot.val();
+                updateScoreboard();
 
-if (competitionData.mode === 2 && competitionData.timerState?.running && !timerInterval) {
-    startTimerSync();
-}
-});
+                if (competitionData.mode === 2 && competitionData.timerState?.running && !timerInterval) {
+                    startTimerSync();
+                }
+            });
             unsubscribers.push(() => compRef.off('value', unsub));
         }
+
         function updateScoreboard() {
             document.getElementById('scoreboard-display').classList.remove('hidden');
             document.getElementById('sb-comp-name').textContent = competitionData.name;
@@ -2003,6 +2046,9 @@ if (competitionData.mode === 2 && competitionData.timerState?.running && !timerI
                 document.getElementById('sb-competition-status').classList.remove('hidden');
                 updateScoreboardTimer();
                 updateScoreboardStatus();
+            } else {
+                document.getElementById('sb-timer').classList.add('hidden');
+                document.getElementById('sb-competition-status').classList.add('hidden');
             }
 
             const contestants = competitionData.contestants.map((c, i) => ({
@@ -2023,7 +2069,10 @@ if (competitionData.mode === 2 && competitionData.timerState?.running && !timerI
                 if (competitionData.mode === 1) {
                     detailsHtml = `<p style="color: rgba(255,255,255,0.5); font-size: 0.8rem; margin-top: 12px;">${countScoresForContestant(contestant.originalIndex)} referee scores</p>`;
                 } else {
-                    detailsHtml = `<div class="mark-history">${(contestant.markHistory ? Object.values(contestant.markHistory) : []).slice(-5).map(h => `<div class="mark-history-item consensus">+${h.mark} (${h.votes} votes)</div>`).join('')}</div>`;
+                    const markHistory = contestant.markHistory ? Object.values(contestant.markHistory) : [];
+                    detailsHtml = `<div class="mark-history">${markHistory.slice(-5).map(h => 
+                        `<div class="mark-history-item consensus">+${h.mark} (${h.votes} votes)</div>`
+                    ).join('')}</div>`;
                 }
 
                 card.innerHTML = `
@@ -2043,17 +2092,17 @@ if (competitionData.mode === 2 && competitionData.timerState?.running && !timerI
         }
 
         function updateScoreboardTimer() {
-if (competitionData && competitionData.timerState) {
-    const remaining = competitionData.timerState.remaining;
-    const minutes = Math.floor(remaining / 60);
-    const seconds = remaining % 60;
-    document.getElementById('sb-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-    
-    if (competitionData.timerState.running && !timerInterval) {
-        startTimerSync();
-    }
-}
-}
+            if (competitionData && competitionData.timerState) {
+                const remaining = competitionData.timerState.remaining;
+                const minutes = Math.floor(remaining / 60);
+                const seconds = remaining % 60;
+                document.getElementById('sb-timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                if (competitionData.timerState.running && !timerInterval) {
+                    startTimerSync();
+                }
+            }
+        }
 
         function updateScoreboardStatus() {
             const statusEl = document.getElementById('sb-competition-status');
@@ -2073,123 +2122,131 @@ if (competitionData && competitionData.timerState) {
                 statusEl.textContent = '⏳ Waiting to Start';
             }
         }
-function toggleTimer() {
-    if (!currentCompetitionId || !competitionData) return;
-    
-    const newState = !competitionData.timerState.running;
-    const currentRemaining = competitionData.timerState.remaining;
-    
-    const updates = {
-        running: newState,
-        lastUpdate: firebase.database.ServerValue.TIMESTAMP
-    };
-    
-    if (newState) {
-        updates.remaining = currentRemaining;
-    }
-    
-    database.ref(`competitions/${currentCompetitionId}/timerState`).update(updates)
-        .then(() => {
+
+        function toggleTimer() {
+            if (!currentCompetitionId || !competitionData) return;
+            
+            const newState = !competitionData.timerState.running;
+            const currentRemaining = competitionData.timerState.remaining;
+            
+            const updates = {
+                running: newState,
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            };
+            
             if (newState) {
-                database.ref(`competitions/${currentCompetitionId}/status`).set('running');
-                startTimerSync();
-            } else {
-                stopTimerSync();
+                updates.remaining = currentRemaining;
             }
-            updateRefToggleButton();
-        });
-}
-
-function startTimerSync() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-    
-    if (!competitionData || !competitionData.timerState) return;
-    
-    const isRunning = competitionData.timerState.running;
-    if (!isRunning) return;
-    
-    const startTime = Date.now();
-    const initialRemaining = competitionData.timerState.remaining;
-    
-    timerInterval = setInterval(() => {
-        if (!competitionData || !competitionData.timerState) return;
-        
-        const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
-        const newRemaining = Math.max(0, initialRemaining - elapsedSeconds);
-        
-        const minutes = Math.floor(newRemaining / 60);
-        const seconds = newRemaining % 60;
-        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        
-        const refTimer = document.getElementById('ref-timer');
-        const sbTimer = document.getElementById('sb-timer');
-        
-        if (refTimer) refTimer.textContent = timeString;
-        if (sbTimer) sbTimer.textContent = timeString;
-        
-        if (newRemaining <= 0) {
-            database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
-            database.ref(`competitions/${currentCompetitionId}/status`).set('ended');
-            showStatus('Competition ended!', 'info');
-            clearInterval(timerInterval);
-            timerInterval = null;
+            
+            database.ref(`competitions/${currentCompetitionId}/timerState`).update(updates)
+                .then(() => {
+                    if (newState) {
+                        database.ref(`competitions/${currentCompetitionId}/status`).set('running');
+                        startTimerSync();
+                    } else {
+                        stopTimerSync();
+                    }
+                    updateRefToggleButton();
+                });
         }
-    }, 100);
-}
 
-function stopTimerSync() {
-    if (timerInterval) {
-        clearInterval(timerInterval);
-        timerInterval = null;
-    }
-}
-
-function resetTimer() {
-    if (!currentCompetitionId) return;
-    stopTimerSync();
-    const duration = competitionData.duration || 300;
-    database.ref(`competitions/${currentCompetitionId}/timerState`).set({
-        running: false,
-        remaining: duration,
-        lastUpdate: firebase.database.ServerValue.TIMESTAMP
-    });
-    database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
-}
-
-function startCompetition() {
-    if (!currentCompetitionId || !competitionData) {
-        showStatus('No competition selected', 'error');
-        return;
-    }
-    
-    if (competitionData.mode !== 2) {
-        showStatus('Start competition is only for Mode 2', 'error');
-        return;
-    }
-    
-    const duration = competitionData.duration || 300;
-    
-    const updates = {
-        status: 'running',
-        timerState: {
-            running: true,
-            remaining: duration,
-            lastUpdate: firebase.database.ServerValue.TIMESTAMP
+        function startTimerSync() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            
+            if (!competitionData || !competitionData.timerState) return;
+            
+            const isRunning = competitionData.timerState.running;
+            if (!isRunning) return;
+            
+            const startTime = Date.now();
+            const initialRemaining = competitionData.timerState.remaining;
+            
+            timerInterval = setInterval(() => {
+                if (!competitionData || !competitionData.timerState) return;
+                
+                const elapsedSeconds = Math.floor((Date.now() - startTime) / 1000);
+                const newRemaining = Math.max(0, initialRemaining - elapsedSeconds);
+                
+                const minutes = Math.floor(newRemaining / 60);
+                const seconds = newRemaining % 60;
+                const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                
+                const refTimer = document.getElementById('ref-timer');
+                const sbTimer = document.getElementById('sb-timer');
+                
+                if (refTimer) refTimer.textContent = timeString;
+                if (sbTimer) sbTimer.textContent = timeString;
+                
+                if (newRemaining <= 0) {
+                    database.ref(`competitions/${currentCompetitionId}/timerState/running`).set(false);
+                    database.ref(`competitions/${currentCompetitionId}/status`).set('ended');
+                    showStatus('Competition ended!', 'info');
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                    
+                    // Update UI
+                    updateRefToggleButton();
+                    const mode2Start = document.getElementById('referee-mode2-start');
+                    if (mode2Start) mode2Start.classList.add('hidden');
+                }
+            }, 100);
         }
-    };
-    
-    database.ref(`competitions/${currentCompetitionId}`).update(updates)
-        .then(() => {
-            showStatus('Competition started!', 'success');
-            document.getElementById('ref-start-competition').classList.add('hidden');
-            document.getElementById('ref-timer-controls').classList.remove('hidden');
-            startTimerSync();
-        })
-        .catch(err => showStatus('Error: ' + err.message, 'error'));
-}
+
+        function stopTimerSync() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function resetTimer() {
+            if (!currentCompetitionId) return;
+            stopTimerSync();
+            const duration = competitionData.duration || 300;
+            database.ref(`competitions/${currentCompetitionId}/timerState`).set({
+                running: false,
+                remaining: duration,
+                lastUpdate: firebase.database.ServerValue.TIMESTAMP
+            });
+            database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
+        }
+
+        function startCompetition() {
+            if (!currentCompetitionId || !competitionData) {
+                showStatus('No competition selected', 'error');
+                return;
+            }
+            
+            if (competitionData.mode !== 2) {
+                showStatus('Start competition is only for Mode 2', 'error');
+                return;
+            }
+            
+            const duration = competitionData.duration || 300;
+            
+            const updates = {
+                status: 'running',
+                timerState: {
+                    running: true,
+                    remaining: duration,
+                    lastUpdate: firebase.database.ServerValue.TIMESTAMP
+                }
+            };
+            
+            database.ref(`competitions/${currentCompetitionId}`).update(updates)
+                .then(() => {
+                    showStatus('Competition started!', 'success');
+                    document.getElementById('referee-mode2-start').classList.add('hidden');
+                    document.getElementById('ref-timer-controls').classList.remove('hidden');
+                    updateRefToggleButton();
+                    startTimerSync();
+                })
+                .catch(err => showStatus('Error: ' + err.message, 'error'));
+        }
+
         function confirmDeleteCompetition() {
             if (!currentCompetitionId) {
                 showStatus('No competition selected', 'error');
@@ -2268,7 +2325,9 @@ function startCompetition() {
                         data.categories = competitionData.scoreCategories.map(c => `${c.name}(${c.weight}%)`).join(', ');
                     }
                 } else {
-                    data.mark_history = (contestant.markHistory ? Object.values(contestant.markHistory) : []).map(h => `+${h.mark}`).join(', ');
+                    const markHistory = contestant.markHistory ? Object.values(contestant.markHistory) : [];
+                    data.mark_history = markHistory.map(h => `+${h.mark}`).join(', ');
+                    data.total_score = contestant.score || 0;
                 }
 
                 const formData = new URLSearchParams();
@@ -2322,7 +2381,6 @@ function startCompetition() {
         function toggleFullscreen(elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
-            el.classList.add('fullscreen-surface');
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else {
@@ -2484,24 +2542,24 @@ function startCompetition() {
             Object.values(allCompetitions).forEach(comp => {
                 if (!comp || !comp.contestants) return;
                 if (comp.folderId !== folderId) return;
-                if (!comp.contestants) return;
-                    competitionCount++;
-                    comp.contestants.forEach((c, i) => {
-                        const name = c.name;
-                        if (!name) return;
-                        const finalScore = comp.mode === 1 ? calculateWeightedAverageScoreForCompetition(comp, i) : (c.score || 0);
-                        if (!aggregated[name]) {
-                            aggregated[name] = {
-                                name,
-                                color: c.color || '#ffffff',
-                                totalScore: 0,
-                                competitions: 0
-                            };
-                        }
-                        aggregated[name].totalScore += finalScore;
-                        aggregated[name].competitions += 1;
-                    });
+                
+                competitionCount++;
+                comp.contestants.forEach((c, i) => {
+                    const name = c.name;
+                    if (!name) return;
+                    const finalScore = comp.mode === 1 ? calculateWeightedAverageScoreForCompetition(comp, i) : (c.score || 0);
+                    if (!aggregated[name]) {
+                        aggregated[name] = {
+                            name,
+                            color: c.color || '#ffffff',
+                            totalScore: 0,
+                            competitions: 0
+                        };
+                    }
+                    aggregated[name].totalScore += finalScore;
+                    aggregated[name].competitions += 1;
                 });
+            });
 
             if (competitionCount === 0) {
                 showStatus('No competitions found in this folder', 'error');
