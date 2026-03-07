@@ -3396,15 +3396,15 @@
             `;
         }
 
-        // Patch showPanel to build rankings when switching to it
-        const _origShowPanel = showPanel;
-        function showPanel(panelName) {
-            _origShowPanel(panelName);
+        // Extend showPanel to build rankings when switching to it
+        const _showPanelBase = showPanel;
+        showPanel = function(panelName) {
+            _showPanelBase(panelName);
             if (panelName === 'rankings') {
                 updateRankingsFolderFilter();
                 buildRankings();
             }
-        }
+        };
     </script>
 </body>
 </html>
