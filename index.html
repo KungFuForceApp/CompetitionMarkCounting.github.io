@@ -3151,7 +3151,12 @@
 
                     <div class="export-actions">
                         <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
+                        <button class="export-cancel-btn" onclick="previewExportData()" style="border-color:#fbbf24; color:#fbbf24;">🔍 Preview Data</button>
                         <button class="export-run-btn" onclick="runExport()">📤 Export Now</button>
+                    </div>
+                    <div id="export-preview" style="margin-top:16px; display:none;">
+                        <div class="export-section-title">🔍 Data Preview (first contestant)</div>
+                        <pre id="export-preview-text" style="font-size:0.75rem; color:var(--text-secondary); background:var(--input-bg); padding:12px; border-radius:10px; overflow-x:auto; white-space:pre-wrap; word-break:break-all;"></pre>
                     </div>
                 </div>`;
 
@@ -3188,6 +3193,35 @@
                     else row.before(exportDragSrc);
                 });
             });
+        }
+
+        async function previewExportData() {
+            if (!competitionData) return;
+            const mode = competitionData.mode;
+            const contestants = [...competitionData.contestants].map((c, i) => ({
+                ...c, _index: i,
+                finalScore: mode === 1 ? calculateWeightedAverageScoreForCompetition(competitionData, i) : (c.score || 0)
+            })).sort((a, b) => b.finalScore - a.finalScore);
+
+            const c = contestants[0];
+            const i = c._index;
+            const preview = { contestant: c.name, mode, _index: i };
+
+            if (mode === 1) {
+                const raw = competitionData.mode1Scores;
+                preview.mode1Scores_keys = raw ? Object.keys(raw) : 'none';
+                const contestantScores = raw?.[i] || raw?.[String(i)] || {};
+                preview.contestantScores_keys = Object.keys(contestantScores);
+                const categories = competitionData.scoreCategories || [];
+                preview.scoreCategories = categories.map(c => c.name);
+                const refereeEntries = Object.entries(contestantScores).filter(([,v]) => typeof v === 'object');
+                preview.referee_entries = refereeEntries.map(([refId, s]) => ({ refId, keys: Object.keys(s), sample: s }));
+            }
+
+            const pre = document.getElementById('export-preview-text');
+            const div = document.getElementById('export-preview');
+            pre.textContent = JSON.stringify(preview, null, 2);
+            div.style.display = 'block';
         }
 
         async function runExport() {
@@ -3241,43 +3275,45 @@
 
                 if (mode === 1) {
                     const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
-                    const contestantScores = competitionData.mode1Scores?.[i] || {};
-                    const refereeEntries = Object.entries(contestantScores);
+                    // Firebase stores numeric keys as strings — use String(i) to match
+                    const contestantScores = competitionData.mode1Scores?.[i] 
+                        || competitionData.mode1Scores?.[String(i)] 
+                        || {};
+                    // Filter out metadata keys (refereeName, timestamp) — only keep referee entries
+                    const refereeEntries = Object.entries(contestantScores).filter(([, v]) => typeof v === 'object' && v !== null);
+
+                    console.log(`[Export] Contestant ${i} (${c.name}): ${refereeEntries.length} referee(s)`, contestantScores);
 
                     allData.referee_count = refereeEntries.length;
                     allData.categories = categories.map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
 
-                    // Per-referee weighted totals (using category NAME as key, matching Firebase structure)
+                    // Per-referee weighted totals
                     const refWeightedScores = refereeEntries.map(([refId, refCatScores]) => {
                         const refName = refCatScores.refereeName || refId.substring(0, 8);
                         const weighted = categories.reduce((sum, cat) => {
                             const val = parseFloat(refCatScores[cat.name]) || 0;
                             return sum + val * (cat.weight / 100);
                         }, 0);
+                        console.log(`  Referee ${refName}: weighted=${weighted.toFixed(2)}`, refCatScores);
                         return { refName, weighted, refCatScores };
                     });
                     allData.ref_scores = refWeightedScores.map(r => `${r.refName}:${r.weighted.toFixed(1)}`).join(' | ');
 
-                    // Per-category averages across all referees (using category NAME as key)
+                    // Per-category averages
                     const catAvgs = categories.map(cat => {
                         const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
                         const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
                         return { name: cat.name, avg };
                     });
-                    allData.cat_scores = catAvgs.map(c => `${c.name}:${c.avg.toFixed(1)}`).join(' | ');
+                    allData.cat_scores = catAvgs.map(ca => `${ca.name}:${ca.avg.toFixed(1)}`).join(' | ');
 
-                    // Individual per-category columns (e.g. "cat_Technique", "cat_Power")
-                    categories.forEach(cat => {
-                        const key = `cat_${cat.name}`;
-                        const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
-                        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-                        allData[key] = avg.toFixed(2);
-                    });
+                    // Individual per-category columns
+                    catAvgs.forEach(ca => { allData[`cat_${ca.name}`] = ca.avg.toFixed(2); });
 
-                    // Individual per-referee columns (e.g. "ref_1", "ref_2")
+                    // Individual per-referee columns
                     refWeightedScores.forEach((r, ri) => {
-                        allData[`ref_${ri + 1}`] = r.weighted.toFixed(2);
                         allData[`ref_${ri + 1}_name`] = r.refName;
+                        allData[`ref_${ri + 1}`] = r.weighted.toFixed(2);
                     });
 
                 } else {
