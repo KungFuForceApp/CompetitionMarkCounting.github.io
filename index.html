@@ -3335,11 +3335,11 @@
                 const formData = new URLSearchParams();
                 formData.append('_spreadsheet_id', spreadsheetId);
                 formData.append('_sheet_name', sheetName);
-                if (startRow > 0) formData.append('_insert_after_row', startRow + rankIdx);
-                formData.append('_col_order', enabledFields.join(','));
-                enabledFields.forEach(key => {
-                    formData.append(key, String(allData[key] ?? ''));
+                // Send values as v0, v1, v2... in exact user-defined order — no headers
+                enabledFields.forEach((key, idx) => {
+                    formData.append(`v${idx}`, String(allData[key] ?? ''));
                 });
+                formData.append('_count', enabledFields.length);
 
                 try {
                     const resp = await fetch(GOOGLE_SHEETS_URL, {
