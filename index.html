@@ -3240,13 +3240,12 @@
             if (!competitionData || !currentCompetitionId) return;
 
             const list = document.getElementById('export-fields-list');
-            const sheetUrl = document.getElementById('export-sheet-url').value.trim();
-            const spreadsheetId = document.getElementById('export-spreadsheet-id').value.trim();
+            const spreadsheetId = document.getElementById('export-spreadsheet-id')?.value.trim() || '';
             const sheetName = document.getElementById('export-sheet-name').value.trim();
             const startRow = parseInt(document.getElementById('export-start-row').value) || 0;
 
-            if (!sheetUrl) {
-                showStatus('Please enter the Apps Script deployment URL', 'error');
+            if (!spreadsheetId) {
+                showStatus('Please enter the Spreadsheet ID', 'error');
                 return;
             }
 
@@ -3259,7 +3258,7 @@
                 if (!enabled) disabledFields.push(key);
             });
 
-            saveExportSettings({ sheetUrl, spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
+            saveExportSettings({ spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
             closeExportModal();
 
             const mode = competitionData.mode;
@@ -3343,15 +3342,30 @@
                 });
 
                 try {
-                    const resp = await fetch(sheetUrl, {
+                    const resp = await fetch(GOOGLE_SHEETS_URL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                         body: formData.toString()
                     });
                     const text = await resp.text();
-                    console.log(`[Export row ${rankIdx+1}]`, resp.status, text);
-                    if (resp.ok) successCount++; else { errorCount++; console.error('Export error:', text); }
-                } catch(e) { errorCount++; console.error('Export fetch failed:', e); }
+                    let result = {};
+                    try { result = JSON.parse(text); } catch {}
+                    if (result.error) {
+                        errorCount++;
+                        showStatus(`Sheet error: ${result.error}`, 'error');
+                        console.error(`[Export] Sheet error row ${rankIdx+1}:`, result.error);
+                    } else if (resp.ok) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                        showStatus(`HTTP ${resp.status}: ${text.substring(0, 100)}`, 'error');
+                    }
+                } catch(e) {
+                    errorCount++;
+                    showStatus(`Network error: ${e.message}`, 'error');
+                    console.error('[Export] fetch failed:', e);
+                    break; // stop on network error
+                }
             }
 
             if (errorCount === 0) showStatus(`✅ Exported ${successCount} rows!`, 'success');
