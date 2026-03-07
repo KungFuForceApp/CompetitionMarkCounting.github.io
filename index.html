@@ -104,9 +104,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.08);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-
-        .panel {
             position: relative;
             overflow: hidden;
         }
@@ -447,12 +444,16 @@
 
         .final-awards-section {
             margin-bottom: 18px;
+            animation: slideUp 0.5s ease-out;
         }
 
         .final-awards-section h3 {
             font-size: 1.1rem;
             color: #fbbf24;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .final-awards-list {
@@ -469,6 +470,7 @@
             border-radius: 10px;
             background: rgba(255,255,255,0.04);
             border: 1px solid rgba(255,255,255,0.06);
+            animation: fadeInItem 0.3s ease-out;
         }
 
         .final-award-name {
@@ -477,6 +479,16 @@
 
         .final-award-score {
             font-weight: 700;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInItem {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .referee-panel { text-align: center; }
@@ -998,6 +1010,76 @@
             margin-right: auto;
         }
 
+        .reveal-controls {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin: 25px 0;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .reveal-btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .reveal-btn.podium {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+            color: white;
+        }
+
+        .reveal-btn.award {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .reveal-btn.reset {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+
+        .reveal-btn.next {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .reveal-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
+
+        .reveal-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .current-highlight {
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.15), rgba(251, 191, 36, 0.05));
+            border: 2px solid #fbbf24;
+            box-shadow: 0 0 30px rgba(251, 191, 36, 0.3);
+            transform: scale(1.02);
+            transition: all 0.5s ease;
+        }
+
+        .award-section.highlight {
+            background: rgba(102, 126, 234, 0.15);
+            border-left: 4px solid #667eea;
+            padding-left: 16px;
+            border-radius: 4px;
+        }
+
         @media (max-width: 768px) {
             header h1 { font-size: 2rem; }
             .nav-buttons { flex-direction: column; align-items: center; }
@@ -1007,6 +1089,8 @@
             .competition-created-display .comp-name-display { font-size: 1.3rem; word-break: break-word; }
             .timer-controls { flex-direction: column; align-items: center; }
             .timer-controls button { width: 100%; max-width: 200px; }
+            .reveal-controls { flex-direction: column; align-items: center; }
+            .reveal-btn { width: 100%; max-width: 200px; }
         }
 
         .hidden { display: none !important; }
@@ -1239,6 +1323,13 @@
                 </div>
                 <div id="final-podium" class="final-podium"></div>
                 <div id="final-awards" class="final-awards"></div>
+                <div id="reveal-controls" class="reveal-controls">
+                    <button id="reveal-podium-1" class="reveal-btn podium" onclick="revealNext(1)">1st Place</button>
+                    <button id="reveal-podium-2" class="reveal-btn podium" onclick="revealNext(2)">2nd Place</button>
+                    <button id="reveal-podium-3" class="reveal-btn podium" onclick="revealNext(3)">3rd Place</button>
+                    <button id="reveal-next-award" class="reveal-btn award" onclick="revealNextAward()">Next Award</button>
+                    <button id="reveal-reset" class="reveal-btn reset" onclick="resetReveal()">Reset All</button>
+                </div>
             </div>
         </div>
     </div>
@@ -1275,6 +1366,11 @@
         let contestantCount = 0;
         let nameCheckTimeout = null;
         let isNameAvailable = false;
+        let currentRevealStep = 0;
+        let revealedPodium = [];
+        let revealedAwards = [];
+        let currentContestants = [];
+        let currentAwardsConfig = [];
 
         const colors = ['#667eea', '#11998e', '#f5576c', '#fbbf24', '#a78bfa', '#38ef7d', '#f093fb', '#00cec9'];
 
@@ -1286,7 +1382,6 @@
         }
 
         function updateCompetitionDropdowns() {
-            // Update any competition dropdowns if needed
         }
 
         function updateFolderOptions() {
@@ -1443,6 +1538,7 @@
         }
 
         loadCompetitions();
+
         function loadFolders() {
             database.ref('folders').on('value', snapshot => {
                 allFolders = snapshot.val() || {};
@@ -1573,6 +1669,9 @@
             });
         }
 
+        function onCompetitionSelect() {
+        }
+
         function joinCompetition() {
             const compName = document.getElementById('join-comp-name').value.trim();
             const refereeName = document.getElementById('referee-name').value.trim();
@@ -1612,18 +1711,14 @@
                     competitionData = snapshot.val();
                     currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
                     
-                    // Add referee to database
-                    const refereeRef = database.ref(`competitions/${compId}/referees/${currentRefereeId}`);
-                    refereeRef.set({
+                    database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({
                         name: refereeName,
                         joinedAt: firebase.database.ServerValue.TIMESTAMP,
                         online: true
                     });
                     
-                    // Set up disconnect
                     database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
                     
-                    // Show referee name
                     document.getElementById('referee-name-display').textContent = refereeName;
                     
                     setupRefereeInterface();
@@ -1648,7 +1743,6 @@
                 refTimer.classList.remove('hidden');
                 refStatus.classList.remove('hidden');
                 
-                // Show/hide start button based on competition status
                 if (competitionData.status === 'pending' && (!competitionData.timerState || !competitionData.timerState.running)) {
                     mode2Start.classList.remove('hidden');
                     refTimerControls.classList.add('hidden');
@@ -1674,7 +1768,6 @@
                         updateRefereeStatus();
                         updateRefToggleButton();
                         
-                        // Update start button visibility
                         if (competitionData.status === 'pending' && (!competitionData.timerState || !competitionData.timerState.running)) {
                             mode2Start.classList.remove('hidden');
                             refTimerControls.classList.add('hidden');
@@ -1727,7 +1820,6 @@
                         ? competitionData.mode1QuickButtons
                         : [60, 70, 80, 90, 95, 100];
 
-                    // Check if user has already submitted scores
                     const hasSubmitted = myScores && Object.keys(myScores).length > 0;
                     const submittedBadge = hasSubmitted ? '<span class="score-submitted-badge">✓ Submitted</span>' : '';
 
@@ -1761,7 +1853,6 @@
                     const quickMarks = competitionData.quickMarks || [1, 2, 3, 5, 10];
                     const threshold = competitionData.consensusThreshold || 2;
                     
-                    // Get current votes for this contestant
                     const votes = competitionData.votes?.[index] || {};
                     const recentVotes = Object.values(votes).filter(v => 
                         v.timestamp && (Date.now() - v.timestamp) < (competitionData.timeWindow || 0.5) * 1000
@@ -1890,7 +1981,6 @@
             database.ref(`competitions/${currentCompetitionId}/mode1Scores/${contestantIndex}/${currentRefereeId}`).set(scores)
                 .then(() => {
                     showStatus('Scores submitted!', 'success');
-                    // Force immediate update
                     updateRefereeCards();
                 })
                 .catch(err => showStatus('Error: ' + err.message, 'error'));
@@ -1965,13 +2055,10 @@
                         const currentScore = competitionData.contestants[contestantIndex].score || 0;
                         const newScore = currentScore + parseInt(mark);
                         
-                        // Update score and clear votes
                         const updates = {};
                         updates[`contestants/${contestantIndex}/score`] = newScore;
-                        updates[`contestants/${contestantIndex}/markHistory`] = firebase.database.ServerValue.increment(1);
                         updates[`votes/${contestantIndex}`] = null;
                         
-                        // Add to mark history with more detail
                         const historyRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
                         historyRef.set({
                             mark: parseInt(mark),
@@ -1987,7 +2074,6 @@
                     }
                 }
 
-                // Update vote status
                 const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
                 if (statusEl) {
                     statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
@@ -2187,7 +2273,6 @@
                     clearInterval(timerInterval);
                     timerInterval = null;
                     
-                    // Update UI
                     updateRefToggleButton();
                     const mode2Start = document.getElementById('referee-mode2-start');
                     if (mode2Start) mode2Start.classList.add('hidden');
@@ -2381,6 +2466,7 @@
         function toggleFullscreen(elementId) {
             const el = document.getElementById(elementId);
             if (!el) return;
+            el.classList.add('fullscreen-surface');
             if (document.fullscreenElement) {
                 document.exitFullscreen();
             } else {
@@ -2426,107 +2512,23 @@
                 showStatus('No competition data', 'error');
                 return;
             }
-            const contestants = comp.contestants.map((c, i) => ({
+            currentContestants = comp.contestants.map((c, i) => ({
                 ...c,
                 finalScore: comp.mode === 1 ? calculateWeightedAverageScoreForCompetition(comp, i) : (c.score || 0)
             })).sort((a, b) => b.finalScore - a.finalScore);
 
+            const folderId = comp.folderId;
+            const folder = folderId && allFolders ? allFolders[folderId] : null;
+            currentAwardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
+
             const titleEl = document.getElementById('final-title');
             const subtitleEl = document.getElementById('final-subtitle');
-            const podiumEl = document.getElementById('final-podium');
-            const awardsEl = document.getElementById('final-awards');
             const wrapper = document.getElementById('final-scoreboard-display');
 
             titleEl.textContent = comp.name;
             subtitleEl.textContent = comp.description || '';
-            podiumEl.innerHTML = '';
-            awardsEl.innerHTML = '';
-
-            const first = contestants[0];
-            const second = contestants[1];
-            const third = contestants[2];
-
-            const podiumOrder = [second, first, third];
-            const podiumNames = ['2nd', '1st', '3rd'];
-            const podiumBaseClasses = ['second', 'first', 'third'];
-
-            podiumOrder.forEach((contestant, idx) => {
-                const slot = document.createElement('div');
-                slot.className = 'podium-slot';
-                if (!contestant) {
-                    podiumEl.appendChild(slot);
-                    return;
-                }
-                const card = document.createElement('div');
-                card.className = 'podium-card';
-                card.style.borderColor = contestant.color;
-                card.innerHTML = `
-                    <div class="podium-rank">${podiumNames[idx]}</div>
-                    <div class="podium-name" style="color: ${contestant.color}">${contestant.name}</div>
-                    <div class="podium-score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>
-                `;
-                const base = document.createElement('div');
-                base.className = `podium-base ${podiumBaseClasses[idx]}`;
-                slot.appendChild(card);
-                slot.appendChild(base);
-                podiumEl.appendChild(slot);
-            });
-
-            const rest = contestants.slice(3);
-            const folderId = comp.folderId;
-            const folder = folderId && allFolders ? allFolders[folderId] : null;
-            const awardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
-
-            let remaining = rest.slice();
-            if (awardsConfig.length > 0) {
-                awardsConfig.forEach(award => {
-                    const maxWinners = parseInt(award.maxWinners) || 0;
-                    if (!award.name || maxWinners <= 0 || remaining.length === 0) {
-                        return;
-                    }
-                    const winners = remaining.slice(0, maxWinners);
-                    remaining = remaining.slice(maxWinners);
-                    if (winners.length === 0) {
-                        return;
-                    }
-                    const section = document.createElement('div');
-                    section.className = 'final-awards-section';
-                    section.innerHTML = `<h3>${award.name}</h3>`;
-                    const list = document.createElement('div');
-                    list.className = 'final-awards-list';
-                    winners.forEach(entry => {
-                        const item = document.createElement('div');
-                        item.className = 'final-award-item';
-                        item.innerHTML = `
-                            <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                            <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
-                        `;
-                        list.appendChild(item);
-                    });
-                    section.appendChild(list);
-                    awardsEl.appendChild(section);
-                });
-            }
-
-            if (remaining.length > 0) {
-                const section = document.createElement('div');
-                section.className = 'final-awards-section';
-                section.innerHTML = `<h3>Others</h3>`;
-                const list = document.createElement('div');
-                list.className = 'final-awards-list';
-                remaining.forEach(entry => {
-                    const item = document.createElement('div');
-                    item.className = 'final-award-item';
-                    item.innerHTML = `
-                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore.toFixed(1)}</span>
-                    `;
-                    list.appendChild(item);
-                });
-                section.appendChild(list);
-                awardsEl.appendChild(section);
-            }
-
+            
+            resetReveal();
             wrapper.classList.remove('hidden');
         }
 
@@ -2566,84 +2568,158 @@
                 return;
             }
 
-            const contestants = Object.values(aggregated).sort((a, b) => b.totalScore - a.totalScore);
+            currentContestants = Object.values(aggregated).sort((a, b) => b.totalScore - a.totalScore);
+            currentAwardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
 
             const titleEl = document.getElementById('final-title');
             const subtitleEl = document.getElementById('final-subtitle');
-            const podiumEl = document.getElementById('final-podium');
-            const awardsEl = document.getElementById('final-awards');
             const wrapper = document.getElementById('final-scoreboard-display');
 
             titleEl.textContent = buildFolderLabel(folderId);
             subtitleEl.textContent = `Aggregated over ${competitionCount} competition(s).`;
-            podiumEl.innerHTML = '';
-            awardsEl.innerHTML = '';
+            
+            resetReveal();
+            wrapper.classList.remove('hidden');
+        }
 
-            const first = contestants[0];
-            const second = contestants[1];
-            const third = contestants[2];
+        function resetReveal() {
+            currentRevealStep = 0;
+            revealedPodium = [];
+            revealedAwards = [];
+            
+            document.getElementById('final-podium').innerHTML = '';
+            document.getElementById('final-awards').innerHTML = '';
+            
+            document.getElementById('reveal-podium-1').disabled = false;
+            document.getElementById('reveal-podium-2').disabled = true;
+            document.getElementById('reveal-podium-3').disabled = true;
+            document.getElementById('reveal-next-award').disabled = true;
+        }
 
-            const podiumOrder = [second, first, third];
-            const podiumNames = ['2nd', '1st', '3rd'];
-            const podiumBaseClasses = ['second', 'first', 'third'];
-
-            podiumOrder.forEach((entry, idx) => {
-                const slot = document.createElement('div');
-                slot.className = 'podium-slot';
-                if (!entry) {
-                    podiumEl.appendChild(slot);
-                    return;
+        function revealNext(place) {
+            if (place === 1) {
+                if (revealedPodium.length === 0) {
+                    showPodiumPlace(1, currentContestants[0]);
+                    revealedPodium.push(1);
+                    document.getElementById('reveal-podium-1').disabled = true;
+                    document.getElementById('reveal-podium-2').disabled = false;
                 }
-                const card = document.createElement('div');
-                card.className = 'podium-card';
-                card.style.borderColor = entry.color;
-                card.innerHTML = `
-                    <div class="podium-rank">${podiumNames[idx]}</div>
-                    <div class="podium-name" style="color: ${entry.color}">${entry.name}</div>
-                    <div class="podium-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</div>
-                `;
-                const base = document.createElement('div');
-                base.className = `podium-base ${podiumBaseClasses[idx]}`;
-                slot.appendChild(card);
-                slot.appendChild(base);
-                podiumEl.appendChild(slot);
-            });
-
-            const rest = contestants.slice(3);
-            const awardsConfig = folder && Array.isArray(folder.awards) ? folder.awards : [];
-            let remaining = rest.slice();
-
-            if (awardsConfig.length > 0) {
-                awardsConfig.forEach(award => {
-                    const maxWinners = parseInt(award.maxWinners) || 0;
-                    if (!award.name || maxWinners <= 0 || remaining.length === 0) {
-                        return;
+            } else if (place === 2) {
+                if (revealedPodium.length === 1) {
+                    showPodiumPlace(2, currentContestants[1]);
+                    revealedPodium.push(2);
+                    document.getElementById('reveal-podium-2').disabled = true;
+                    document.getElementById('reveal-podium-3').disabled = false;
+                }
+            } else if (place === 3) {
+                if (revealedPodium.length === 2) {
+                    showPodiumPlace(3, currentContestants[2]);
+                    revealedPodium.push(3);
+                    document.getElementById('reveal-podium-3').disabled = true;
+                    if (currentAwardsConfig.length > 0) {
+                        document.getElementById('reveal-next-award').disabled = false;
                     }
-                    const winners = remaining.slice(0, maxWinners);
-                    remaining = remaining.slice(maxWinners);
-                    if (winners.length === 0) {
-                        return;
-                    }
-                    const section = document.createElement('div');
-                    section.className = 'final-awards-section';
-                    section.innerHTML = `<h3>${award.name}</h3>`;
-                    const list = document.createElement('div');
-                    list.className = 'final-awards-list';
-                    winners.forEach(entry => {
-                        const item = document.createElement('div');
-                        item.className = 'final-award-item';
-                        item.innerHTML = `
-                            <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                            <span class="final-award-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</span>
-                        `;
-                        list.appendChild(item);
-                    });
-                    section.appendChild(list);
-                    awardsEl.appendChild(section);
-                });
+                }
             }
+        }
 
-            if (remaining.length > 0) {
+        function showPodiumPlace(place, contestant) {
+            if (!contestant) return;
+            
+            const podiumEl = document.getElementById('final-podium');
+            const slot = document.createElement('div');
+            slot.className = 'podium-slot';
+            slot.style.animation = 'slideUp 0.5s ease-out';
+            
+            const podiumNames = ['1st', '2nd', '3rd'];
+            const podiumClasses = ['first', 'second', 'third'];
+            const index = place === 1 ? 0 : (place === 2 ? 1 : 2);
+            
+            const card = document.createElement('div');
+            card.className = 'podium-card current-highlight';
+            card.style.borderColor = contestant.color;
+            card.innerHTML = `
+                <div class="podium-rank">${podiumNames[index]}</div>
+                <div class="podium-name" style="color: ${contestant.color}">${contestant.name}</div>
+                <div class="podium-score" style="color: ${contestant.color}">${contestant.finalScore ? contestant.finalScore.toFixed(1) : contestant.totalScore.toFixed(1)}</div>
+            `;
+            
+            const base = document.createElement('div');
+            base.className = `podium-base ${podiumClasses[index]}`;
+            
+            slot.appendChild(card);
+            slot.appendChild(base);
+            
+            if (place === 1) {
+                podiumEl.innerHTML = '';
+                podiumEl.appendChild(slot);
+            } else if (place === 2) {
+                const existingFirst = podiumEl.children[0];
+                podiumEl.innerHTML = '';
+                if (existingFirst) podiumEl.appendChild(existingFirst);
+                podiumEl.appendChild(slot);
+            } else if (place === 3) {
+                podiumEl.appendChild(slot);
+            }
+            
+            setTimeout(() => {
+                card.classList.remove('current-highlight');
+            }, 2000);
+        }
+
+        function revealNextAward() {
+            if (revealedAwards.length >= currentAwardsConfig.length) return;
+            
+            const awardIndex = revealedAwards.length;
+            const award = currentAwardsConfig[awardIndex];
+            
+            if (!award) return;
+            
+            const startIndex = 3 + revealedAwards.reduce((sum, _, idx) => {
+                return sum + (currentAwardsConfig[idx]?.maxWinners || 0);
+            }, 0);
+            
+            const winners = currentContestants.slice(startIndex, startIndex + award.maxWinners);
+            
+            if (winners.length === 0) return;
+            
+            const awardsEl = document.getElementById('final-awards');
+            const section = document.createElement('div');
+            section.className = 'final-awards-section award-section highlight';
+            section.style.animation = 'slideUp 0.5s ease-out';
+            section.innerHTML = `<h3>${award.name}</h3>`;
+            
+            const list = document.createElement('div');
+            list.className = 'final-awards-list';
+            
+            winners.forEach((entry, idx) => {
+                const item = document.createElement('div');
+                item.className = 'final-award-item';
+                item.style.animation = `fadeInItem 0.3s ease-out ${idx * 0.1}s`;
+                item.innerHTML = `
+                    <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
+                    <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore ? entry.finalScore.toFixed(1) : entry.totalScore.toFixed(1)}</span>
+                `;
+                list.appendChild(item);
+            });
+            
+            section.appendChild(list);
+            awardsEl.appendChild(section);
+            
+            revealedAwards.push(awardIndex);
+            
+            setTimeout(() => {
+                section.classList.remove('highlight');
+            }, 2000);
+            
+            if (revealedAwards.length >= currentAwardsConfig.length) {
+                document.getElementById('reveal-next-award').disabled = true;
+            }
+            
+            const remainingStart = startIndex + award.maxWinners;
+            const remaining = currentContestants.slice(remainingStart);
+            
+            if (remaining.length > 0 && revealedAwards.length >= currentAwardsConfig.length) {
                 const section = document.createElement('div');
                 section.className = 'final-awards-section';
                 section.innerHTML = `<h3>Others</h3>`;
@@ -2654,15 +2730,13 @@
                     item.className = 'final-award-item';
                     item.innerHTML = `
                         <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                        <span class="final-award-score" style="color: ${entry.color}">${entry.totalScore.toFixed(1)}</span>
+                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore ? entry.finalScore.toFixed(1) : entry.totalScore.toFixed(1)}</span>
                     `;
                     list.appendChild(item);
                 });
                 section.appendChild(list);
                 awardsEl.appendChild(section);
             }
-
-            wrapper.classList.remove('hidden');
         }
 
         function buildFolderLabel(folderId) {
