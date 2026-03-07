@@ -3335,6 +3335,7 @@
                 const formData = new URLSearchParams();
                 formData.append('_spreadsheet_id', spreadsheetId);
                 formData.append('_sheet_name', sheetName);
+                if (startRow > 0) formData.append('_insert_after_row', startRow + rankIdx);
                 // Send values as v0, v1, v2... in exact user-defined order — no headers
                 enabledFields.forEach((key, idx) => {
                     formData.append(`v${idx}`, String(allData[key] ?? ''));
