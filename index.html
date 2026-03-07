@@ -1451,6 +1451,85 @@
 
         /* ===== END RANKINGS STYLES ===== */
 
+        /* ===== SHARE LINKS ===== */
+        .share-links-title {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--heading-color);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .share-link-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            padding: 12px 14px;
+            background: var(--item-bg);
+            border-radius: 12px;
+            border: 1px solid var(--item-border);
+            flex-wrap: wrap;
+        }
+
+        .share-link-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 8px;
+            white-space: nowrap;
+            min-width: 120px;
+            text-align: center;
+        }
+
+        .share-link-label.referee { background: rgba(102,126,234,0.2); color: #a78bfa; }
+        .share-link-label.scoreboard { background: rgba(17,153,142,0.2); color: #38ef7d; }
+        .share-link-label.final { background: rgba(251,191,36,0.2); color: #fbbf24; }
+
+        .share-link-url {
+            flex: 1;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+            word-break: break-all;
+            font-family: 'Courier New', monospace;
+            min-width: 100px;
+        }
+
+        .share-link-copy-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .share-link-copy-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+
+        .share-link-open-btn {
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .share-link-open-btn:hover { transform: translateY(-1px); opacity: 0.9; }
+        /* ===== END SHARE LINKS ===== */
+
         .hidden { display: none !important; }
     </style>
 </head>
@@ -1581,8 +1660,9 @@
             <div id="competition-created" class="competition-created-display hidden">
                 <h3>✅ Competition Created Successfully!</h3>
                 <div class="comp-name-display" id="new-comp-name"></div>
-                <p style="margin-top: 18px; color: rgba(255,255,255,0.6);">Share this name with your referees to join</p>
+                <p style="margin-top: 18px; color: var(--text-secondary);">Share this name with your referees to join</p>
                 <button class="copy-btn" onclick="copyCompetitionName()">📋 Copy Name</button>
+                <div id="share-links-box" style="margin-top: 22px; text-align: left;"></div>
             </div>
         </div>
 
@@ -1650,7 +1730,9 @@
                     <div id="sb-competition-status" class="competition-status pending hidden">⏳ Waiting to Start</div>
                     <div class="board-actions">
                         <button class="mini-btn primary" type="button" onclick="toggleFullscreen('scoreboard-display')">Full Screen</button>
+                        <button class="mini-btn" type="button" onclick="toggleShareLinks('sb-share-links', competitionData?.name)">🔗 Share Links</button>
                     </div>
+                    <div id="sb-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
                 </div>
                 <div id="scores-grid" class="scores-grid"></div>
             </div>
@@ -1683,7 +1765,9 @@
                     <p class="description" id="final-subtitle"></p>
                     <div class="board-actions">
                         <button class="mini-btn primary" type="button" onclick="toggleFullscreen('final-scoreboard-display')">Full Screen</button>
+                        <button class="mini-btn" type="button" onclick="toggleShareLinks('final-share-links', document.getElementById('final-title')?.textContent)">🔗 Share Links</button>
                     </div>
+                    <div id="final-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
                 </div>
                 <div id="final-podium" class="final-podium"></div>
                 <div id="final-awards" class="final-awards"></div>
@@ -1763,9 +1847,14 @@
         const colors = ['#667eea', '#11998e', '#f5576c', '#fbbf24', '#a78bfa', '#38ef7d', '#f093fb', '#00cec9'];
 
         function loadCompetitions() {
+            let deepLinkHandled = false;
             database.ref('competitions').on('value', snapshot => {
                 allCompetitions = snapshot.val() || {};
                 updateCompetitionDropdowns();
+                if (!deepLinkHandled) {
+                    deepLinkHandled = true;
+                    handleDeepLink();
+                }
             });
         }
 
@@ -2044,6 +2133,7 @@
                     document.getElementById('competition-created').classList.remove('hidden');
                     showStatus('Competition created successfully!', 'success');
                     currentCompetitionId = compId;
+                    renderShareLinks(name, document.getElementById('share-links-box'));
                 })
                 .catch(err => {
                     showStatus('Error creating competition: ' + err.message, 'error');
@@ -3218,6 +3308,89 @@
                 showStatus('Error saving folder: ' + err.message, 'error');
             });
         }
+        // ===== SHARE LINKS & URL DEEP-LINKING =====
+
+        function buildShareUrl(view, compName) {
+            const base = window.location.href.split('?')[0].split('#')[0];
+            return `${base}?view=${encodeURIComponent(view)}&comp=${encodeURIComponent(compName)}`;
+        }
+
+        function renderShareLinks(compName, container) {
+            if (!container) return;
+            const links = [
+                { view: 'referee',    label: '🎯 Referee',         cls: 'referee' },
+                { view: 'scoreboard', label: '📊 Live Scoreboard',  cls: 'scoreboard' },
+                { view: 'final',      label: '🏅 Final Scoreboard', cls: 'final' },
+            ];
+            container.innerHTML = `<div class="share-links-title">🔗 Shareable Links</div>` +
+                links.map(({ view, label, cls }) => {
+                    const url = buildShareUrl(view, compName);
+                    return `
+                        <div class="share-link-row">
+                            <span class="share-link-label ${cls}">${label}</span>
+                            <span class="share-link-url">${url}</span>
+                            <button class="share-link-copy-btn" onclick="copyShareLink('${url}', this)">📋 Copy</button>
+                            <a class="share-link-open-btn" href="${url}" target="_blank">↗ Open</a>
+                        </div>`;
+                }).join('');
+        }
+
+        function copyShareLink(url, btn) {
+            navigator.clipboard.writeText(url).then(() => {
+                const orig = btn.textContent;
+                btn.textContent = '✅ Copied!';
+                setTimeout(() => { btn.textContent = orig; }, 1800);
+            });
+        }
+
+        function toggleShareLinks(containerId, compName) {
+            const el = document.getElementById(containerId);
+            if (!el) return;
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+                if (compName) renderShareLinks(compName, el);
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        // Handle URL params on load — auto-navigate to the right panel/competition
+        function handleDeepLink() {
+            const params = new URLSearchParams(window.location.search);
+            const view = params.get('view');
+            const comp = params.get('comp');
+            if (!view || !comp) return;
+
+            // Wait for competitions to load, then navigate
+            const tryNavigate = (attempts) => {
+                if (attempts <= 0) return;
+                const found = Object.values(allCompetitions).some(c => c && c.name && c.name.toLowerCase() === comp.toLowerCase());
+                if (!found) {
+                    setTimeout(() => tryNavigate(attempts - 1), 400);
+                    return;
+                }
+                if (view === 'referee') {
+                    showPanel('join');
+                    document.getElementById('join-comp-name').value = comp;
+                } else if (view === 'scoreboard') {
+                    showPanel('scoreboard');
+                    document.getElementById('view-comp-name').value = comp;
+                    viewScoreboard();
+                } else if (view === 'final') {
+                    showPanel('final');
+                    document.getElementById('final-type').value = 'competition';
+                    updateFinalType();
+                    document.getElementById('final-comp-name').value = comp;
+                    showFinalScoreboard();
+                }
+            };
+            // Start trying after a short delay for Firebase to load
+            setTimeout(() => tryNavigate(15), 600);
+        }
+
+        // Call after competitions are loaded
+        const _origLoadCompetitions = loadCompetitions;
+
         // ===== THEME TOGGLE =====
         function toggleTheme() {
             const body = document.body;
