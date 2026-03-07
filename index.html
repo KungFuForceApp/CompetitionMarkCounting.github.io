@@ -509,11 +509,12 @@
         }
 
         .podium-rank {
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            font-size: 2.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
             color: var(--podium-rank-color);
-            margin-bottom: 6px;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 12px rgba(255,255,255,0.15);
         }
 
         .podium-name {
@@ -950,6 +951,37 @@
         }
 
         .mark-history-item.consensus { color: #38ef7d; font-weight: 600; }
+        .mark-history-item.caution { color: #f59e0b; font-weight: 600; }
+
+        .caution-btn {
+            background: linear-gradient(135deg, #f59e0b, #ef4444);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 10px;
+            width: 100%;
+            transition: all 0.2s;
+            letter-spacing: 0.03em;
+        }
+        .caution-btn:hover { transform: scale(1.04); opacity: 0.92; }
+        .caution-btn:active { transform: scale(0.97); }
+        .caution-count {
+            display: inline-flex; align-items: center; justify-content: center;
+            background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5);
+            color: #f59e0b; border-radius: 20px;
+            padding: 4px 14px; font-size: 0.85rem; font-weight: 700;
+            margin-top: 8px;
+        }
+        .score-card .caution-badge {
+            display: inline-block;
+            background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.4);
+            color: #f59e0b; border-radius: 10px;
+            padding: 2px 10px; font-size: 0.8rem; font-weight: 700; margin-top: 6px;
+        }
 
         .status-message {
             position: fixed;
@@ -1891,9 +1923,9 @@
                 <div id="final-podium" class="final-podium"></div>
                 <div id="final-awards" class="final-awards"></div>
                 <div id="reveal-controls" class="reveal-controls">
-                    <button id="reveal-podium-1" class="reveal-btn podium" onclick="revealNext(1)">1st Place</button>
-                    <button id="reveal-podium-2" class="reveal-btn podium" onclick="revealNext(2)">2nd Place</button>
-                    <button id="reveal-podium-3" class="reveal-btn podium" onclick="revealNext(3)">3rd Place</button>
+                    <button id="reveal-podium-1" class="reveal-btn podium" onclick="revealNext(1)">🥇 冠軍</button>
+                    <button id="reveal-podium-2" class="reveal-btn podium" onclick="revealNext(2)">🥈 亞軍</button>
+                    <button id="reveal-podium-3" class="reveal-btn podium" onclick="revealNext(3)">🥉 季軍</button>
                     <button id="reveal-next-award" class="reveal-btn award" onclick="revealNextAward()">Next Award</button>
                     <button id="reveal-reset" class="reveal-btn reset" onclick="resetReveal()">Reset All</button>
                 </div>
@@ -2506,6 +2538,8 @@
                         markCounts[v.mark] = (markCounts[v.mark] || 0) + 1;
                     });
 
+                    const cautionCount = competitionData.cautions?.[index] || 0;
+
                     card.innerHTML = `
                         <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                         <div class="current-score" style="color: ${contestant.color}">${contestant.score || 0}</div>
@@ -2516,6 +2550,8 @@
                         <div class="vote-indicator">
                             <span class="vote-count" id="vote-status-${index}">${formatVoteStatus(markCounts, threshold)}</span>
                         </div>
+                        <button class="caution-btn" onclick="submitCaution(${index})">⚠️ 警告 Caution</button>
+                        ${cautionCount > 0 ? `<div class="caution-count">⚠️ ${cautionCount} caution${cautionCount > 1 ? 's' : ''}</div>` : ''}
                     `;
                 }
                 container.appendChild(card);
@@ -2525,6 +2561,14 @@
         function formatVoteStatus(markCounts, threshold) {
             if (Object.keys(markCounts).length === 0) return 'Waiting for votes...';
             return Object.entries(markCounts).map(([mark, count]) => `+${mark}: ${count}/${threshold}`).join(' | ');
+        }
+
+        function submitCaution(contestantIndex) {
+            if (!currentCompetitionId) return;
+            const current = (competitionData.cautions?.[contestantIndex] || 0);
+            database.ref(`competitions/${currentCompetitionId}/cautions/${contestantIndex}`).set(current + 1)
+                .then(() => showStatus('⚠️ Caution issued', 'info'))
+                .catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
         function calculateWeightedAverageScoreForCompetition(comp, contestantIndex) {
@@ -2807,9 +2851,16 @@
                     detailsHtml = `<p style="color: var(--text-muted); font-size: 0.8rem; margin-top: 12px;">${refCount} referee score${refCount !== 1 ? 's' : ''}${trimNote}</p>`;
                 } else {
                     const markHistory = contestant.markHistory ? Object.values(contestant.markHistory) : [];
-                    detailsHtml = `<div class="mark-history">${markHistory.slice(-5).map(h => 
-                        `<div class="mark-history-item consensus">+${h.mark} (${h.votes} votes)</div>`
-                    ).join('')}</div>`;
+                    const cautionCount = (competitionData.cautions || {})[contestant.originalIndex] || 0;
+                    const cautionHtml = cautionCount > 0
+                        ? `<div class="caution-badge">⚠️ ${cautionCount} 警告</div>`
+                        : '';
+                    detailsHtml = `
+                        <div class="mark-history">${markHistory.slice(-5).map(h =>
+                            `<div class="mark-history-item ${h.mark < 0 ? 'caution' : 'consensus'}">${h.mark > 0 ? '+' : ''}${h.mark} (${h.votes} votes)</div>`
+                        ).join('')}</div>
+                        ${cautionHtml}
+                    `;
                 }
 
                 card.innerHTML = `
@@ -3050,8 +3101,11 @@
             { key: 'categories',        label: 'Score Categories (info)', modes: [1] },
             { key: 'ref_scores',        label: 'All Referee Scores',      modes: [1] },
             { key: 'cat_scores',        label: 'All Category Averages',   modes: [1] },
-            { key: 'mark_history',      label: 'Mark History',            modes: [2] },
-            { key: 'total_score',       label: 'Total Score (raw)',       modes: [2] },
+            { key: 'score_plus',        label: 'Total + Score',           modes: [2] },
+            { key: 'score_minus',       label: 'Total - Score',           modes: [2] },
+            { key: 'max_score',         label: 'Max Single Score',        modes: [2] },
+            { key: 'mark_history',      label: 'Mark History (all)',      modes: [2] },
+            { key: 'cautions',          label: 'Cautions ⚠️',             modes: [2] },
             { key: 'Timestamp',         label: 'Timestamp',               modes: [1,2] },
         ];
 
@@ -3328,8 +3382,13 @@
 
                 } else {
                     const markHistory = c.markHistory ? Object.values(c.markHistory) : [];
-                    allData.mark_history = markHistory.map(h => `+${h.mark}`).join(', ');
-                    allData.total_score = c.score || 0;
+                    const plusMarks = markHistory.filter(h => h.mark > 0);
+                    const minusMarks = markHistory.filter(h => h.mark < 0);
+                    allData.score_plus  = plusMarks.reduce((s, h) => s + h.mark, 0);
+                    allData.score_minus = minusMarks.reduce((s, h) => s + h.mark, 0);
+                    allData.max_score   = plusMarks.length ? Math.max(...plusMarks.map(h => h.mark)) : 0;
+                    allData.mark_history = markHistory.map(h => (h.mark > 0 ? `+${h.mark}` : h.mark)).join(', ');
+                    allData.cautions    = competitionData.cautions?.[i] || 0;
                 }
 
                 const formData = new URLSearchParams();
@@ -3566,7 +3625,7 @@
             slot.className = 'podium-slot';
             slot.style.animation = 'slideUp 0.5s ease-out';
             
-            const podiumNames = ['1st', '2nd', '3rd'];
+            const podiumNames = ['冠軍', '亞軍', '季軍'];
             const podiumClasses = ['first', 'second', 'third'];
             const index = place === 1 ? 0 : (place === 2 ? 1 : 2);
             
