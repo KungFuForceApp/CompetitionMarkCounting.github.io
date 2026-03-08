@@ -3144,18 +3144,15 @@
             { key: 'contestant_name',   label: 'Contestant Name',         modes: [1,2] },
             { key: 'final_score',       label: 'Final Score',             modes: [1,2] },
             { key: 'rank',              label: 'Rank',                    modes: [1,2] },
-            { key: 'mode',              label: 'Mode',                    modes: [1,2] },
-            { key: 'color',             label: 'Colour Tag',              modes: [1,2] },
-            { key: 'competition_id',    label: 'Competition ID',          modes: [1,2] },
             { key: 'referee_count',     label: 'Referee Count',           modes: [1] },
-            { key: 'categories',        label: 'Score Categories (info)', modes: [1] },
-            { key: 'ref_scores',        label: 'All Referee Scores',      modes: [1] },
-            { key: 'cat_scores',        label: 'All Category Averages',   modes: [1] },
             { key: 'score_plus',        label: 'Total + Score',           modes: [2] },
             { key: 'score_minus',       label: 'Total - Score',           modes: [2] },
             { key: 'max_score',         label: 'Max Single Score',        modes: [2] },
             { key: 'mark_history',      label: 'Mark History (all)',      modes: [2] },
             { key: 'cautions',          label: 'Cautions ⚠️',             modes: [2] },
+            { key: 'mode',              label: 'Mode',                    modes: [1,2] },
+            { key: 'color',             label: 'Colour Tag',              modes: [1,2] },
+            { key: 'competition_id',    label: 'Competition ID',          modes: [1,2] },
             { key: 'Timestamp',         label: 'Timestamp',               modes: [1,2] },
         ];
 
@@ -3461,12 +3458,14 @@
 
                     allData.referee_count = refereeEntries.length;
 
+                    // Per-category average — one cell each
                     categories.forEach(cat => {
                         const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
                         const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
                         allData[`${cat.name}_avg`] = avg.toFixed(2);
                     });
 
+                    // Per-referee — one cell per category per referee
                     refereeEntries.forEach(([, refScores], ri) => {
                         const refLabel = `Ref${ri + 1}`;
                         allData[`${refLabel}_name`] = refScores.refereeName || `Ref${ri + 1}`;
@@ -3477,19 +3476,6 @@
                             sum + (parseFloat(refScores[cat.name]) || 0) * (cat.weight / 100), 0);
                         allData[`${refLabel}_total`] = weighted.toFixed(2);
                     });
-
-                    allData.ref_scores = refereeEntries.map(([, s], ri) => {
-                        const name = s.refereeName || `Ref${ri+1}`;
-                        const weighted = categories.reduce((sum, cat) =>
-                            sum + (parseFloat(s[cat.name]) || 0) * (cat.weight / 100), 0);
-                        return `${name}:${weighted.toFixed(1)}`;
-                    }).join(' | ');
-                    allData.cat_scores = categories.map(cat => {
-                        const vals = refereeEntries.map(([, s]) => parseFloat(s[cat.name]) || 0);
-                        const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
-                        return `${cat.name}:${avg.toFixed(1)}`;
-                    }).join(' | ');
-                    allData.categories = categories.map(cat => `${cat.name}(${cat.weight}%)`).join(', ');
 
                 } else {
                     const markHistory = c.markHistory ? Object.values(c.markHistory) : [];
