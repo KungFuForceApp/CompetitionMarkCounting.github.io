@@ -3033,18 +3033,8 @@
             container.innerHTML = '';
 
             contestants.forEach((contestant) => {
-                const isHidden = hiddenPlayers.has(contestant.originalIndex);
+                if (hiddenPlayers.has(contestant.originalIndex)) return;
                 const card = document.createElement('div');
-
-                if (isHidden) {
-                    card.className = 'score-card';
-                    card.style.cssText = `border-color:${contestant.color}; opacity:0.35; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 18px; min-height:unset;`;
-                    card.title = 'Click to show';
-                    card.onclick = () => togglePlayerVisibility(contestant.originalIndex);
-                    card.innerHTML = `<span style="font-size:1rem;">🙈</span><span style="font-size:0.95rem; color:${contestant.color}; font-weight:700;">${contestant.name}</span>`;
-                    container.appendChild(card);
-                    return;
-                }
                 card.className = `score-card rank-${contestant.rank}`;
                 card.style.borderColor = contestant.color;
 
