@@ -1218,6 +1218,14 @@
             display: none !important;
         }
 
+        /* Keep hide-players button visible in fullscreen */
+        .fullscreen-surface:fullscreen .board-actions:has(#hide-players-btn) {
+            display: flex !important;
+            justify-content: flex-end;
+        }
+        .fullscreen-surface:fullscreen #hide-players-btn { display: inline-block !important; }
+        .fullscreen-surface:fullscreen #hide-players-menu { display: none; } /* reset, JS controls it */
+
         .fullscreen-surface:fullscreen .scoreboard-header {
             margin-top: 10px;
         }
@@ -1949,6 +1957,14 @@
                         <button class="mini-btn primary" type="button" onclick="toggleFullscreen('scoreboard-display')">Full Screen</button>
                         <button class="mini-btn" style="background:linear-gradient(135deg,rgba(251,191,36,0.2),rgba(245,87,108,0.15)); border-color:rgba(251,191,36,0.4); color:#fbbf24;" type="button" onclick="showPanel('final')">🏅 Go to Final</button>
                         <button class="mini-btn" type="button" onclick="toggleShareLinks('sb-share-links', competitionData?.name)">🔗 Share Links</button>
+                        <div style="position:relative; display:inline-block;">
+                            <button class="mini-btn" type="button" onclick="toggleHidePlayersMenu()" id="hide-players-btn">👁 Hide Players</button>
+                            <div id="hide-players-menu" style="display:none; position:absolute; top:110%; right:0; z-index:999; background:var(--card-bg); border:1px solid var(--border); border-radius:12px; padding:10px; min-width:180px; box-shadow:0 8px 32px rgba(0,0,0,0.3);">
+                                <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:8px; font-weight:600;">Tap to show/hide</div>
+                                <div id="hide-players-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                                <button onclick="showAllPlayers()" style="margin-top:10px; width:100%; font-size:0.78rem; padding:5px; border-radius:7px; border:1px solid var(--border); background:transparent; color:var(--text-secondary); cursor:pointer;">Show All</button>
+                            </div>
+                        </div>
                     </div>
                     <div id="sb-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
                 </div>
@@ -3020,8 +3036,19 @@
             const container = document.getElementById('scores-grid');
             container.innerHTML = '';
 
-            contestants.forEach((contestant, rank) => {
+            contestants.forEach((contestant) => {
+                const isHidden = hiddenPlayers.has(contestant.originalIndex);
                 const card = document.createElement('div');
+
+                if (isHidden) {
+                    card.className = 'score-card';
+                    card.style.cssText = `border-color:${contestant.color}; opacity:0.35; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; padding:14px 18px; min-height:unset;`;
+                    card.title = 'Click to show';
+                    card.onclick = () => togglePlayerVisibility(contestant.originalIndex);
+                    card.innerHTML = `<span style="font-size:1rem;">🙈</span><span style="font-size:0.95rem; color:${contestant.color}; font-weight:700;">${contestant.name}</span>`;
+                    container.appendChild(card);
+                    return;
+                }
                 card.className = `score-card rank-${contestant.rank}`;
                 card.style.borderColor = contestant.color;
 
@@ -3054,6 +3081,55 @@
                 container.appendChild(card);
             });
         }
+
+        let hiddenPlayers = new Set(); // stores originalIndex of hidden contestants
+
+        function toggleHidePlayersMenu() {
+            const menu = document.getElementById('hide-players-menu');
+            const isOpen = menu.style.display !== 'none';
+            menu.style.display = isOpen ? 'none' : 'block';
+            if (!isOpen) renderHidePlayersList();
+        }
+
+        function renderHidePlayersList() {
+            const list = document.getElementById('hide-players-list');
+            if (!list || !competitionData?.contestants) return;
+            list.innerHTML = competitionData.contestants.map((c, i) => {
+                const hidden = hiddenPlayers.has(i);
+                return `<div style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 6px; border-radius:7px; background:${hidden ? 'rgba(255,255,255,0.04)' : 'transparent'};" onclick="togglePlayerVisibility(${i})">
+                    <span style="font-size:1rem;">${hidden ? '🙈' : '👁'}</span>
+                    <span style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0;"></span>
+                    <span style="font-size:0.85rem; color:${hidden ? 'var(--text-muted)' : 'var(--text-primary)'}; text-decoration:${hidden ? 'line-through' : 'none'};">${c.name}</span>
+                </div>`;
+            }).join('');
+        }
+
+        function togglePlayerVisibility(index) {
+            if (hiddenPlayers.has(index)) hiddenPlayers.delete(index);
+            else hiddenPlayers.add(index);
+            renderHidePlayersList();
+            updateScoreboard();
+            // Update button label
+            const btn = document.getElementById('hide-players-btn');
+            if (btn) btn.textContent = hiddenPlayers.size > 0 ? `👁 Hide Players (${hiddenPlayers.size} hidden)` : '👁 Hide Players';
+        }
+
+        function showAllPlayers() {
+            hiddenPlayers.clear();
+            renderHidePlayersList();
+            updateScoreboard();
+            const btn = document.getElementById('hide-players-btn');
+            if (btn) btn.textContent = '👁 Hide Players';
+        }
+
+        // Close hide menu when clicking outside
+        document.addEventListener('click', e => {
+            const menu = document.getElementById('hide-players-menu');
+            const btn = document.getElementById('hide-players-btn');
+            if (menu && !menu.contains(e.target) && e.target !== btn) {
+                menu.style.display = 'none';
+            }
+        });
 
         function countScoresForContestant(index) {
             if (!competitionData.mode1Scores || !competitionData.mode1Scores[index]) return 0;
