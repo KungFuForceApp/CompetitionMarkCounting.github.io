@@ -1203,25 +1203,20 @@
             overflow: auto;
         }
 
-        .fullscreen-exit-btn {
-            display: none;
-            position: fixed;
-            top: 18px;
-            right: 18px;
-            z-index: 9999;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: white;
-            border-radius: 10px;
-            padding: 8px 18px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            backdrop-filter: blur(8px);
-            transition: background 0.2s;
+        /* Hide ALL interactive controls in fullscreen — only show content */
+        .fullscreen-surface:fullscreen .board-actions,
+        .fullscreen-surface:fullscreen .reveal-controls,
+        .fullscreen-surface:fullscreen .mini-btn,
+        .fullscreen-surface:fullscreen .reveal-btn,
+        .fullscreen-surface:fullscreen .submit-btn,
+        .fullscreen-surface:fullscreen .add-btn,
+        .fullscreen-surface:fullscreen #sb-share-links,
+        .fullscreen-surface:fullscreen #final-share-links,
+        .fullscreen-surface:fullscreen .fullscreen-exit-btn,
+        .fullscreen-surface:fullscreen [id^="award-order"],
+        .fullscreen-surface:fullscreen .mode-info {
+            display: none !important;
         }
-        .fullscreen-exit-btn:hover { background: rgba(255,255,255,0.22); }
-        .fullscreen-surface:fullscreen .fullscreen-exit-btn { display: block; }
 
         .fullscreen-surface:fullscreen .scoreboard-header {
             margin-top: 10px;
@@ -1236,6 +1231,26 @@
             margin-left: auto;
             margin-right: auto;
         }
+
+        /* Space hint — shown only in fullscreen over final panel */
+        .fullscreen-space-hint {
+            display: none;
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.45);
+            border: 1px solid rgba(255,255,255,0.15);
+            color: rgba(255,255,255,0.6);
+            border-radius: 20px;
+            padding: 7px 22px;
+            font-size: 0.88rem;
+            letter-spacing: 0.04em;
+            backdrop-filter: blur(8px);
+            pointer-events: none;
+            z-index: 9998;
+        }
+        .fullscreen-surface:fullscreen .fullscreen-space-hint { display: block; }
 
         .reveal-controls {
             display: flex;
@@ -1910,7 +1925,6 @@
                     <div id="sb-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
                 </div>
                 <div id="scores-grid" class="scores-grid"></div>
-                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('scoreboard-display')">✕ Exit Fullscreen</button>
             </div>
         </div>
 
@@ -1959,7 +1973,7 @@
                     <div id="reveal-step-label" style="font-size:0.85rem; color:var(--text-muted); min-height:1.2em;"></div>
                 </div>
                 <div id="final-results-list" style="margin-top: 28px;"></div>
-                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('final-scoreboard-display')">✕ Exit Fullscreen</button>
+                <div class="fullscreen-space-hint">⎵ Space — reveal next</div>
             </div>
         </div>
 
@@ -1998,7 +2012,6 @@
                 <div id="rankings-content">
                     <div class="no-competitions"><div class="icon">🏆</div><p>Loading rankings…</p></div>
                 </div>
-                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('rankings-fullscreen-surface')">✕ Exit Fullscreen</button>
             </div>
         </div>
     </div>
@@ -3181,91 +3194,156 @@
             const allDefs = [...EXPORT_FIELD_DEFS, ...dynamicDefs];
             const applicableFields = allDefs.filter(f => f.modes.includes(mode));
 
-            const savedOrder = (saved.fieldOrder || []).filter(k => applicableFields.find(f => f.key === k));
-            const remaining = applicableFields.filter(f => !savedOrder.includes(f.key)).map(f => f.key);
-            const fieldOrder = [...savedOrder, ...remaining];
-            const disabledFields = new Set(saved.disabledFields || []);
+            // Build default order: static fields first, then inject category avgs right after final_score
+            const defaultOrder = [];
+            EXPORT_FIELD_DEFS.filter(f => f.modes.includes(mode)).forEach(f => {
+                defaultOrder.push(f.key);
+                // After final_score, inject per-category avg columns inline
+                if (f.key === 'final_score' && mode === 1) {
+                    dynamicDefs.filter(d => d.key.endsWith('_avg')).forEach(d => defaultOrder.push(d.key));
+                }
+            });
+            // Append remaining dynamic fields (per-ref) not yet in list
+            dynamicDefs.filter(d => !defaultOrder.includes(d.key)).forEach(d => defaultOrder.push(d.key));
 
+            // Merge with saved order: keep saved order for known keys, append new keys at end
+            const savedOrder = saved.fieldOrder || [];
+            const mergedOrder = [
+                ...savedOrder.filter(k => applicableFields.find(f => f.key === k)),
+                ...defaultOrder.filter(k => !savedOrder.includes(k) && applicableFields.find(f => f.key === k))
+            ];
+
+            const disabledFields = new Set(saved.disabledFields || []);
             const spreadsheetId = saved.spreadsheetId || '';
             const sheetName = saved.sheetName || 'Competition-Score-Manager';
             const startRow = saved.startRow || '';
-
-            const categories = (competitionData.scoreCategories || []);
-            const catPreviewHtml = mode === 1 && categories.length ? `
-                <div class="mode-info" style="margin: 12px 0; padding: 12px 16px;">
-                    <div style="font-size:0.8rem; font-weight:700; color:var(--text-muted); margin-bottom:8px;">📋 Score Categories → each gets its own column in sheet</div>
-                    <div style="display:flex; flex-wrap:wrap; gap:6px;">
-                        ${categories.map((cat, i) => `<span class="award-chip">${i+1}. ${cat.name} <span style="opacity:0.6">(${cat.weight}%)</span></span>`).join('')}
-                    </div>
-                    <div style="font-size:0.78rem; color:var(--text-muted); margin-top:8px;">
-                        Columns exported: <strong>${categories.map(c => c.name + '_avg').join(', ')}</strong>
-                        ${Object.keys(competitionData.mode1Scores || {}).length > 0 ? `<br>+ per-referee: <strong>${categories.map(c => 'Ref1_' + c.name + ', Ref2_' + c.name + '…').join(' ')}</strong>` : ''}
-                    </div>
-                </div>` : '';
 
             const overlay = document.createElement('div');
             overlay.className = 'modal-overlay';
             overlay.id = 'export-modal';
 
-            const fieldsHtml = fieldOrder.map((key, i) => {
+            const buildFieldsHtml = (order) => order.map((key) => {
                 const def = applicableFields.find(f => f.key === key);
                 if (!def) return '';
                 const enabled = !disabledFields.has(key);
-                return `
-                    <div class="export-field-row" draggable="true" data-key="${key}" data-index="${i}">
-                        <span class="export-field-drag">☰</span>
-                        <span class="export-field-label">${def.label}</span>
-                        <span class="export-field-key">${key}</span>
-                        <span class="export-field-toggle" onclick="toggleExportField(this, '${key}')" title="Enable/disable">${enabled ? '✅' : '⬜'}</span>
-                    </div>`;
+                const isCatAvg = def.dynamic && key.endsWith('_avg');
+                const isRefField = def.dynamic && !key.endsWith('_avg');
+                const accent = isCatAvg ? 'border-left:3px solid #a78bfa;' : isRefField ? 'border-left:3px solid #38bdf8;' : '';
+                return `<div class="export-field-row" draggable="true" data-key="${key}" style="${accent}">
+                    <span class="export-field-drag">☰</span>
+                    <span class="export-field-label">${def.label}</span>
+                    <span class="export-field-key">${key}</span>
+                    <span class="export-field-toggle" onclick="toggleExportField(this,'${key}')">${enabled ? '✅' : '⬜'}</span>
+                </div>`;
             }).join('');
 
             overlay.innerHTML = `
                 <div class="export-modal-content">
                     <h3>📤 Export to Google Sheets</h3>
-                    <p class="sub">Data goes directly into your spreadsheet. Columns are auto-created if missing.</p>
+                    <p class="sub">Drag rows to reorder columns. Each row = one sheet column.</p>
 
-                    <div class="export-section-title">🔗 Google Sheet Settings</div>
-                    <div class="form-group" style="margin-bottom:10px;">
-                        <label style="font-size:0.82rem;">Apps Script Deployment URL</label>
-                        <input type="text" id="export-sheet-url" value="${saved.sheetUrl || GOOGLE_SHEETS_URL}" placeholder="https://script.google.com/macros/s/.../exec" style="font-size:0.82rem;">
+                    <div class="export-section-title">🔗 Sheet Settings</div>
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <label style="font-size:0.82rem;">Apps Script URL</label>
+                        <input type="text" id="export-sheet-url" value="${saved.sheetUrl || GOOGLE_SHEETS_URL}" style="font-size:0.8rem;">
                     </div>
-                    <div class="form-group" style="margin-bottom:10px;">
-                        <label style="font-size:0.82rem;">Spreadsheet ID <span style="color:var(--text-muted); font-weight:400;">(from URL: /spreadsheets/d/<strong>ID</strong>/edit)</span></label>
-                        <input type="text" id="export-spreadsheet-id" value="${spreadsheetId}" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms" style="font-size:0.82rem; font-family:monospace;">
+                    <div class="form-group" style="margin-bottom:8px;">
+                        <label style="font-size:0.82rem;">Spreadsheet ID <span style="color:var(--text-muted);font-weight:400;">(from URL: /d/<strong>ID</strong>/edit)</span></label>
+                        <input type="text" id="export-spreadsheet-id" value="${spreadsheetId}" style="font-size:0.8rem;font-family:monospace;">
                     </div>
-                    <div style="display:flex; gap:10px;">
-                        <div class="form-group" style="flex:2; margin-bottom:0;">
+                    <div style="display:flex;gap:10px;margin-bottom:16px;">
+                        <div class="form-group" style="flex:2;margin-bottom:0;">
                             <label style="font-size:0.82rem;">Sheet Tab Name</label>
-                            <input type="text" id="export-sheet-name" value="${sheetName}" placeholder="Competition-Score-Manager">
+                            <input type="text" id="export-sheet-name" value="${sheetName}">
                         </div>
-                        <div class="form-group" style="flex:1; margin-bottom:0;">
-                            <label style="font-size:0.82rem;">Insert After Row (0 = append)</label>
+                        <div class="form-group" style="flex:1;margin-bottom:0;">
+                            <label style="font-size:0.82rem;">Insert After Row (0=append)</label>
                             <input type="number" id="export-start-row" value="${startRow}" min="0" placeholder="0">
                         </div>
                     </div>
 
-                    ${catPreviewHtml}
-
-                    <div class="export-section-title" style="margin-top:16px;">📋 Columns — drag to reorder, ✅ to toggle</div>
-                    <div id="export-fields-list" style="display:flex; flex-direction:column; gap:7px;">
-                        ${fieldsHtml}
+                    <div class="export-section-title" style="margin-bottom:6px;">
+                        📋 Columns
+                        <button class="mini-btn" onclick="toggleJsonPaste()" style="margin-left:10px;font-size:0.75rem;padding:3px 10px;">{ } JSON Paste</button>
+                        <button class="mini-btn" onclick="copyExportJson()" style="margin-left:6px;font-size:0.75rem;padding:3px 10px;">📋 Copy JSON</button>
+                    </div>
+                    <div id="json-paste-area" style="display:none;margin-bottom:10px;">
+                        <p style="font-size:0.78rem;color:var(--text-muted);margin-bottom:6px;">Paste a JSON array of keys to instantly set order+toggle. e.g. <code>["contestant_name","final_score","Technique_avg"]</code><br>Or full format: <code>[{"key":"contestant_name","enabled":true},...]</code></p>
+                        <textarea id="json-paste-input" style="width:100%;height:80px;font-size:0.78rem;font-family:monospace;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:8px;resize:vertical;" placeholder='["contestant_name","final_score",...]'></textarea>
+                        <button class="mini-btn primary" onclick="applyJsonPaste()" style="margin-top:6px;">✅ Apply</button>
+                        <span id="json-paste-error" style="color:#f87171;font-size:0.78rem;margin-left:8px;"></span>
+                    </div>
+                    <div style="font-size:0.75rem;color:var(--text-muted);margin-bottom:8px;">
+                        <span style="border-left:3px solid #a78bfa;padding-left:5px;margin-right:12px;">Category avg</span>
+                        <span style="border-left:3px solid #38bdf8;padding-left:5px;">Per-referee</span>
+                    </div>
+                    <div id="export-fields-list" style="display:flex;flex-direction:column;gap:6px;">
+                        ${buildFieldsHtml(mergedOrder)}
                     </div>
 
                     <div class="export-actions">
                         <button class="export-cancel-btn" onclick="closeExportModal()">Cancel</button>
-                        <button class="export-cancel-btn" onclick="previewExportData()" style="border-color:#fbbf24; color:#fbbf24;">🔍 Preview</button>
+                        <button class="export-cancel-btn" onclick="previewExportData()" style="border-color:#fbbf24;color:#fbbf24;">🔍 Preview</button>
                         <button class="export-run-btn" onclick="runExport()">📤 Export Now</button>
                     </div>
-                    <div id="export-preview" style="margin-top:16px; display:none;">
-                        <div class="export-section-title">🔍 Data Preview (first contestant)</div>
-                        <pre id="export-preview-text" style="font-size:0.75rem; color:var(--text-secondary); background:var(--input-bg); padding:12px; border-radius:10px; overflow-x:auto; white-space:pre-wrap; word-break:break-all;"></pre>
+                    <div id="export-preview" style="margin-top:16px;display:none;">
+                        <div class="export-section-title">🔍 Data Preview (contestant 1)</div>
+                        <pre id="export-preview-text" style="font-size:0.75rem;color:var(--text-secondary);background:var(--input-bg);padding:12px;border-radius:10px;overflow-x:auto;white-space:pre-wrap;word-break:break-all;"></pre>
                     </div>
                 </div>`;
 
             document.body.appendChild(overlay);
             overlay.addEventListener('click', e => { if (e.target === overlay) closeExportModal(); });
             initExportDrag();
+        }
+
+        function toggleJsonPaste() {
+            const el = document.getElementById('json-paste-area');
+            if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function copyExportJson() {
+            const keys = getExportFieldOrderFromDOM().map(({key, enabled}) => ({ key, enabled }));
+            navigator.clipboard.writeText(JSON.stringify(keys, null, 2))
+                .then(() => showStatus('JSON copied!', 'success'))
+                .catch(() => showStatus('Copy failed', 'error'));
+        }
+
+        function applyJsonPaste() {
+            const raw = document.getElementById('json-paste-input').value.trim();
+            const errEl = document.getElementById('json-paste-error');
+            errEl.textContent = '';
+            let parsed;
+            try { parsed = JSON.parse(raw); } catch(e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
+            if (!Array.isArray(parsed)) { errEl.textContent = 'Must be a JSON array'; return; }
+
+            // Normalise: support ["key"] or [{key,enabled}]
+            const newOrder = parsed.map(item => typeof item === 'string' ? { key: item, enabled: true } : { key: item.key, enabled: item.enabled !== false });
+
+            const list = document.getElementById('export-fields-list');
+            const existingRows = {};
+            list.querySelectorAll('.export-field-row').forEach(row => { existingRows[row.dataset.key] = row; });
+
+            // Reorder DOM to match JSON, set enabled state
+            newOrder.forEach(({key, enabled}) => {
+                const row = existingRows[key];
+                if (!row) return;
+                const toggle = row.querySelector('.export-field-toggle');
+                if (toggle) toggle.textContent = enabled ? '✅' : '⬜';
+                list.appendChild(row); // moves to end in JSON order
+            });
+
+            showStatus('Column order applied!', 'success');
+            document.getElementById('json-paste-area').style.display = 'none';
+        }
+
+        function getExportFieldOrderFromDOM() {
+            const list = document.getElementById('export-fields-list');
+            if (!list) return [];
+            return [...list.querySelectorAll('.export-field-row')].map(row => ({
+                key: row.dataset.key,
+                enabled: row.querySelector('.export-field-toggle').textContent === '✅'
+            }));
         }
 
         function closeExportModal() {
@@ -3340,14 +3418,10 @@
                 return;
             }
 
-            const fieldOrder = [];
-            const disabledFields = [];
-            list.querySelectorAll('.export-field-row').forEach(row => {
-                const key = row.dataset.key;
-                fieldOrder.push(key);
-                const enabled = row.querySelector('.export-field-toggle').textContent === '✅';
-                if (!enabled) disabledFields.push(key);
-            });
+            // Read field order and enabled state directly from current DOM
+            const fieldRows = getExportFieldOrderFromDOM();
+            const fieldOrder = fieldRows.map(r => r.key);
+            const disabledFields = fieldRows.filter(r => !r.enabled).map(r => r.key);
 
             saveExportSettings({ spreadsheetId, sheetName, startRow, fieldOrder, disabledFields });
             closeExportModal();
@@ -3826,6 +3900,10 @@
 
         // Space bar to advance reveal when final or rankings is visible
         document.addEventListener('keydown', e => {
+            if (e.code === 'Escape' && document.fullscreenElement) {
+                document.exitFullscreen();
+                return;
+            }
             if (e.code !== 'Space') return;
             if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
             const finalVisible = document.getElementById('final-scoreboard-display') && !document.getElementById('final-scoreboard-display').classList.contains('hidden');
