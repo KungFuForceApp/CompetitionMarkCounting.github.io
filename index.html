@@ -969,6 +969,13 @@
         }
         .caution-btn:hover { transform: scale(1.04); opacity: 0.92; }
         .caution-btn:active { transform: scale(0.97); }
+
+        @keyframes revealPop {
+            0%   { opacity: 0; transform: scale(0.7) translateY(40px); }
+            60%  { transform: scale(1.06) translateY(-6px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .reveal-pop { animation: revealPop 0.55s cubic-bezier(0.34,1.56,0.64,1) forwards; }
         .caution-count {
             display: inline-flex; align-items: center; justify-content: center;
             background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5);
@@ -1195,6 +1202,26 @@
             padding: 22px;
             overflow: auto;
         }
+
+        .fullscreen-exit-btn {
+            display: none;
+            position: fixed;
+            top: 18px;
+            right: 18px;
+            z-index: 9999;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            border-radius: 10px;
+            padding: 8px 18px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transition: background 0.2s;
+        }
+        .fullscreen-exit-btn:hover { background: rgba(255,255,255,0.22); }
+        .fullscreen-surface:fullscreen .fullscreen-exit-btn { display: block; }
 
         .fullscreen-surface:fullscreen .scoreboard-header {
             margin-top: 10px;
@@ -1883,6 +1910,7 @@
                     <div id="sb-share-links" class="hidden" style="margin-top:16px;text-align:left;"></div>
                 </div>
                 <div id="scores-grid" class="scores-grid"></div>
+                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('scoreboard-display')">✕ Exit Fullscreen</button>
             </div>
         </div>
 
@@ -1922,13 +1950,16 @@
                 </div>
                 <div id="final-podium" class="final-podium"></div>
                 <div id="final-awards" class="final-awards"></div>
-                <div id="reveal-controls" class="reveal-controls">
-                    <button id="reveal-podium-1" class="reveal-btn podium" onclick="revealNext(1)">🥇 冠軍</button>
-                    <button id="reveal-podium-2" class="reveal-btn podium" onclick="revealNext(2)">🥈 亞軍</button>
-                    <button id="reveal-podium-3" class="reveal-btn podium" onclick="revealNext(3)">🥉 季軍</button>
-                    <button id="reveal-next-award" class="reveal-btn award" onclick="revealNextAward()">Next Award</button>
-                    <button id="reveal-reset" class="reveal-btn reset" onclick="resetReveal()">Reset All</button>
+                <div id="reveal-controls" class="reveal-controls" style="flex-direction:column; align-items:center; gap:10px;">
+                    <div id="reveal-space-hint" style="font-size:1.1rem; color:var(--text-muted); letter-spacing:0.05em;">
+                        ⎵ Press <kbd style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.25);border-radius:6px;padding:2px 10px;font-size:1rem;">Space</kbd> or tap below to reveal next
+                    </div>
+                    <button id="reveal-next-btn" class="reveal-btn podium" onclick="revealStep()" style="min-width:220px; font-size:1.1rem; padding:14px 32px;">▶ Reveal Next</button>
+                    <button id="reveal-reset" class="reveal-btn reset" onclick="resetReveal()" style="font-size:0.85rem; padding:7px 20px;">↺ Reset All</button>
+                    <div id="reveal-step-label" style="font-size:0.85rem; color:var(--text-muted); min-height:1.2em;"></div>
                 </div>
+                <div id="final-results-list" style="margin-top: 28px;"></div>
+                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('final-scoreboard-display')">✕ Exit Fullscreen</button>
             </div>
         </div>
 
@@ -1967,6 +1998,7 @@
                 <div id="rankings-content">
                     <div class="no-competitions"><div class="icon">🏆</div><p>Loading rankings…</p></div>
                 </div>
+                <button class="fullscreen-exit-btn" onclick="toggleFullscreen('rankings-fullscreen-surface')">✕ Exit Fullscreen</button>
             </div>
         </div>
     </div>
@@ -2834,14 +2866,19 @@
                 ...c,
                 originalIndex: i,
                 finalScore: competitionData.mode === 1 ? calculateWeightedAverageScoreForCompetition(competitionData, i) : (c.score || 0)
-            })).sort((a, b) => b.finalScore - a.finalScore);
+            }));
+            // Compute rank separately without changing display order
+            const ranked = [...contestants].sort((a, b) => b.finalScore - a.finalScore);
+            contestants.forEach(c => {
+                c.rank = ranked.findIndex(r => r.originalIndex === c.originalIndex) + 1;
+            });
 
             const container = document.getElementById('scores-grid');
             container.innerHTML = '';
 
             contestants.forEach((contestant, rank) => {
                 const card = document.createElement('div');
-                card.className = `score-card rank-${rank + 1}`;
+                card.className = `score-card rank-${contestant.rank}`;
                 card.style.borderColor = contestant.color;
 
                 let detailsHtml = '';
@@ -2864,7 +2901,7 @@
                 }
 
                 card.innerHTML = `
-                    <div class="rank">#${rank + 1}</div>
+                    <div class="rank">#${contestant.rank}</div>
                     <h3 style="color: ${contestant.color}">${contestant.name}</h3>
                     <div class="score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>
                     ${competitionData.mode === 1 ? '<p style="color: var(--text-muted); font-size: 0.85rem;">/100</p>' : ''}
@@ -3523,6 +3560,8 @@
             subtitleEl.textContent = comp.description || '';
             
             resetReveal();
+            buildRevealSequence();
+            resetReveal();
             wrapper.classList.remove('hidden');
         }
 
@@ -3572,166 +3611,226 @@
             titleEl.textContent = buildFolderLabel(folderId);
             subtitleEl.textContent = `Aggregated over ${competitionCount} competition(s).`;
             
+            buildRevealSequence();
             resetReveal();
             wrapper.classList.remove('hidden');
         }
 
         function resetReveal() {
-            currentRevealStep = 0;
-            revealedPodium = [];
+            revealStepIndex = 0;
             revealedAwards = [];
-            
-            document.getElementById('final-podium').innerHTML = '';
-            document.getElementById('final-awards').innerHTML = '';
-            
-            document.getElementById('reveal-podium-1').disabled = false;
-            document.getElementById('reveal-podium-2').disabled = true;
-            document.getElementById('reveal-podium-3').disabled = true;
-            document.getElementById('reveal-next-award').disabled = true;
+
+            const podiumEl = document.getElementById('final-podium');
+            const awardsEl = document.getElementById('final-awards');
+            if (podiumEl) podiumEl.innerHTML = '';
+            if (awardsEl) awardsEl.innerHTML = '';
+
+            const btn = document.getElementById('reveal-next-btn');
+            if (btn) { btn.disabled = false; btn.textContent = '▶ Reveal Next'; }
+
+            const lbl = document.getElementById('reveal-step-label');
+            if (lbl && revealSequence.length > 0) {
+                const first = revealSequence[0];
+                if (first.type === 'podium') {
+                    const names = ['', '冠軍', '亞軍', '季軍'];
+                    lbl.textContent = `Next: ${names[first.place]}`;
+                } else {
+                    lbl.textContent = `Next: ${currentAwardsConfig[first.awardIndex]?.name || 'Award'}`;
+                }
+            } else if (lbl) { lbl.textContent = ''; }
+
+            renderFinalResultsList();
         }
 
-        function revealNext(place) {
-            if (place === 1) {
-                if (revealedPodium.length === 0) {
-                    showPodiumPlace(1, currentContestants[0]);
-                    revealedPodium.push(1);
-                    document.getElementById('reveal-podium-1').disabled = true;
-                    document.getElementById('reveal-podium-2').disabled = false;
-                }
-            } else if (place === 2) {
-                if (revealedPodium.length === 1) {
-                    showPodiumPlace(2, currentContestants[1]);
-                    revealedPodium.push(2);
-                    document.getElementById('reveal-podium-2').disabled = true;
-                    document.getElementById('reveal-podium-3').disabled = false;
-                }
-            } else if (place === 3) {
-                if (revealedPodium.length === 2) {
-                    showPodiumPlace(3, currentContestants[2]);
-                    revealedPodium.push(3);
-                    document.getElementById('reveal-podium-3').disabled = true;
-                    if (currentAwardsConfig.length > 0) {
-                        document.getElementById('reveal-next-award').disabled = false;
+        function renderFinalResultsList() {
+            const el = document.getElementById('final-results-list');
+            if (!el || !currentContestants || currentContestants.length === 0) return;
+
+            const rankLabels = ['🥇 冠軍', '🥈 亞軍', '🥉 季軍'];
+            const rows = currentContestants.map((c, i) => {
+                const score = c.finalScore !== undefined ? c.finalScore : (c.totalScore || 0);
+                const rankLabel = rankLabels[i] || `#${i + 1}`;
+                return `
+                    <tr>
+                        <td style="font-size:1.15rem; font-weight:800; white-space:nowrap;">${rankLabel}</td>
+                        <td style="font-size:1.1rem; font-weight:700; color:${c.color};">${c.name}</td>
+                        <td style="font-size:1.1rem; font-weight:800; color:${c.color}; text-align:right;">${score.toFixed(1)}</td>
+                    </tr>`;
+            }).join('');
+
+            el.innerHTML = `
+                <div class="rankings-table-section" style="max-width:700px; margin: 0 auto;">
+                    <h3 style="margin-bottom:14px;">📋 Full Results</h3>
+                    <table class="rankings-table" style="width:100%;">
+                        <thead><tr>
+                            <th style="width:120px;">Rank</th>
+                            <th>Player</th>
+                            <th style="text-align:right;">Score</th>
+                        </tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                </div>`;
+        }
+
+        // ── Unified reveal sequence ──────────────────────────────────────
+        // Order: awards (last → first, i.e. descending priority) → 季軍 → 亞軍 → 冠軍
+        // One SPACE press = one step
+
+        let revealSequence = [];   // array of step descriptors built on reset
+        let revealStepIndex = 0;
+
+        function buildRevealSequence() {
+            revealSequence = [];
+            // Awards in descending order (last award first)
+            const awards = [...currentAwardsConfig].reverse();
+            awards.forEach((award, reversedIdx) => {
+                const originalIdx = currentAwardsConfig.length - 1 - reversedIdx;
+                revealSequence.push({ type: 'award', awardIndex: originalIdx });
+            });
+            // Podium: 季軍 (3rd) → 亞軍 (2nd) → 冠軍 (1st)
+            if (currentContestants.length >= 3) revealSequence.push({ type: 'podium', place: 3 });
+            if (currentContestants.length >= 2) revealSequence.push({ type: 'podium', place: 2 });
+            if (currentContestants.length >= 1) revealSequence.push({ type: 'podium', place: 1 });
+        }
+
+        function revealStep() {
+            if (revealStepIndex >= revealSequence.length) return;
+            const step = revealSequence[revealStepIndex];
+            revealStepIndex++;
+
+            if (step.type === 'award') {
+                doRevealAward(step.awardIndex);
+            } else {
+                doRevealPodium(step.place);
+            }
+
+            // Update label
+            const remaining = revealSequence.length - revealStepIndex;
+            const labelEl = document.getElementById('reveal-step-label');
+            const btnEl = document.getElementById('reveal-next-btn');
+            if (labelEl) {
+                if (remaining === 0) {
+                    labelEl.textContent = '✅ All revealed';
+                    if (btnEl) { btnEl.disabled = true; btnEl.textContent = '✅ Done'; }
+                } else {
+                    const next = revealSequence[revealStepIndex];
+                    if (next.type === 'podium') {
+                        const names = ['', '冠軍', '亞軍', '季軍'];
+                        labelEl.textContent = `Next: ${names[next.place]}`;
+                    } else {
+                        labelEl.textContent = `Next: ${currentAwardsConfig[next.awardIndex]?.name || 'Award'}`;
                     }
                 }
             }
         }
 
-        function showPodiumPlace(place, contestant) {
+        function resetReveal() {
+            revealStepIndex = 0;
+            revealedAwards = [];
+            document.getElementById('final-podium').innerHTML = '';
+            document.getElementById('final-awards').innerHTML = '';
+            const btn = document.getElementById('reveal-next-btn');
+            if (btn) { btn.disabled = false; btn.textContent = '▶ Reveal Next'; }
+            const lbl = document.getElementById('reveal-step-label');
+            if (lbl) {
+                if (revealSequence.length > 0) {
+                    const first = revealSequence[0];
+                    if (first.type === 'podium') {
+                        const names = ['', '冠軍', '亞軍', '季軍'];
+                        lbl.textContent = `Next: ${names[first.place]}`;
+                    } else {
+                        lbl.textContent = `Next: ${currentAwardsConfig[first.awardIndex]?.name || 'Award'}`;
+                    }
+                } else { lbl.textContent = ''; }
+            }
+            renderFinalResultsList();
+        }
+
+        function doRevealPodium(place) {
+            const idx = place === 1 ? 0 : place === 2 ? 1 : 2;
+            const contestant = currentContestants[idx];
             if (!contestant) return;
-            
+
             const podiumEl = document.getElementById('final-podium');
-            const slot = document.createElement('div');
-            slot.className = 'podium-slot';
-            slot.style.animation = 'slideUp 0.5s ease-out';
-            
             const podiumNames = ['冠軍', '亞軍', '季軍'];
             const podiumClasses = ['first', 'second', 'third'];
-            const index = place === 1 ? 0 : (place === 2 ? 1 : 2);
-            
+            const podiumIdx = place === 1 ? 0 : place === 2 ? 1 : 2;
+
+            const slot = document.createElement('div');
+            slot.className = 'podium-slot reveal-pop';
+
             const card = document.createElement('div');
             card.className = 'podium-card current-highlight';
             card.style.borderColor = contestant.color;
             card.innerHTML = `
-                <div class="podium-rank">${podiumNames[index]}</div>
-                <div class="podium-name" style="color: ${contestant.color}">${contestant.name}</div>
-                <div class="podium-score" style="color: ${contestant.color}">${contestant.finalScore ? contestant.finalScore.toFixed(1) : contestant.totalScore.toFixed(1)}</div>
+                <div class="podium-rank">${podiumNames[podiumIdx]}</div>
+                <div class="podium-name" style="color:${contestant.color}">${contestant.name}</div>
+                <div class="podium-score" style="color:${contestant.color}">${(contestant.finalScore ?? contestant.totalScore ?? 0).toFixed(1)}</div>
             `;
-            
             const base = document.createElement('div');
-            base.className = `podium-base ${podiumClasses[index]}`;
-            
+            base.className = `podium-base ${podiumClasses[podiumIdx]}`;
             slot.appendChild(card);
             slot.appendChild(base);
-            
-            if (place === 1) {
-                podiumEl.innerHTML = '';
+
+            // Slot ordering: 季軍 right, 亞軍 left of 冠軍, 冠軍 centre
+            // We build left-to-right: 亞軍, 冠軍, 季軍 visually
+            if (place === 3) {
                 podiumEl.appendChild(slot);
             } else if (place === 2) {
-                const existingFirst = podiumEl.children[0];
-                podiumEl.innerHTML = '';
-                if (existingFirst) podiumEl.appendChild(existingFirst);
-                podiumEl.appendChild(slot);
-            } else if (place === 3) {
-                podiumEl.appendChild(slot);
+                podiumEl.prepend(slot);
+            } else { // 1st — insert between existing 2nd and 3rd
+                const slots = podiumEl.querySelectorAll('.podium-slot');
+                if (slots.length === 0) podiumEl.appendChild(slot);
+                else if (slots.length === 1) slots[0].after(slot);  // after 季軍 only
+                else slots[0].after(slot); // after 亞軍 (which is first)
             }
-            
-            setTimeout(() => {
-                card.classList.remove('current-highlight');
-            }, 2000);
+
+            setTimeout(() => card.classList.remove('current-highlight'), 2000);
         }
 
-        function revealNextAward() {
-            if (revealedAwards.length >= currentAwardsConfig.length) return;
-            
-            const awardIndex = revealedAwards.length;
+        function doRevealAward(awardIndex) {
             const award = currentAwardsConfig[awardIndex];
-            
             if (!award) return;
-            
-            const startIndex = 3 + revealedAwards.reduce((sum, _, idx) => {
-                return sum + (currentAwardsConfig[idx]?.maxWinners || 0);
-            }, 0);
-            
+
+            // Compute start index for this award
+            let startIndex = 3;
+            for (let i = 0; i < awardIndex; i++) {
+                startIndex += currentAwardsConfig[i]?.maxWinners || 0;
+            }
             const winners = currentContestants.slice(startIndex, startIndex + award.maxWinners);
-            
             if (winners.length === 0) return;
-            
+
             const awardsEl = document.getElementById('final-awards');
             const section = document.createElement('div');
-            section.className = 'final-awards-section award-section highlight';
-            section.style.animation = 'slideUp 0.5s ease-out';
-            section.innerHTML = `<h3>${award.name}</h3>`;
-            
+            section.className = 'final-awards-section award-section highlight reveal-pop';
+            section.innerHTML = `<h3>🏅 ${award.name}</h3>`;
+
             const list = document.createElement('div');
             list.className = 'final-awards-list';
-            
-            winners.forEach((entry, idx) => {
+            winners.forEach((entry, i) => {
                 const item = document.createElement('div');
                 item.className = 'final-award-item';
-                item.style.animation = `fadeInItem 0.3s ease-out ${idx * 0.1}s`;
+                item.style.animationDelay = `${i * 0.08}s`;
                 item.innerHTML = `
-                    <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                    <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore ? entry.finalScore.toFixed(1) : entry.totalScore.toFixed(1)}</span>
+                    <span class="final-award-name" style="color:${entry.color}">${entry.name}</span>
+                    <span class="final-award-score" style="color:${entry.color}">${(entry.finalScore ?? entry.totalScore ?? 0).toFixed(1)}</span>
                 `;
                 list.appendChild(item);
             });
-            
             section.appendChild(list);
-            awardsEl.appendChild(section);
-            
+            awardsEl.prepend(section); // prepend so last-revealed award stays at top
+
             revealedAwards.push(awardIndex);
-            
-            setTimeout(() => {
-                section.classList.remove('highlight');
-            }, 2000);
-            
-            if (revealedAwards.length >= currentAwardsConfig.length) {
-                document.getElementById('reveal-next-award').disabled = true;
-            }
-            
-            const remainingStart = startIndex + award.maxWinners;
-            const remaining = currentContestants.slice(remainingStart);
-            
-            if (remaining.length > 0 && revealedAwards.length >= currentAwardsConfig.length) {
-                const section = document.createElement('div');
-                section.className = 'final-awards-section';
-                section.innerHTML = `<h3>Others</h3>`;
-                const list = document.createElement('div');
-                list.className = 'final-awards-list';
-                remaining.forEach(entry => {
-                    const item = document.createElement('div');
-                    item.className = 'final-award-item';
-                    item.innerHTML = `
-                        <span class="final-award-name" style="color: ${entry.color}">${entry.name}</span>
-                        <span class="final-award-score" style="color: ${entry.color}">${entry.finalScore ? entry.finalScore.toFixed(1) : entry.totalScore.toFixed(1)}</span>
-                    `;
-                    list.appendChild(item);
-                });
-                section.appendChild(list);
-                awardsEl.appendChild(section);
-            }
+            setTimeout(() => section.classList.remove('highlight'), 2000);
         }
+
+        // Space bar to advance reveal when final or rankings is visible
+        document.addEventListener('keydown', e => {
+            if (e.code !== 'Space') return;
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+            const finalVisible = document.getElementById('final-scoreboard-display') && !document.getElementById('final-scoreboard-display').classList.contains('hidden');
+            if (finalVisible) { e.preventDefault(); revealStep(); }
+        });
 
         function buildFolderLabel(folderId) {
             const visited = new Set();
