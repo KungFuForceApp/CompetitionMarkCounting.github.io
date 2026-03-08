@@ -1752,6 +1752,34 @@
         <div id="create-panel" class="panel">
             <h2>✨ Create New Competition</h2>
 
+            <!-- JSON Import -->
+            <div style="text-align:right; margin-bottom:16px;">
+                <button class="mini-btn" onclick="toggleCompJsonImport()" style="font-size:0.82rem;">{ } JSON Import</button>
+                <button class="mini-btn" onclick="copyCompJson()" style="font-size:0.82rem; margin-left:6px;">📋 Copy Current as JSON</button>
+            </div>
+            <div id="comp-json-import-area" style="display:none; margin-bottom:20px;">
+                <div class="mode-info" style="padding:14px 16px;">
+                    <div style="font-size:0.82rem; font-weight:700; margin-bottom:8px;">📋 Paste JSON to fill form instantly</div>
+                    <pre style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px; white-space:pre-wrap;">{
+  "name": "Championship 2026",
+  "description": "Optional description",
+  "mode": 1,
+  "categories": [{"name":"Technique","weight":50},{"name":"Power","weight":50}],
+  "quickButtons": "60,70,80,90,95,100",
+  "contestants": [{"name":"Alice","color":"#ff6b6b"},{"name":"Bob","color":"#4ecdc4"}],
+  "consensusThreshold": 2,
+  "timeWindow": 0.5,
+  "duration": 5,
+  "quickMarks": "1,2,3,5,10"
+}</pre>
+                    <textarea id="comp-json-input" style="width:100%;height:100px;font-size:0.78rem;font-family:monospace;background:var(--input-bg);color:var(--text-primary);border:1px solid var(--border);border-radius:8px;padding:8px;resize:vertical;" placeholder='{"name":"...","contestants":[...],...}'></textarea>
+                    <div style="display:flex;gap:8px;margin-top:8px;align-items:center;">
+                        <button class="mini-btn primary" onclick="applyCompJson()" style="font-size:0.82rem;">✅ Apply</button>
+                        <span id="comp-json-error" style="color:#f87171;font-size:0.78rem;"></span>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>Competition Name (must be unique)</label>
                 <input type="text" id="comp-name" placeholder="e.g., Kung Fu Championship 2026" oninput="checkCompetitionName()">
@@ -2256,6 +2284,109 @@
             if (element) element.remove();
         }
 
+        function toggleCompJsonImport() {
+            const el = document.getElementById('comp-json-import-area');
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function applyCompJson() {
+            const raw = document.getElementById('comp-json-input').value.trim();
+            const errEl = document.getElementById('comp-json-error');
+            errEl.textContent = '';
+            let d;
+            try { d = JSON.parse(raw); } catch(e) { errEl.textContent = 'Invalid JSON: ' + e.message; return; }
+
+            // Name & description
+            if (d.name) document.getElementById('comp-name').value = d.name;
+            if (d.description !== undefined) document.getElementById('comp-description').value = d.description;
+
+            // Mode
+            if (d.mode === 1 || d.mode === 2) {
+                document.getElementById('comp-mode').value = d.mode;
+                updateModeInfo();
+            }
+
+            // Mode 1 — categories
+            if (d.categories && Array.isArray(d.categories)) {
+                document.getElementById('score-categories-list').innerHTML = '';
+                scoreCategoryCount = 0;
+                d.categories.forEach(cat => {
+                    scoreCategoryCount++;
+                    const div = document.createElement('div');
+                    div.className = 'score-category-item';
+                    div.id = `score-category-${scoreCategoryCount}`;
+                    div.innerHTML = `
+                        <input type="text" placeholder="Category" class="category-name" value="${(cat.name || '').replace(/"/g,'&quot;')}">
+                        <input type="number" value="${cat.weight || 25}" min="1" max="100" class="category-weight" onchange="updateWeightTotal()">
+                        <span style="color:rgba(255,255,255,0.5);">%</span>
+                        <button onclick="removeScoreCategory(${scoreCategoryCount})">✕</button>
+                    `;
+                    document.getElementById('score-categories-list').appendChild(div);
+                });
+                updateWeightTotal();
+            }
+            if (d.quickButtons) document.getElementById('mode1-quick-buttons').value = d.quickButtons;
+
+            // Mode 2 settings
+            if (d.consensusThreshold) document.getElementById('consensus-threshold').value = d.consensusThreshold;
+            if (d.timeWindow) document.getElementById('time-window').value = d.timeWindow;
+            if (d.duration) document.getElementById('comp-duration').value = d.duration;
+            if (d.quickMarks) document.getElementById('quick-marks').value = d.quickMarks;
+
+            // Contestants
+            if (d.contestants && Array.isArray(d.contestants)) {
+                document.getElementById('contestants-list').innerHTML = '';
+                contestantCount = 0;
+                d.contestants.forEach((c, idx) => {
+                    contestantCount++;
+                    const color = c.color || colors[idx % colors.length];
+                    const div = document.createElement('div');
+                    div.className = 'contestant-item';
+                    div.id = `contestant-${contestantCount}`;
+                    div.innerHTML = `
+                        <input type="text" placeholder="Name" class="contestant-name" value="${(c.name || '').replace(/"/g,'&quot;')}">
+                        <input type="color" value="${color}" class="contestant-color">
+                        <button onclick="removeContestant(${contestantCount})">✕</button>
+                    `;
+                    document.getElementById('contestants-list').appendChild(div);
+                });
+            }
+
+            if (d.name) document.getElementById('comp-name').dispatchEvent(new Event('input'));
+            showStatus('Form filled from JSON!', 'success');
+            document.getElementById('comp-json-import-area').style.display = 'none';
+        }
+
+        function copyCompJson() {
+            const mode = parseInt(document.getElementById('comp-mode').value);
+            const contestants = [...document.querySelectorAll('.contestant-item')].map(el => ({
+                name: el.querySelector('.contestant-name').value,
+                color: el.querySelector('.contestant-color').value
+            }));
+            const categories = [...document.querySelectorAll('.score-category-item')].map(el => ({
+                name: el.querySelector('.category-name').value,
+                weight: parseFloat(el.querySelector('.category-weight').value) || 0
+            }));
+            const obj = {
+                name: document.getElementById('comp-name').value,
+                description: document.getElementById('comp-description').value,
+                mode,
+                contestants,
+                ...(mode === 1 ? {
+                    categories,
+                    quickButtons: document.getElementById('mode1-quick-buttons').value
+                } : {
+                    consensusThreshold: parseInt(document.getElementById('consensus-threshold').value),
+                    timeWindow: parseFloat(document.getElementById('time-window').value),
+                    duration: parseInt(document.getElementById('comp-duration').value),
+                    quickMarks: document.getElementById('quick-marks').value
+                })
+            };
+            navigator.clipboard.writeText(JSON.stringify(obj, null, 2))
+                .then(() => showStatus('JSON copied!', 'success'))
+                .catch(() => showStatus('Copy failed', 'error'));
+        }
+
         loadCompetitions();
 
         function loadFolders() {
@@ -2297,8 +2428,8 @@
                 }
             });
 
-            if (contestants.length < 2) {
-                showStatus('Please add at least 2 contestants', 'error');
+            if (contestants.length < 1) {
+                showStatus('Please add at least 1 contestant', 'error');
                 return;
             }
 
