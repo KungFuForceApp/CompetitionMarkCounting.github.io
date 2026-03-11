@@ -1923,7 +1923,7 @@
                 <div id="wr-spot"></div>
                 <div id="wr-vignette"></div>
                 <div id="wr-idle">
-                    <span class="wr-idle-crown"></span>
+                    <span class="wr-idle-crown">👑</span>
                     <div class="wr-idle-title"></div>
                     <div class="wr-idle-sub"></div>
                 </div>
@@ -2265,20 +2265,36 @@
             const refereeName = document.getElementById('referee-name').value.trim();
             if (!compName) { showStatus('Please enter a competition name', 'error'); return; }
             if (!refereeName) { showStatus('Please enter your name', 'error'); return; }
+            showStatus('Joining...', 'info');
+
+            const doJoin = (compId) => {
+                currentCompetitionId = compId;
+                currentRefereeName = refereeName;
+                database.ref(`competitions/${compId}`).once('value').then(snapshot => {
+                    if (!snapshot.exists()) { showStatus('Competition not found', 'error'); return; }
+                    competitionData = snapshot.val();
+                    currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
+                    database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({ name: refereeName, joinedAt: firebase.database.ServerValue.TIMESTAMP, online: true });
+                    database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
+                    document.getElementById('referee-name-display').textContent = refereeName;
+                    setupRefereeInterface();
+                }).catch(err => showStatus('Error joining: ' + err.message, 'error'));
+            };
+
             let compId = null;
-            for (const id in allCompetitions) { if (allCompetitions[id]?.name?.toLowerCase() === compName.toLowerCase()) { compId = id; break; } }
-            if (!compId) { showStatus('Competition not found', 'error'); return; }
-            currentCompetitionId = compId;
-            currentRefereeName = refereeName;
-            database.ref(`competitions/${compId}`).once('value').then(snapshot => {
-                if (!snapshot.exists()) { showStatus('Competition not found', 'error'); return; }
-                competitionData = snapshot.val();
-                currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
-                database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({ name: refereeName, joinedAt: firebase.database.ServerValue.TIMESTAMP, online: true });
-                database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
-                document.getElementById('referee-name-display').textContent = refereeName;
-                setupRefereeInterface();
-            }).catch(err => showStatus('Error joining: ' + err.message, 'error'));
+            for (const id in allCompetitions) {
+                if (allCompetitions[id]?.name?.toLowerCase() === compName.toLowerCase()) { compId = id; break; }
+            }
+            if (compId) { doJoin(compId); return; }
+
+            database.ref('competitions').orderByChild('name').once('value').then(snapshot => {
+                snapshot.forEach(child => {
+                    if (child.val()?.name?.toLowerCase() === compName.toLowerCase()) { compId = child.key; }
+                });
+                if (!compId) { showStatus('Competition not found', 'error'); return; }
+                allCompetitions[compId] = snapshot.child(compId).val();
+                doJoin(compId);
+            }).catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
         function setupRefereeInterface() {
