@@ -1384,7 +1384,8 @@
         body.light-mode .wr-btn-fs { border-color: rgba(109,40,217,0.2); color: rgba(30,27,75,0.5); }
         body.light-mode .wr-btn-fs:hover { color: rgba(30,27,75,0.85); }
         body.light-mode .wr-bar {
-            background: rgba(255,255,255,0.7); border-color: rgba(109,40,217,0.16);
+            background: rgba(255,255,255,0.88); border-color: rgba(109,40,217,0.22);
+            box-shadow: 0 2px 12px rgba(109,40,217,0.1);
         }
 
         /* Stage */
@@ -1941,23 +1942,6 @@
                 <div class="wr-hint">ESC to exit · Space to replay</div>
             </div>
         </div>
-
-                <div id="wr-cd">
-                    <div id="wr-cd-n">3</div>
-                    <div id="wr-cd-l">get ready</div>
-                </div>
-                <div id="wr-stage-content">
-                    <div id="wr-scope"></div>
-                    <div id="wr-eyebrow">All-Time Champion</div>
-                    <div id="wr-name"></div>
-                    <div id="wr-rule"></div>
-                    <div id="wr-score"></div>
-                    <div id="wr-stats"></div>
-                </div>
-                <div class="wr-hint">ESC to exit · Space to replay</div>
-            </div>
-        </div>
-
 
     <script>
         const firebaseConfig = {
@@ -3447,9 +3431,6 @@
 
         const _showPanelBase = showPanel;
         showPanel = function(panelName) {
-            if (panelName !== 'winner' && wrActive) {
-                wrReset();
-            }
             _showPanelBase(panelName);
             if (panelName === 'rankings') { updateRankingsFolderFilter(); buildRankings(); }
             if (panelName === 'winner') { updateWinnerFolderFilter(); }
@@ -4113,6 +4094,14 @@
             const wp = document.getElementById('winner-panel');
             if (wp?.classList.contains('active')) { e.preventDefault(); wrLaunch(); }
         });
+
+        (function() {
+            const _base = showPanel;
+            showPanel = function(panelName) {
+                if (panelName !== 'winner' && wrActive) wrReset();
+                _base(panelName);
+            };
+        })();
 
     </script>
 </body>
