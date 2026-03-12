@@ -138,7 +138,6 @@
             overflow-x: hidden;
         }
 
-        /* ─── Background Orbs ─── */
         body::before {
             content: '';
             position: fixed;
@@ -270,7 +269,6 @@
 
         .nav-btn .icon { font-size: 1.1rem; }
 
-        /* ─── Panels ─── */
         .panel {
             display: none;
             background: var(--panel-bg);
@@ -320,7 +318,6 @@
             letter-spacing: 0.5px;
         }
 
-        /* ─── Forms ─── */
         .form-group { margin-bottom: 22px; }
 
         .form-group label {
@@ -360,7 +357,6 @@
             gap: 22px;
         }
 
-        /* ─── Lists & Items ─── */
         .contestant-list { margin: 18px 0; }
 
         .contestant-item {
@@ -452,7 +448,6 @@
             box-shadow: 0 10px 32px rgba(124,58,237,0.48);
         }
 
-        /* ─── Comp Created ─── */
         .competition-created-display {
             text-align: center;
             padding: 32px;
@@ -490,7 +485,6 @@
 
         .copy-btn:hover { transform: translateY(-1px); }
 
-        /* ─── Dropdowns ─── */
         .competition-dropdown {
             width: 100%;
             padding: 14px 18px;
@@ -516,7 +510,6 @@
         .folder-selector { display: flex; flex-direction: column; gap: 9px; }
         .folder-selector small { color: var(--text-muted); }
 
-        /* ─── Podium ─── */
         .final-podium {
             display: grid;
             grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -566,7 +559,6 @@
         .podium-base.second { height: 58px; background: linear-gradient(180deg, rgba(192,192,192,0.18), rgba(192,192,192,0.04)); }
         .podium-base.third { height: 48px; background: linear-gradient(180deg, rgba(205,127,50,0.18), rgba(205,127,50,0.04)); }
 
-        /* ─── Final Awards ─── */
         .final-awards { margin-top: 22px; text-align: left; }
 
         .final-awards-section { margin-bottom: 16px; animation: slideUp 0.5s ease-out; }
@@ -599,7 +591,6 @@
         @keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInItem { from { opacity: 0; transform: translateX(-9px); } to { opacity: 1; transform: translateX(0); } }
 
-        /* ─── Referee Panel ─── */
         .referee-panel { text-align: center; }
 
         .referee-info {
@@ -751,7 +742,6 @@
         .competition-status.running { background: rgba(16,185,129,0.13); color: #34d399; border: 1px solid rgba(16,185,129,0.28); }
         .competition-status.ended { background: rgba(239,68,68,0.13); color: #f87171; border: 1px solid rgba(239,68,68,0.28); }
 
-        /* ─── Modals ─── */
         .modal-overlay {
             position: fixed;
             inset: 0;
@@ -790,7 +780,6 @@
         .modal-buttons .confirm-btn { background: linear-gradient(135deg, #db2777 0%, #9333ea 100%); color: white; }
         .modal-buttons .cancel-btn { background: var(--item-bg); color: var(--text-primary); border: 1.5px solid var(--input-border); }
 
-        /* ─── Export Modal ─── */
         .export-modal-content {
             background: var(--modal-bg);
             border-radius: 22px;
@@ -825,7 +814,6 @@
         .export-run-btn { background: linear-gradient(135deg, #059669, #10b981); color: #0a2b1e; font-weight: 700; padding: 11px 26px; border: none; border-radius: 11px; cursor: pointer; font-size: 0.92rem; }
         .export-cancel-btn { background: var(--item-bg); color: var(--text-primary); border: 1.5px solid var(--input-border); padding: 11px 20px; border-radius: 11px; cursor: pointer; font-size: 0.92rem; }
 
-        /* ─── Scoreboard ─── */
         .scoreboard { text-align: center; }
 
         .scoreboard-header {
@@ -939,7 +927,6 @@
             padding: 2px 9px; font-size: 0.77rem; font-weight: 700; margin-top: 4px;
         }
 
-        /* ─── Status Message ─── */
         .status-message {
             position: fixed;
             bottom: 24px;
@@ -958,7 +945,6 @@
         .status-message.error { background: linear-gradient(135deg, #db2777 0%, #9333ea 100%); color: white; }
         .status-message.info { background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: white; }
 
-        /* ─── Score Categories ─── */
         .score-categories-list { margin: 18px 0; }
 
         .score-category-item {
@@ -1114,7 +1100,6 @@
             margin-left: 9px;
         }
 
-        /* ─── Fullscreen ─── */
         .fullscreen-surface:fullscreen {
             background: var(--fullscreen-bg);
             padding: 20px;
@@ -1155,7 +1140,7 @@
         }
         .fullscreen-surface:fullscreen .fullscreen-space-hint { display: block; }
 
-        /* ─── Reveal Controls ─── */
+
         .reveal-controls {
             display: flex;
             gap: 11px;
@@ -1197,7 +1182,6 @@
 
         .award-section.highlight { background: rgba(124,58,237,0.13); border-left: 3.5px solid #7c3aed; padding-left: 14px; border-radius: 4px; }
 
-        /* ─── Rankings ─── */
         .rankings-podium-section { margin-bottom: 38px; }
         .rankings-podium-section h3 { text-align: center; font-size: 1.35rem; color: var(--heading-color); margin-bottom: 5px; }
         .rankings-podium-section .podium-subtitle { text-align: center; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 22px; }
@@ -1305,7 +1289,6 @@
         .award-col-badge { display: inline-block; padding: 2px 8px; border-radius: 11px; font-size: 0.76rem; font-weight: 700; background: rgba(124,58,237,0.18); color: #a78bfa; min-width: 18px; text-align: center; }
         body.light-mode .award-col-badge { color: #6d28d9; }
 
-        /* ─── Share Links ─── */
         .share-links-title { font-size: 0.87rem; font-weight: 700; color: var(--heading-color); margin-bottom: 11px; display: flex; align-items: center; gap: 7px; }
         .share-link-row { display: flex; align-items: center; gap: 9px; margin-bottom: 9px; padding: 11px 13px; background: var(--item-bg); border-radius: 11px; border: 1px solid var(--item-border); flex-wrap: wrap; }
         .share-link-label { font-size: 0.79rem; font-weight: 700; padding: 3px 9px; border-radius: 7px; white-space: nowrap; min-width: 115px; text-align: center; }
@@ -1318,7 +1301,6 @@
         .share-link-open-btn { padding: 6px 13px; border-radius: 7px; border: none; font-size: 0.77rem; font-weight: 600; cursor: pointer; background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: white; white-space: nowrap; transition: all 0.2s ease; text-decoration: none; display: inline-block; }
         .share-link-open-btn:hover { transform: translateY(-1px); opacity: 0.9; }
 
-        /* ─── Theme Toggle ─── */
         .theme-toggle-btn {
             margin-top: 16px;
             padding: 9px 20px;
@@ -1336,9 +1318,7 @@
         }
 
         .theme-toggle-btn:hover { background: rgba(124,58,237,0.22); transform: translateY(-1px); }
-        /* ═══════════════════════════════════════════════
-           WINNER REVEAL — ENHANCED
-        ════════════════════════════════════════════════ */
+
         #winner-panel {
             background: transparent !important; border: none !important;
             backdrop-filter: none !important; box-shadow: none !important;
@@ -1388,26 +1368,23 @@
             box-shadow: 0 2px 12px rgba(109,40,217,0.1);
         }
 
-        /* Stage */
         #wr-stage {
             position: relative; width: 100%; height: 600px;
             border-radius: 16px; overflow: hidden; background: #030210;
         }
         #wr-stage.fullscreen-surface:fullscreen { border-radius: 0; height: 100vh; }
 
-        /* Firework canvas — full stage */
         #wr-fw-canvas {
             position: absolute; inset: 0; z-index: 3;
             display: block; width: 100%; height: 100%; pointer-events: none;
         }
 
-        /* Gold dust canvas */
         #wr-particles {
             position: absolute; inset: 0; z-index: 4;
             display: block; width: 100%; height: 100%; pointer-events: none;
         }
 
-        /* Spotlight */
+
         #wr-spot {
             position: absolute; inset: 0; z-index: 2; pointer-events: none;
             background: radial-gradient(ellipse 42% 70% at 50% 0%,
@@ -1418,14 +1395,12 @@
         @keyframes wrSpotBreathe { 0%,100%{opacity:1} 50%{opacity:0.78} }
         #wr-spot.breathing { animation: wrSpotBreathe 4.5s ease-in-out infinite; }
 
-        /* Stage vignette */
+
         #wr-vignette {
             position: absolute; inset: 0; z-index: 5; pointer-events: none;
             background: radial-gradient(ellipse 80% 80% at 50% 50%,
                 transparent 45%, rgba(0,0,0,0.55) 100%);
         }
-
-        /* Idle */
         #wr-idle {
             position: absolute; inset: 0; z-index: 8;
             display: flex; flex-direction: column;
@@ -1441,7 +1416,6 @@
         }
         .wr-idle-sub { font-size:0.75rem; color:rgba(255,255,255,0.15); letter-spacing:1px; }
 
-        /* Countdown */
         #wr-cd {
             position: absolute; inset: 0; z-index: 20;
             display: flex; flex-direction: column;
@@ -1460,7 +1434,6 @@
             color:rgba(255,255,255,0.22); margin-top:20px;
         }
 
-        /* Reveal content */
         #wr-stage-content {
             position: absolute; inset: 0; z-index: 9;
             display: flex; flex-direction: column;
@@ -1530,7 +1503,6 @@
         .wr-stat-item.medal-silver .wr-stat-lbl { color:rgba(200,200,200,0.55); }
         .wr-stat-item.medal-bronze .wr-stat-lbl { color:rgba(205,127,50,0.6); }
 
-        /* Hint */
         .wr-hint {
             display:none; position:fixed; bottom:14px; left:50%; transform:translateX(-50%);
             z-index:9999; padding:4px 14px; border-radius:12px;
@@ -1568,12 +1540,10 @@
 
         .hidden { display: none !important; }
 
-        /* ─── Export toggle row ─── */
         .export-toggle-row { display: flex; align-items: center; gap: 11px; padding: 9px 13px; background: var(--item-bg); border: 1px solid var(--item-border); border-radius: 9px; margin-bottom: 7px; }
         .export-toggle-label { flex: 1; font-size: 0.87rem; color: var(--text-primary); }
         .export-toggle-row input[type=checkbox] { width: 17px; height: 17px; cursor: pointer; accent-color: #34d399; }
 
-        /* ─── Folder select wrapper ─── */
         .competition-select-wrapper { position: relative; max-width: 480px; margin: 0 auto 28px; }
         .competition-select-wrapper label { display: block; margin-bottom: 9px; color: var(--text-label); font-weight: 500; font-size: 0.9rem; }
     </style>
@@ -1610,7 +1580,6 @@
             </button>
         </div>
 
-        <!-- ═══════════ CREATE PANEL ═══════════ -->
         <div id="create-panel" class="panel">
             <h2>✨ Create New Competition</h2>
 
@@ -1731,7 +1700,6 @@
             </div>
         </div>
 
-        <!-- ═══════════ JOIN PANEL ═══════════ -->
         <div id="join-panel" class="panel">
             <h2>🎯 Join as Referee</h2>
 
@@ -1781,7 +1749,6 @@
             </div>
         </div>
 
-        <!-- ═══════════ SCOREBOARD PANEL ═══════════ -->
         <div id="scoreboard-panel" class="panel">
             <h2>📊 Live Scoreboard</h2>
 
@@ -1819,7 +1786,6 @@
             </div>
         </div>
 
-        <!-- ═══════════ FINAL PANEL ═══════════ -->
         <div id="final-panel" class="panel">
             <h2>🏅 Final Scoreboard</h2>
             <div class="form-group" style="max-width: 480px; margin: 0 auto 9px;">
@@ -1869,7 +1835,6 @@
             </div>
         </div>
 
-        <!-- ═══════════ RANKINGS PANEL ═══════════ -->
         <div id="rankings-panel" class="panel">
             <h2>🥇 All-Time Player Rankings</h2>
             <p style="color: var(--text-secondary); margin-bottom: 22px; font-size: 0.92rem;">Aggregated across all competitions — total 1st, 2nd, 3rd place finishes and awards won.</p>
@@ -1906,8 +1871,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- ═══════════ WINNER PANEL ═══════════ -->
         <div id="winner-panel" class="panel">
             <div class="wr-bar">
                 <label for="winner-folder-filter">Scope:</label>
@@ -1983,7 +1946,6 @@
 
         const colors = ['#667eea', '#11998e', '#f5576c', '#fbbf24', '#a78bfa', '#38ef7d', '#f093fb', '#00cec9'];
 
-        // ─── Firebase Load ───
         function loadCompetitions() {
             let deepLinkHandled = false;
             database.ref('competitions').on('value', snapshot => {
@@ -2796,8 +2758,6 @@
                 unsubscribers.forEach(unsub => unsub()); unsubscribers = [];
             }).catch(err => { closeDeleteModal(); showStatus('Error: ' + err.message, 'error'); });
         }
-
-        // ─── Export ───
         const EXPORT_STORAGE_KEY = 'exportSettings';
         function getExportSettings() { try { return JSON.parse(localStorage.getItem(EXPORT_STORAGE_KEY)) || {}; } catch { return {}; } }
         function saveExportSettings(s) { localStorage.setItem(EXPORT_STORAGE_KEY, JSON.stringify(s)); }
@@ -3260,8 +3220,6 @@
             };
             setTimeout(() => tryNavigate(15), 600);
         }
-
-        // ─── Theme ───
         function toggleTheme() {
             const body = document.body;
             body.classList.toggle('light-mode');
@@ -3279,7 +3237,6 @@
             }
         })();
 
-        // ─── Rankings ───
         function updateRankingsFolderFilter() {
             const sel = document.getElementById('rankings-folder-filter');
             if (!sel) return;
@@ -3452,12 +3409,6 @@
             if (panelName === 'winner') { updateWinnerFolderFilter(); }
         };
 
-        // ═══════════════════════════════════════════════
-
-        // ═══════════════════════════════════════════════
-        //  WINNER REVEAL — ENHANCED (fireworks + music)
-        // ═══════════════════════════════════════════════
-
         function updateWinnerFolderFilter() {
             const sel = document.getElementById('winner-folder-filter');
             if (!sel) return;
@@ -3501,17 +3452,12 @@
                 b.total-a.total
             );
         }
-
-        // ════════════════════════════════
-        //  AUDIO ENGINE
-        // ════════════════════════════════
         let _wac = null;
         function wac() {
             if (!_wac) _wac = new (window.AudioContext || window.webkitAudioContext)();
             if (_wac.state === 'suspended') _wac.resume();
             return _wac;
         }
-        // Master output with soft limiting
         let _wrMaster = null;
         function wrMaster() {
             if (_wrMaster) return _wrMaster;
@@ -3522,7 +3468,6 @@
             comp.connect(c.destination);
             _wrMaster = comp; return comp;
         }
-        // Reverb IR
         let _wrv = null;
         function getrev() {
             if (_wrv) return _wrv;
@@ -3565,7 +3510,6 @@
             } catch(e) {}
         }
 
-        // ── Countdown ticks ──
         function wrSndTick(n) {
             const f = n===3 ? 330 : n===2 ? 440 : 587;
             wrOsc(f,   'sine', 0.16, 0.22, 0, 0.003, 0.08);
@@ -3579,11 +3523,9 @@
             wrNoiz(0.1, 0.08, 2200);
         }
 
-        // ── Orchestral swell (plays during countdown → reveal) ──
         function wrSndSwell() {
             try {
                 const c = wac();
-                // Rising string pad — 4 harmonics, each pitch-rises
                 [[41.2,0],[82.4,0.05],[164.8,0.10],[329.6,0.18],[65.4,0.02]].forEach(([f,delay]) => {
                     const o = c.createOscillator(), g = c.createGain();
                     o.type = 'triangle';
@@ -3597,13 +3539,12 @@
                     g.gain.linearRampToValueAtTime(0, t+3.5);
                     o.start(t); o.stop(t+3.7);
                 });
-                // Breath noise
+
                 wrNoiz(3.2, 0.03, 150, 0, 0.3);
                 wrNoiz(3.2, 0.02, 80,  0.1, 0.2);
             } catch(e) {}
         }
 
-        // ── Firework launch whistle ──
         function wrSndWhistle(delay) {
             try {
                 const c = wac(), o = c.createOscillator(), g = c.createGain();
@@ -3618,26 +3559,19 @@
             } catch(e) {}
         }
 
-        // ── Firework explosion bang ──
         function wrSndBang(delay, pitch) {
             try {
                 const c = wac();
-                // Low thud
                 wrNoiz(0.35, 0.35+Math.random()*0.15, 60+pitch*30, delay, 0.8);
-                // Mid crack
                 wrNoiz(0.18, 0.25, 300+pitch*200, delay, 1.2);
-                // Sparkle shimmer (high freq, long tail)
                 wrNoiz(1.2,  0.12, 2000+pitch*800, delay+0.05, 0.5);
-                // Tonal pop
                 const f = 80 + pitch*120;
                 wrOsc(f, 'sine', 0.25, 0.18, delay, 0.002, 0.18, true);
                 wrOsc(f*2, 'sine', 0.15, 0.08, delay+0.01, 0.002, 0.10, true);
             } catch(e) {}
         }
 
-        // ── Grand fanfare (plays on name reveal) ──
         function wrSndFanfare() {
-            // Ascending triumphant arpeggio — triangle + sine layers
             const melody = [261.6,329.6,392.0,523.3,659.3,784.0,987.8,1046.5];
             melody.forEach((f,i) => {
                 const d = i*0.09;
@@ -3645,16 +3579,13 @@
                 wrOsc(f,     'sine',     0.9, 0.05, d, 0.010, 0.20, true);
                 wrOsc(f*1.5, 'sine',     0.4, 0.02, d, 0.012, 0.15, true);
             });
-            // Deep bass foundation
             wrOsc(65.4,  'sine', 2.5, 0.28, 0,    0.04, 0.5, true);
             wrOsc(130.8, 'sine', 2.2, 0.18, 0.04, 0.04, 0.4, true);
             wrOsc(196.0, 'sine', 1.8, 0.10, 0.08, 0.04, 0.35, true);
-            // Percussive impacts on each beat
             [0, 0.09, 0.27, 0.45, 0.63].forEach((d,i) => {
                 wrNoiz(0.06, 0.12-i*0.015, 180+i*60, d, 1.5);
                 wrNoiz(0.04, 0.08, 800+i*100, d+0.005, 2);
             });
-            // Sustain chord swell at peak (~0.8s)
             setTimeout(() => {
                 [523.3,659.3,784.0,987.8,1046.5].forEach((f,i) =>
                     wrOsc(f,'triangle',2.2,0.13,i*0.012,0.06,0.7,true)
@@ -3662,23 +3593,19 @@
                 wrOsc(130.8,'sine',2.5,0.24,0,0.04,0.6,true);
                 wrOsc(65.4, 'sine',2.8,0.15,0,0.04,0.7,true);
             }, 750);
-            // Bell shimmer layer
             [1046.5,1318.5,1568,2093].forEach((f,i) =>
                 wrOsc(f,'sine',1.8,0.04,0.85+i*0.06,0.005,0.5,true)
             );
         }
-
-        // ── Ambient music loop (continuous after reveal) ──
         let _wrAmbStops = [];
         function wrSndAmbientStart() {
             try {
                 const c = wac();
-                const baseFreqs = [65.4, 82.4, 98.0, 130.8]; // C2, E2, G2, C3
+                const baseFreqs = [65.4, 82.4, 98.0, 130.8];
                 baseFreqs.forEach((f, i) => {
                     const o = c.createOscillator(), g = c.createGain();
                     o.type = 'sine';
                     o.frequency.value = f;
-                    // Slow vibrato
                     const lfo = c.createOscillator(), lfoG = c.createGain();
                     lfo.frequency.value = 0.18 + i*0.04; lfo.type = 'sine';
                     lfoG.gain.value = f * 0.008;
@@ -3700,16 +3627,10 @@
             _wrAmbStops.forEach(fn => { try { fn(); } catch(e){} });
             _wrAmbStops = [];
         }
-
-        // ── Glitter shimmer ──
         function wrSndGlitter() {
             wrOsc(900+Math.random()*700,'sine',0.22,0.05,0,0.002,0.10,true);
             wrNoiz(0.08, 0.04, 1400+Math.random()*600);
         }
-
-        // ════════════════════════════════
-        //  FIREWORKS ENGINE
-        // ════════════════════════════════
         const _fwParticles = [];
         const _fwTrails = [];
         let _fwRaf = null;
@@ -3717,12 +3638,12 @@
         let _fwW = 0, _fwH = 0;
 
         const FW_PALETTES = [
-            ['#fff','#ffd700','#ffaa00','#ff8800'],   // gold
-            ['#fff','#ff4466','#ff0033','#cc0022'],   // red
-            ['#fff','#44aaff','#0088ff','#0055cc'],   // blue
-            ['#fff','#44ff88','#00cc44','#009933'],   // green
-            ['#fff','#dd88ff','#aa44ff','#7700cc'],   // purple
-            ['#fff','#ff8844','#ff5500','#cc3300'],   // orange
+            ['#fff','#ffd700','#ffaa00','#ff8800'],
+            ['#fff','#ff4466','#ff0033','#cc0022'],
+            ['#fff','#44aaff','#0088ff','#0055cc'],
+            ['#fff','#44ff88','#00cc44','#009933'],
+            ['#fff','#dd88ff','#aa44ff','#7700cc'],
+            ['#fff','#ff8844','#ff5500','#cc3300'],
         ];
 
         function fwBurst(x, y) {
@@ -3740,12 +3661,11 @@
                     decay: 0.012 + Math.random()*0.018,
                     r: 1.8 + Math.random()*2.2,
                     col,
-                    trail: Math.random() < 0.5,  // 50% have trails
+                    trail: Math.random() < 0.5,
                     grav: 0.06 + Math.random()*0.04,
                     twinkle: Math.random() < 0.3,
                 });
             }
-            // Add a few big sparkle centers
             for (let i = 0; i < 8; i++) {
                 const angle = Math.random()*Math.PI*2;
                 _fwParticles.push({
@@ -3760,7 +3680,6 @@
         }
 
         function fwLaunch(x, targetY) {
-            // Launch trail upward
             _fwTrails.push({
                 x, y: _fwH,
                 tx: x, ty: targetY,
@@ -3779,7 +3698,7 @@
                     const y = _fwH * (0.08 + Math.random()*0.40);
                     fwBurst(x, y);
                     wrSndBang(0, Math.random());
-                    wrSndWhistle(-0.4);  // whistle before bang
+                    wrSndWhistle(-0.4);
                 }, delay);
             }
         }
@@ -3789,20 +3708,16 @@
             const cv = document.getElementById('wr-fw-canvas');
             if (!cv) return;
             const ctx = cv.getContext('2d');
-
-            // Fade instead of clear for trails effect
             ctx.globalCompositeOperation = 'destination-out';
             ctx.fillStyle = 'rgba(0,0,0,0.18)';
             ctx.fillRect(0, 0, _fwW, _fwH);
             ctx.globalCompositeOperation = 'lighter';
 
-            // Draw launch trails
             for (let i = _fwTrails.length-1; i >= 0; i--) {
                 const t = _fwTrails[i];
                 const dx = t.tx - t.x, dy = t.ty - t.y;
                 const dist = Math.sqrt(dx*dx+dy*dy);
                 if (dist < t.speed) {
-                    // Reached target — burst!
                     fwBurst(t.tx, t.ty);
                     _fwTrails.splice(i, 1); continue;
                 }
@@ -3812,7 +3727,6 @@
                 ctx.arc(t.x, t.y, 2, 0, Math.PI*2);
                 ctx.fillStyle = t.col;
                 ctx.fill();
-                // Sparkle trail
                 for (let j = 0; j < 3; j++) {
                     ctx.beginPath();
                     ctx.arc(t.x - nx*j*2.5, t.y - ny*j*2.5, 1.5-j*0.4, 0, Math.PI*2);
@@ -3820,8 +3734,6 @@
                     ctx.fill();
                 }
             }
-
-            // Draw burst particles
             for (let i = _fwParticles.length-1; i >= 0; i--) {
                 const p = _fwParticles[i];
                 p.vx *= 0.968; p.vy *= 0.968;
@@ -3835,7 +3747,6 @@
                 const r = p.r * p.life;
 
                 if (p.trail && p.life > 0.3) {
-                    // Draw trail
                     ctx.beginPath();
                     ctx.moveTo(p.x, p.y);
                     ctx.lineTo(p.x - p.vx*4, p.y - p.vy*4);
@@ -3877,9 +3788,6 @@
             _fwParticles.length = 0; _fwTrails.length = 0;
         }
 
-        // ════════════════════════════════
-        //  GOLD DUST PARTICLES
-        // ════════════════════════════════
         let _wrPRaf = null;
         const _wrMotes = [];
         let _wrPRunning = false;
@@ -3923,7 +3831,6 @@
                 m.life -= m.decay;
                 if (m.life <= 0) { _wrMotes.splice(i,1); continue; }
                 const a = m.life*m.life;
-                // Elongated sparkle shape
                 ctx.save();
                 ctx.translate(m.x, m.y);
                 ctx.rotate(m.spin * (1-m.life) * 20);
@@ -3947,10 +3854,6 @@
             if (cv) cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
             _wrMotes.length = 0;
         }
-
-        // ════════════════════════════════
-        //  COUNTDOWN
-        // ════════════════════════════════
         function wrCountdown(cb) {
             const el=document.getElementById('wr-cd'), num=document.getElementById('wr-cd-n'), lbl=document.getElementById('wr-cd-l');
             el.classList.add('on');
@@ -3980,10 +3883,6 @@
             };
             tick();
         }
-
-        // ════════════════════════════════
-        //  REVEAL SEQUENCE
-        // ════════════════════════════════
         let _fwSalvoTimer = null;
         function wrReveal(champ, scopeLabel) {
             const s = id => document.getElementById(id);
@@ -3998,34 +3897,24 @@
 
             const T = (id, delay) => setTimeout(() => s(id)?.classList.add('in'), delay);
 
-            // 0ms — orchestral swell
             wrSndSwell();
 
-            // 300ms — spotlight + gold dust
             setTimeout(() => {
                 s('wr-spot').classList.add('on');
                 wrStartParticles();
             }, 300);
 
-            // 600ms — scope tag
             T('wr-scope', 600);
             T('wr-eyebrow', 820);
 
-            // 1400ms — THE NAME + fanfare + first firework salvo
             setTimeout(() => {
                 s('wr-name').classList.add('in');
                 wrSndFanfare();
                 [0,100,220,380,560].forEach(d => setTimeout(wrSndGlitter, d));
-                // Burst of gold motes
                 for (let i = 0; i < 50; i++) setTimeout(() => wrSpawnMote(), i*14);
-                // First firework salvo
                 fwSalvo(5);
             }, 1400);
-
-            // 2000ms — rule line
             T('wr-rule', 2000);
-
-            // 2600ms — score count-up + ambient music
             setTimeout(() => {
                 const target = parseFloat(champ.total.toFixed(1));
                 s('wr-score').innerHTML = `<span id="wr-score-n">0</span><sup>pts</sup>`;
@@ -4041,13 +3930,8 @@
                 wrSndAmbientStart();
             }, 2600);
 
-            // 3200ms — stats row
             T('wr-stats', 3200);
-
-            // 2800ms — spotlight breathe
             setTimeout(() => s('wr-spot').classList.add('breathing'), 2800);
-
-            // Ongoing firework salvos
             const fireTimed = (n, delay) => {
                 _fwSalvoTimer = setTimeout(() => { fwSalvo(n); }, delay);
             };
@@ -4055,7 +3939,6 @@
             fireTimed(6, 3800);
             fireTimed(4, 5200);
             fireTimed(5, 6800);
-            // Repeating salvos every 4s after that
             let repeat = 8400;
             const scheduleRepeat = () => {
                 _fwSalvoTimer = setTimeout(() => {
@@ -4067,10 +3950,6 @@
             };
             setTimeout(scheduleRepeat, 8400);
         }
-
-        // ════════════════════════════════
-        //  PUBLIC API
-        // ════════════════════════════════
         let wrActive = false;
 
         function wrReset() {
