@@ -1738,6 +1738,7 @@
                     </div>
                     <div class="timer-controls" style="margin-top:7px;">
                         <button class="export-btn" onclick="openExportModal()">📤 Export</button>
+                        <button class="reset-btn" onclick="confirmResetAllScores()" style="background:linear-gradient(135deg,rgba(239,68,68,0.22),rgba(239,68,68,0.14));border-color:rgba(239,68,68,0.38);color:#f87171;">🔄 Reset All Scores</button>
                     </div>
                 </div>
 
@@ -2723,6 +2724,34 @@
             const duration = competitionData.duration || 300;
             database.ref(`competitions/${currentCompetitionId}/timerState`).set({ running: false, remaining: duration, lastUpdate: firebase.database.ServerValue.TIMESTAMP });
             database.ref(`competitions/${currentCompetitionId}/status`).set('pending');
+        }
+
+        function confirmResetAllScores() {
+            if (!currentCompetitionId) { showStatus('No competition selected', 'error'); return; }
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay'; modal.id = 'reset-scores-modal';
+            modal.innerHTML = `<div class="modal-content"><h3>🔄 Reset All Player Scores</h3><p>Are you sure you want to reset all player scores to zero?<br><br><strong style="color:#fbbf24;">${competitionData?.name || 'Unknown'}</strong><br><br>This will clear all scores and mark history. This cannot be undone!</p><div class="modal-buttons"><button class="cancel-btn" onclick="closeResetScoresModal()">Cancel</button><button class="confirm-btn" style="background:linear-gradient(135deg,#dc2626,#ef4444);" onclick="resetAllScores()">🔄 Reset All Scores</button></div></div>`;
+            document.body.appendChild(modal);
+        }
+
+        function closeResetScoresModal() { const modal = document.getElementById('reset-scores-modal'); if (modal) modal.remove(); }
+
+        function resetAllScores() {
+            if (!currentCompetitionId || !competitionData) return;
+            const updates = {};
+            competitionData.contestants.forEach((_, i) => {
+                updates[`contestants/${i}/score`] = 0;
+                updates[`contestants/${i}/markHistory`] = null;
+            });
+            updates['mode1Scores'] = null;
+            updates['votes'] = null;
+            updates['cautions'] = null;
+            updates['punishments'] = null;
+            updates['cautionVotes'] = null;
+            updates['punishmentVotes'] = null;
+            database.ref(`competitions/${currentCompetitionId}`).update(updates)
+                .then(() => { closeResetScoresModal(); showStatus('All player scores have been reset!', 'success'); })
+                .catch(err => { closeResetScoresModal(); showStatus('Error: ' + err.message, 'error'); });
         }
 
         function startCompetition() {
