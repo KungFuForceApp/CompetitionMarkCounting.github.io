@@ -1721,6 +1721,19 @@
 
             <button class="submit-btn" style="max-width: 480px; margin: 18px auto 0; display: block;" onclick="joinCompetition()">Join Competition</button>
 
+            <div style="max-width:480px;margin:22px auto 0;">
+                <details>
+                    <summary style="cursor:pointer;font-size:0.87rem;color:var(--text-muted);padding:7px 0;user-select:none;">⚙️ Manage Referee Names</summary>
+                    <div style="margin-top:11px;display:flex;flex-direction:column;gap:7px;">
+                        <div style="display:flex;gap:7px;">
+                            <input type="text" id="new-referee-name-input" placeholder="New name" style="flex:1;padding:9px 13px;border:1.5px solid var(--input-border);border-radius:9px;background:var(--input-bg);color:var(--text-primary);font-size:0.9rem;font-family:inherit;">
+                            <button type="button" onclick="addRefereeName()" style="padding:9px 18px;background:linear-gradient(135deg,#059669,#10b981);border:none;border-radius:9px;color:white;font-weight:600;cursor:pointer;font-size:0.88rem;">Add</button>
+                        </div>
+                        <div id="referee-names-list" style="display:flex;flex-direction:column;gap:5px;"></div>
+                    </div>
+                </details>
+            </div>
+
             <div id="referee-interface" class="referee-panel hidden">
                 <div class="referee-info">
                     <span>Competition: <strong id="ref-comp-name"></strong></span>
@@ -2179,6 +2192,12 @@
         loadFolders();
 
         function loadRefereeNames() {
+            database.ref('refereeNames').once('value').then(snap => {
+                if (!snap.exists()) {
+                    const defaults = { r0:'Kiel', r1:'Rock', r2:'Marco', r3:'Miles', r4:'Connor', r5:'test1', r6:'test2' };
+                    database.ref('refereeNames').set(defaults);
+                }
+            });
             database.ref('refereeNames').on('value', snapshot => {
                 const names = snapshot.val() || {};
                 const sel = document.getElementById('referee-name');
@@ -2186,17 +2205,42 @@
                 const current = sel.value;
                 sel.innerHTML = '<option value="">— Select your name —</option>';
                 Object.entries(names)
-                    .sort(([, a], [, b]) => a.localeCompare(b))
-                    .forEach(([, name]) => {
+                    .sort(([, a], [, b]) => String(a).localeCompare(String(b)))
+                    .forEach(([key, name]) => {
                         const opt = document.createElement('option');
                         opt.value = name;
+                        opt.dataset.key = key;
                         opt.textContent = name;
                         sel.appendChild(opt);
                     });
                 if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
+                renderRefereeNamesList(names);
             });
         }
         loadRefereeNames();
+
+        function renderRefereeNamesList(names) {
+            const list = document.getElementById('referee-names-list');
+            if (!list) return;
+            list.innerHTML = Object.entries(names).sort(([,a],[,b]) => String(a).localeCompare(String(b))).map(([key, name]) =>
+                `<div style="display:flex;align-items:center;gap:7px;padding:5px 9px;background:var(--item-bg);border:1px solid var(--item-border);border-radius:8px;">
+                    <span style="flex:1;font-size:0.88rem;">${name}</span>
+                    <button type="button" onclick="deleteRefereeName('${key}')" style="padding:3px 9px;background:var(--delete-btn-bg);border:1px solid var(--delete-btn-border);border-radius:6px;color:var(--delete-btn-color);cursor:pointer;font-size:0.8rem;">✕</button>
+                </div>`
+            ).join('');
+        }
+
+        function addRefereeName() {
+            const input = document.getElementById('new-referee-name-input');
+            const name = input.value.trim();
+            if (!name) { showStatus('Enter a name', 'error'); return; }
+            const key = 'r' + Date.now().toString(36);
+            database.ref(`refereeNames/${key}`).set(name).then(() => { input.value = ''; showStatus('Name added', 'success'); });
+        }
+
+        function deleteRefereeName(key) {
+            database.ref(`refereeNames/${key}`).remove().then(() => showStatus('Name removed', 'success'));
+        }
         addContestant();
         addContestant();
         addScoreCategory();
