@@ -1989,13 +1989,7 @@
                 const sel = document.getElementById(selId);
                 if (!sel) return;
                 const current = sel.value;
-                if (selId === 'final-comp-select') {
-                    sel.innerHTML = '<option value="">— Select a competition —</option>';
-                } else if (selId === 'join-comp-name') {
-                    sel.innerHTML = '<option value="">— Select a competition —</option>';
-                } else {
-                    sel.innerHTML = '<option value="">— Select a competition —</option>';
-                }
+                sel.innerHTML = '<option value="">— Select a competition —</option>';
                 sorted.forEach(([id, comp]) => {
                     const opt = document.createElement('option');
                     opt.value = comp.name;
@@ -2400,15 +2394,42 @@
         function updateRefereeCards() {
             const container = document.getElementById('referee-cards');
             const existing = container.querySelectorAll('.contestant-card');
-            if (existing.length !== competitionData.contestants.length) {
+            const needsRebuild = existing.length !== competitionData.contestants.length;
+            if (needsRebuild) {
                 buildRefereeCards();
             } else if (competitionData.mode === 2) {
                 patchRefereeCards();
+            } else {
+                const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
+                competitionData.contestants.forEach((contestant, index) => {
+                    const scoreEl = container.querySelector(`.contestant-card:nth-child(${index + 1}) .current-score`);
+                    if (scoreEl) scoreEl.textContent = calculateWeightedAverageScore(index).toFixed(1);
+                    const myScores = getMyScores(index);
+                    const hasSubmitted = myScores && Object.keys(myScores).length > 0;
+                    const h3 = container.querySelectorAll('.contestant-card')[index]?.querySelector('h3');
+                    if (h3) {
+                        const badge = hasSubmitted ? '<span class="score-submitted-badge">✓ Submitted</span>' : '';
+                        h3.innerHTML = `${contestant.name} ${badge}`;
+                        h3.style.color = contestant.color;
+                    }
+                    categories.forEach((cat, catIndex) => {
+                        const inp = document.getElementById(`score-input-${index}-${catIndex}`);
+                        if (inp && inp.value === '' && myScores[cat.name] !== undefined) {
+                            inp.value = myScores[cat.name];
+                        }
+                    });
+                });
             }
         }
 
         function buildRefereeCards() {
             const container = document.getElementById('referee-cards');
+            const savedInputs = {};
+            if (competitionData.mode === 1) {
+                container.querySelectorAll('input[type="number"][id^="score-input-"]').forEach(inp => {
+                    if (inp.value !== '') savedInputs[inp.id] = inp.value;
+                });
+            }
             container.innerHTML = '';
             competitionData.contestants.forEach((contestant, index) => {
                 const card = document.createElement('div');
@@ -2421,9 +2442,10 @@
                     const hasSubmitted = myScores && Object.keys(myScores).length > 0;
                     const submittedBadge = hasSubmitted ? '<span class="score-submitted-badge">✓ Submitted</span>' : '';
                     let categoryInputsHtml = categories.map((cat, catIndex) => {
-                        const myScore = myScores[cat.name] || '';
+                        const inputId = `score-input-${index}-${catIndex}`;
+                        const myScore = savedInputs[inputId] !== undefined ? savedInputs[inputId] : (myScores[cat.name] || '');
                         const quickHtml = `<div class="quick-marks mode1">${quickButtons.map(val => `<button type="button" class="quick-mark-btn small" onclick="setMode1QuickScore(${index}, ${catIndex}, ${val})">${val}</button>`).join('')}</div>`;
-                        return `<div class="category-score-row"><label>${cat.name}</label><span class="weight-badge">${cat.weight}%</span><input type="number" id="score-input-${index}-${catIndex}" min="0" max="100" step="0.1" placeholder="0-100" value="${myScore}"></div>${quickHtml}`;
+                        return `<div class="category-score-row"><label>${cat.name}</label><span class="weight-badge">${cat.weight}%</span><input type="number" id="${inputId}" min="0" max="100" step="0.1" placeholder="0-100" value="${myScore}"></div>${quickHtml}`;
                     }).join('');
                     card.innerHTML = `<div style="position:relative;"><h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3><button type="button" onclick="addTiebreaker(${index})" style="position:absolute;top:0;right:0;padding:4px 9px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.38);border-radius:8px;color:#a78bfa;font-size:0.75rem;font-weight:700;cursor:pointer;" title="+0.01 tiebreaker">+0.01</button></div><div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div><p style="color: var(--text-muted); font-size: 0.82rem;">/100</p><div class="category-scores">${categoryInputsHtml}<button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button></div>`;
                 } else {
