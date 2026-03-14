@@ -2286,6 +2286,18 @@
                         if (competitionData.status === 'pending' && (!competitionData.timerState || !competitionData.timerState.running)) { mode2Start.classList.remove('hidden'); refTimerControls.classList.add('hidden'); }
                         else { mode2Start.classList.add('hidden'); refTimerControls.classList.remove('hidden'); }
                         if ((competitionData.status === 'running' || competitionData.timerState?.running) && !timerInterval) startTimerSync();
+                        const expiresMap = competitionData.voteExpiresAt || {};
+                        Object.entries(expiresMap).forEach(([idx, expiresAt]) => {
+                            const contestantIndex = parseInt(idx);
+                            if (!_voteExpireTimers[contestantIndex]) {
+                                const remaining = expiresAt - Date.now();
+                                if (remaining > 0) {
+                                    _voteExpireTimers[contestantIndex] = setTimeout(() => expireVotes(contestantIndex), remaining);
+                                } else {
+                                    expireVotes(contestantIndex);
+                                }
+                            }
+                        });
                     }
                 }
             });
@@ -2507,6 +2519,7 @@
         }
 
         const _voteCooldown = {};
+        const _voteExpireTimers = {};
 
         function submitMode2Vote(contestantIndex, mark) {
             if (!competitionData.timerState || !competitionData.timerState.running) { showStatus('Competition not running', 'error'); return; }
@@ -2517,9 +2530,34 @@
             _voteCooldown[key] = now;
             const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
             if (btn) { btn.classList.add('voted'); btn.disabled = true; setTimeout(() => { btn.classList.remove('voted'); btn.disabled = false; }, cooldownMs); }
-            database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}/${currentRefereeId}`).set({ mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: now })
-                .then(() => checkConsensusFromDb(contestantIndex))
-                .catch(() => { _voteCooldown[key] = 0; if (btn) { btn.classList.remove('voted'); btn.disabled = false; } });
+            const expiresAt = now + cooldownMs;
+            database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).once('value').then(snap => {
+                const existing = snap.val() || {};
+                const isFirst = Object.keys(existing).length === 0;
+                const updates = {};
+                updates[`votes/${contestantIndex}/${currentRefereeId}`] = { mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: now };
+                if (isFirst) updates[`voteExpiresAt/${contestantIndex}`] = expiresAt;
+                database.ref(`competitions/${currentCompetitionId}`).update(updates).then(() => {
+                    checkConsensusFromDb(contestantIndex);
+                    if (isFirst) {
+                        if (_voteExpireTimers[contestantIndex]) clearTimeout(_voteExpireTimers[contestantIndex]);
+                        _voteExpireTimers[contestantIndex] = setTimeout(() => {
+                            expireVotes(contestantIndex);
+                        }, cooldownMs);
+                    }
+                }).catch(() => { _voteCooldown[key] = 0; if (btn) { btn.classList.remove('voted'); btn.disabled = false; } });
+            });
+        }
+
+        function expireVotes(contestantIndex) {
+            database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).once('value').then(snap => {
+                if (snap.exists()) {
+                    database.ref(`competitions/${currentCompetitionId}`).update({
+                        [`votes/${contestantIndex}`]: null,
+                        [`voteExpiresAt/${contestantIndex}`]: null
+                    });
+                }
+            });
         }
 
         function checkConsensusFromDb(contestantIndex) {
@@ -2534,8 +2572,9 @@
                 if (statusEl) statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
                 for (const [mark, count] of Object.entries(markCounts)) {
                     if (count >= requiredVotes) {
+                        if (_voteExpireTimers[contestantIndex]) { clearTimeout(_voteExpireTimers[contestantIndex]); delete _voteExpireTimers[contestantIndex]; }
                         const newScore = (data.contestants[contestantIndex].score || 0) + parseInt(mark);
-                        const updates = { [`contestants/${contestantIndex}/score`]: newScore, [`votes/${contestantIndex}`]: null };
+                        const updates = { [`contestants/${contestantIndex}/score`]: newScore, [`votes/${contestantIndex}`]: null, [`voteExpiresAt/${contestantIndex}`]: null };
                         database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push({ mark: parseInt(mark), votes: count, timestamp: Date.now(), referees: Object.values(votes).map(v => v.refereeName).join(', ') });
                         database.ref(`competitions/${currentCompetitionId}`).update(updates);
                         showStatus(`+${mark} scored!`, 'success');
@@ -2746,6 +2785,7 @@
             });
             updates['mode1Scores'] = null;
             updates['votes'] = null;
+            updates['voteExpiresAt'] = null;
             updates['cautions'] = null;
             updates['punishments'] = null;
             updates['cautionVotes'] = null;
