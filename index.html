@@ -3007,23 +3007,35 @@
         function closeResetScoresModal() { const modal = document.getElementById('reset-scores-modal'); if (modal) modal.remove(); }
 
         function resetAllScores() {
-            if (!currentCompetitionId || !competitionData) return;
-            const updates = {};
-            competitionData.contestants.forEach((_, i) => {
-                updates[`contestants/${i}/score`] = 0;
-                updates[`contestants/${i}/markHistory`] = null;
-            });
-            updates['mode1Scores'] = null;
-            updates['votes'] = null;
-            updates['voteExpiresAt'] = null;
-            updates['cautions'] = null;
-            updates['punishments'] = null;
-            updates['cautionVotes'] = null;
-            updates['punishmentVotes'] = null;
-            updates['tiebreakers'] = null;
-            database.ref(`competitions/${currentCompetitionId}`).update(updates)
-                .then(() => { closeResetScoresModal(); showStatus('All player scores have been reset!', 'success'); })
-                .catch(err => { closeResetScoresModal(); showStatus('Error: ' + err.message, 'error'); });
+            if (!currentCompetitionId) return;
+            database.ref(`competitions/${currentCompetitionId}`).once('value').then(snapshot => {
+                if (!snapshot.exists()) { closeResetScoresModal(); showStatus('Competition not found', 'error'); return; }
+                const data = snapshot.val();
+                const updates = {};
+                data.contestants.forEach((_, i) => {
+                    updates[`contestants/${i}/score`] = 0;
+                    updates[`contestants/${i}/markHistory`] = null;
+                });
+                updates['mode1Scores'] = null;
+                updates['votes'] = null;
+                updates['voteExpiresAt'] = null;
+                updates['cautions'] = null;
+                updates['punishments'] = null;
+                updates['cautionVotes'] = null;
+                updates['punishmentVotes'] = null;
+                updates['tiebreakers'] = null;
+                return database.ref(`competitions/${currentCompetitionId}`).update(updates);
+            }).then(() => {
+                closeResetScoresModal();
+                showStatus('All player scores have been reset!', 'success');
+                if (competitionData) {
+                    competitionData.mode1Scores = null;
+                    competitionData.tiebreakers = null;
+                    if (competitionData.contestants) competitionData.contestants.forEach(c => { c.score = 0; c.markHistory = null; });
+                }
+                document.querySelectorAll('[id^="score-input-"]').forEach(inp => { inp.value = ''; });
+                buildRefereeCards();
+            }).catch(err => { closeResetScoresModal(); showStatus('Error: ' + err.message, 'error'); });
         }
 
         function startCompetition() {
