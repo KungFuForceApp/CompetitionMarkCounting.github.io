@@ -2354,19 +2354,21 @@
         }
 
         function checkCautionConsensus(contestantIndex) {
-            database.ref(`competitions/${currentCompetitionId}/cautionVotes/${contestantIndex}`).once('value').then(snapshot => {
-                const votes = snapshot.val();
+            database.ref(`competitions/${currentCompetitionId}`).once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+                const votes = data.cautionVotes?.[contestantIndex];
                 if (!votes) return;
                 const now = Date.now();
-                const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-                const requiredVotes = competitionData.consensusThreshold || 2;
+                const timeWindow = (data.timeWindow || 0.5) * 1000;
+                const requiredVotes = data.consensusThreshold || 2;
                 const recent = Object.values(votes).filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
                 const statusEl = document.getElementById(`caution-vote-status-${contestantIndex}`);
                 if (statusEl) statusEl.textContent = `${recent.length}/${requiredVotes} caution votes`;
                 if (recent.length >= requiredVotes) {
-                    const currentCautions = competitionData.cautions?.[contestantIndex] || 0;
+                    const currentCautions = data.cautions?.[contestantIndex] || 0;
                     const newCautions = currentCautions + 1;
-                    const currentScore = competitionData.contestants[contestantIndex].score || 0;
+                    const currentScore = data.contestants[contestantIndex].score || 0;
                     const updates = {};
                     updates[`cautions/${contestantIndex}`] = newCautions;
                     updates[`cautionVotes/${contestantIndex}`] = null;
@@ -2392,18 +2394,20 @@
         }
 
         function checkPunishmentConsensus(contestantIndex) {
-            database.ref(`competitions/${currentCompetitionId}/punishmentVotes/${contestantIndex}`).once('value').then(snapshot => {
-                const votes = snapshot.val();
+            database.ref(`competitions/${currentCompetitionId}`).once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+                const votes = data.punishmentVotes?.[contestantIndex];
                 if (!votes) return;
                 const now = Date.now();
-                const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-                const requiredVotes = competitionData.consensusThreshold || 2;
+                const timeWindow = (data.timeWindow || 0.5) * 1000;
+                const requiredVotes = data.consensusThreshold || 2;
                 const recent = Object.values(votes).filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
                 const statusEl = document.getElementById(`punishment-vote-status-${contestantIndex}`);
                 if (statusEl) statusEl.textContent = `${recent.length}/${requiredVotes} punishment votes`;
                 if (recent.length >= requiredVotes) {
-                    const currentPunishments = competitionData.punishments?.[contestantIndex] || 0;
-                    const currentScore = competitionData.contestants[contestantIndex].score || 0;
+                    const currentPunishments = data.punishments?.[contestantIndex] || 0;
+                    const currentScore = data.contestants[contestantIndex].score || 0;
                     const updates = {};
                     updates[`punishments/${contestantIndex}`] = currentPunishments + 1;
                     updates[`punishmentVotes/${contestantIndex}`] = null;
@@ -2461,7 +2465,8 @@
                 document.getElementById('ref-timer').textContent = `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}`;
                 isTimerRunning = competitionData.timerState.running;
                 remainingTime = remaining;
-                if (isTimerRunning && !timerInterval) startTimerSync();
+                if (!isTimerRunning && timerInterval) { stopTimerSync(); updateRefToggleButton(); }
+                else if (isTimerRunning && !timerInterval) startTimerSync();
             }
         }
 
@@ -2500,35 +2505,39 @@
 
         function submitMode2Vote(contestantIndex, mark) {
             if (!competitionData.timerState || !competitionData.timerState.running) { showStatus('Competition not running', 'error'); return; }
-            const refereeCooldowns = competitionData.refereeCooldowns || {};
-            const lastVoteTime = refereeCooldowns[currentRefereeId] || 0;
-            const now = Date.now();
             const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-            if (now - lastVoteTime < timeWindow) { showStatus(`Please wait ${((timeWindow - (now - lastVoteTime)) / 1000).toFixed(1)}s`, 'error'); return; }
-            const voteRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`).push();
-            voteRef.set({ mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: Date.now() }).then(() => {
-                database.ref(`competitions/${currentCompetitionId}/refereeCooldowns/${currentRefereeId}`).set(now);
-                const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
-                if (btn) { btn.classList.add('voted'); btn.disabled = true; setTimeout(() => { btn.classList.remove('voted'); btn.disabled = false; }, timeWindow); }
-                checkConsensusFromDb(contestantIndex);
+            const voteRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}/${currentRefereeId}`);
+            voteRef.once('value').then(existing => {
+                const prev = existing.val();
+                const now = Date.now();
+                if (prev && (now - prev.timestamp) < timeWindow) { showStatus(`Please wait ${((timeWindow - (now - prev.timestamp)) / 1000).toFixed(1)}s`, 'error'); return; }
+                voteRef.set({ mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: now }).then(() => {
+                    const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
+                    if (btn) { btn.classList.add('voted'); btn.disabled = true; setTimeout(() => { btn.classList.remove('voted'); btn.disabled = false; }, timeWindow); }
+                    checkConsensusFromDb(contestantIndex);
+                });
             });
         }
 
         function checkConsensusFromDb(contestantIndex) {
-            const votesRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}`);
-            votesRef.once('value').then(snapshot => {
-                const votes = snapshot.val();
+            const contestantRef = database.ref(`competitions/${currentCompetitionId}`);
+            contestantRef.once('value').then(snapshot => {
+                const data = snapshot.val();
+                if (!data) return;
+                const votes = data.votes?.[contestantIndex];
                 if (!votes) return;
                 const now = Date.now();
-                const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-                const requiredVotes = competitionData.consensusThreshold || 2;
+                const timeWindow = (data.timeWindow || 0.5) * 1000;
+                const requiredVotes = data.consensusThreshold || 2;
                 const voteArray = Object.values(votes);
                 const recentVotes = voteArray.filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
                 const markCounts = {};
                 recentVotes.forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
+                const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
+                if (statusEl) statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
                 for (const [mark, count] of Object.entries(markCounts)) {
                     if (count >= requiredVotes) {
-                        const currentScore = competitionData.contestants[contestantIndex].score || 0;
+                        const currentScore = data.contestants[contestantIndex].score || 0;
                         const newScore = currentScore + parseInt(mark);
                         const updates = {};
                         updates[`contestants/${contestantIndex}/score`] = newScore;
@@ -2540,8 +2549,6 @@
                         break;
                     }
                 }
-                const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
-                if (statusEl) statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
             });
         }
 
@@ -2680,7 +2687,9 @@
 
         function toggleTimer() {
             if (!currentCompetitionId || !competitionData) return;
-            const newState = !competitionData.timerState.running;
+            const btn = document.getElementById('ref-toggle-btn');
+            const isRunning = btn && btn.classList.contains('stop-btn');
+            const newState = !isRunning;
             const updates = { running: newState, lastUpdate: firebase.database.ServerValue.TIMESTAMP };
             if (newState) updates.remaining = competitionData.timerState.remaining;
             database.ref(`competitions/${currentCompetitionId}/timerState`).update(updates).then(() => {
