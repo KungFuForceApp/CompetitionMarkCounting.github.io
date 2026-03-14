@@ -1,7 +1,3 @@
-// ============================================================
-// scoreboard.js  —  Live scoreboard, final scoreboard, reveal
-// ============================================================
-
 function viewScoreboard() {
     const compName = document.getElementById('view-comp-name').value.trim();
     if (!compName) { showStatus('Please enter a competition name', 'error'); return; }
