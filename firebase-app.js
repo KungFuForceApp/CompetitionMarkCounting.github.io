@@ -1,7 +1,3 @@
-// ============================================================
-// firebase-app.js  —  Firebase init, global state, core utils
-// ============================================================
-
 const firebaseConfig = {
     apiKey: "AIzaSyB2EAzctjXJXEm-ZfIdqDiXDHaGRSVdTxY",
     authDomain: "markcounting.firebaseapp.com",
