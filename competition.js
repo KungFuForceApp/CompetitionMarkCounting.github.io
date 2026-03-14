@@ -1,7 +1,3 @@
-// ============================================================
-// competition.js  —  Create / join / referee / export
-// ============================================================
-
 function addScoreCategory() {
     scoreCategoryCount++;
     const div = document.createElement('div');
