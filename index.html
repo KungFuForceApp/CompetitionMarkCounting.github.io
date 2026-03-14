@@ -1772,11 +1772,26 @@
         <div id="scoreboard-panel" class="panel">
             <h2>📊 Live Scoreboard</h2>
 
-            <div class="form-group" style="max-width: 480px; margin: 0 auto;">
-                <label>Competition Name</label>
-                <select id="view-comp-name" class="competition-dropdown">
-                    <option value="">— Select a competition —</option>
-                </select>
+            <div style="max-width: 480px; margin: 0 auto;">
+                <div class="form-group" style="margin-bottom: 13px;">
+                    <label>Type</label>
+                    <select id="sb-type" class="competition-dropdown" onchange="updateSbType()">
+                        <option value="competition">Single Competition</option>
+                        <option value="folder">Folder (aggregate)</option>
+                    </select>
+                </div>
+                <div id="sb-comp-wrapper" class="form-group">
+                    <label>Competition</label>
+                    <select id="view-comp-name" class="competition-dropdown">
+                        <option value="">— Select a competition —</option>
+                    </select>
+                </div>
+                <div id="sb-folder-wrapper" class="form-group hidden">
+                    <label>Folder</label>
+                    <select id="view-folder-name" class="competition-dropdown">
+                        <option value="">— Select a folder —</option>
+                    </select>
+                </div>
                 <button class="submit-btn" style="margin-top: 11px;" onclick="viewScoreboard()">View Scores</button>
             </div>
             <div id="scoreboard-display" class="scoreboard hidden">
@@ -1789,7 +1804,7 @@
                     <div class="board-actions">
                         <button class="mini-btn primary" type="button" onclick="toggleFullscreen('scoreboard-display')">Full Screen</button>
                         <button class="mini-btn" style="background:linear-gradient(135deg,rgba(251,191,36,0.18),rgba(245,87,108,0.13)); border-color:rgba(251,191,36,0.38); color:#fbbf24;" type="button" onclick="showPanel('final')">🏅 Go to Final</button>
-                        <button class="mini-btn" type="button" onclick="toggleShareLinks('sb-share-links', competitionData?.name)">🔗 Share Links</button>
+                        <button class="mini-btn" type="button" onclick="toggleShareLinks('sb-share-links', sbFolderMode ? document.getElementById('sb-comp-name').textContent : competitionData?.name)">🔗 Share Links</button>
                     </div>
                     <div id="hide-players-control" style="position:relative; display:flex; justify-content:flex-end; margin-top:7px;">
                         <button type="button" onclick="toggleHidePlayersMenu()" id="hide-players-btn" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.16); color:var(--text-secondary); border-radius:9px; padding:6px 14px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.2s;">👁 Hide Players</button>
@@ -2006,7 +2021,7 @@
             const entries = Object.entries(allFolders || {});
             const folderList = entries.map(([id]) => ({ id, label: buildFolderLabel(id) })).sort((a, b) => a.label.localeCompare(b.label));
 
-            ['existing-folder-select', 'new-folder-parent', 'final-folder-select', 'rankings-folder-filter', 'winner-folder-filter'].forEach(selId => {
+            ['existing-folder-select', 'new-folder-parent', 'final-folder-select', 'rankings-folder-filter', 'winner-folder-filter', 'view-folder-name'].forEach(selId => {
                 const sel = document.getElementById(selId);
                 if (!sel) return;
                 const current = sel.value;
@@ -2704,22 +2719,114 @@
             });
         }
 
+        let sbFolderMode = false;
+        let sbFolderId = null;
+        let sbFolderListeners = [];
+
+        function updateSbType() {
+            const type = document.getElementById('sb-type').value;
+            document.getElementById('sb-comp-wrapper').classList.toggle('hidden', type !== 'competition');
+            document.getElementById('sb-folder-wrapper').classList.toggle('hidden', type !== 'folder');
+        }
+
+        function updateSbFolderSelect() {
+            const sel = document.getElementById('view-folder-name');
+            if (!sel) return;
+            const current = sel.value;
+            sel.innerHTML = '<option value="">— Select a folder —</option>';
+            Object.entries(allFolders)
+                .filter(([, f]) => f && f.name)
+                .sort(([, a], [, b]) => buildFolderLabel(Object.keys(allFolders).find(k => allFolders[k] === a) || '').localeCompare(buildFolderLabel(Object.keys(allFolders).find(k => allFolders[k] === b) || '')))
+                .forEach(([id]) => {
+                    const opt = document.createElement('option');
+                    opt.value = id;
+                    opt.textContent = buildFolderLabel(id);
+                    sel.appendChild(opt);
+                });
+            if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
+        }
+
         function viewScoreboard() {
-            const sel = document.getElementById('view-comp-name');
-            const compName = sel.value.trim();
-            if (!compName) { showStatus('Please select a competition', 'error'); return; }
-            let compId = null;
-            for (const id in allCompetitions) { if (allCompetitions[id]?.name?.toLowerCase() === compName.toLowerCase()) { compId = id; break; } }
-            if (!compId) { showStatus('Competition not found', 'error'); return; }
-            currentCompetitionId = compId;
-            const compRef = database.ref(`competitions/${compId}`);
-            const unsub = compRef.on('value', snapshot => {
-                if (!snapshot.exists()) { showStatus('Competition not found', 'error'); return; }
-                competitionData = snapshot.val();
-                updateScoreboard();
-                if (competitionData.mode === 2 && competitionData.timerState?.running && !timerInterval) startTimerSync();
+            const type = document.getElementById('sb-type').value;
+            unsubscribers.forEach(unsub => unsub());
+            unsubscribers = [];
+            sbFolderListeners.forEach(unsub => unsub());
+            sbFolderListeners = [];
+
+            if (type === 'folder') {
+                const folderId = document.getElementById('view-folder-name').value;
+                if (!folderId) { showStatus('Please select a folder', 'error'); return; }
+                sbFolderMode = true;
+                sbFolderId = folderId;
+                viewFolderScoreboard(folderId);
+            } else {
+                sbFolderMode = false;
+                sbFolderId = null;
+                const sel = document.getElementById('view-comp-name');
+                const compName = sel.value.trim();
+                if (!compName) { showStatus('Please select a competition', 'error'); return; }
+                let compId = null;
+                for (const id in allCompetitions) { if (allCompetitions[id]?.name?.toLowerCase() === compName.toLowerCase()) { compId = id; break; } }
+                if (!compId) { showStatus('Competition not found', 'error'); return; }
+                currentCompetitionId = compId;
+                const compRef = database.ref(`competitions/${compId}`);
+                const unsub = compRef.on('value', snapshot => {
+                    if (!snapshot.exists()) { showStatus('Competition not found', 'error'); return; }
+                    competitionData = snapshot.val();
+                    updateScoreboard();
+                    if (competitionData.mode === 2 && competitionData.timerState?.running && !timerInterval) startTimerSync();
+                });
+                unsubscribers.push(() => compRef.off('value', unsub));
+            }
+        }
+
+        function viewFolderScoreboard(folderId) {
+            const folderComps = Object.entries(allCompetitions).filter(([, c]) => c && c.contestants && c.folderId === folderId);
+            if (folderComps.length === 0) { showStatus('No competitions found in this folder', 'error'); return; }
+            document.getElementById('scoreboard-display').classList.remove('hidden');
+            document.getElementById('sb-timer').classList.add('hidden');
+            document.getElementById('sb-competition-status').classList.add('hidden');
+            document.getElementById('sb-comp-mode').textContent = 'Folder Aggregate';
+            document.getElementById('sb-comp-desc').textContent = `${folderComps.length} competition${folderComps.length !== 1 ? 's' : ''}`;
+            document.getElementById('sb-comp-name').textContent = buildFolderLabel(folderId);
+
+            const renderFolder = () => {
+                const aggregated = {};
+                Object.entries(allCompetitions).filter(([, c]) => c && c.contestants && c.folderId === folderId).forEach(([, comp]) => {
+                    comp.contestants.forEach((c, i) => {
+                        if (!c.name) return;
+                        const score = comp.mode === 1 ? calculateWeightedAverageScoreForCompetition(comp, i) : (c.score || 0);
+                        if (!aggregated[c.name]) aggregated[c.name] = { name: c.name, color: c.color || '#ffffff', totalScore: 0, comps: 0 };
+                        aggregated[c.name].totalScore += score;
+                        aggregated[c.name].comps += 1;
+                    });
+                });
+                const contestants = Object.values(aggregated).sort((a, b) => b.totalScore - a.totalScore);
+                const container = document.getElementById('scores-grid');
+                container.innerHTML = '';
+                contestants.forEach((contestant, i) => {
+                    if (hiddenPlayers.has(i)) return;
+                    const rank = i + 1;
+                    const card = document.createElement('div');
+                    card.className = `score-card rank-${rank}`;
+                    card.style.borderColor = contestant.color;
+                    card.innerHTML = `<div class="rank">#${rank}</div><h3 style="color:${contestant.color}">${contestant.name}</h3><div class="score" style="color:${contestant.color}">${contestant.totalScore.toFixed(1)}</div><p style="color:var(--text-muted);font-size:0.78rem;margin-top:7px;">${contestant.comps} comp${contestant.comps !== 1 ? 's' : ''}</p>`;
+                    container.appendChild(card);
+                });
+            };
+
+            renderFolder();
+
+            folderComps.forEach(([compId]) => {
+                const ref = database.ref(`competitions/${compId}`);
+                const unsub = ref.on('value', snapshot => {
+                    if (snapshot.exists()) {
+                        allCompetitions[compId] = snapshot.val();
+                        renderFolder();
+                    }
+                });
+                sbFolderListeners.push(() => ref.off('value', unsub));
             });
-            unsubscribers.push(() => compRef.off('value', unsub));
         }
 
         function updateScoreboard() {
@@ -2774,7 +2881,9 @@
 
         function renderHidePlayersList() {
             const list = document.getElementById('hide-players-list');
-            if (!list || !competitionData?.contestants) return;
+            if (!list) return;
+            if (sbFolderMode) { list.innerHTML = '<span style="font-size:0.8rem;color:var(--text-muted);">Not available in folder mode</span>'; return; }
+            if (!competitionData?.contestants) return;
             list.innerHTML = competitionData.contestants.map((c, i) => {
                 const hidden = hiddenPlayers.has(i);
                 return `<div style="display:flex; align-items:center; gap:7px; cursor:pointer; padding:3px 5px; border-radius:6px; background:${hidden ? 'rgba(255,255,255,0.04)' : 'transparent'};" onclick="togglePlayerVisibility(${i})"><span style="font-size:0.95rem;">${hidden ? '🙈' : '👁'}</span><span style="width:9px;height:9px;border-radius:50%;background:${c.color};flex-shrink:0;"></span><span style="font-size:0.82rem; color:${hidden ? 'var(--text-muted)' : 'var(--text-primary)'}; text-decoration:${hidden ? 'line-through' : 'none'};">${c.name}</span></div>`;
