@@ -1,7 +1,3 @@
-// ============================================================
-// rankings.js  —  All-time rankings, award order, folders
-// ============================================================
-
 function updateRankingsFolderFilter() {
     const sel = document.getElementById('rankings-folder-filter');
     if (!sel) return;
