@@ -1,7 +1,3 @@
-// ============================================================
-// winner.js  —  Winner reveal animation, fireworks, audio
-// ============================================================
-
 function wrRankings(ff) {
     const comps = Object.values(allCompetitions)
         .filter(c => c?.contestants && (!ff || c.folderId === ff));
