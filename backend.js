@@ -140,9 +140,6 @@ function loadFolders() {
     });
 }
 loadFolders();
-addContestant();
-addContestant();
-addScoreCategory();
 function calculateWeightedAverageScoreForCompetition(comp, contestantIndex) {
     if (!comp || !comp.mode1Scores) return 0;
     const contestantScores = comp.mode1Scores[contestantIndex];
@@ -595,7 +592,11 @@ function toggleTheme() {
 }
 
 (function() {
-    if (localStorage.getItem('theme') === 'light') {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.remove('light-mode');
+        document.getElementById('theme-icon').textContent = '☀️';
+        document.getElementById('theme-label').textContent = 'Light Mode';
+    } else {
         document.body.classList.add('light-mode');
         document.getElementById('theme-icon').textContent = '🌙';
         document.getElementById('theme-label').textContent = 'Dark Mode';
