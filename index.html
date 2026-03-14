@@ -1707,12 +1707,16 @@
 
             <div class="form-group" style="max-width: 480px; margin: 0 auto 18px;">
                 <label>Competition Name</label>
-                <input type="text" id="join-comp-name" placeholder="Enter competition name">
+                <select id="join-comp-name" class="competition-dropdown">
+                    <option value="">— Select a competition —</option>
+                </select>
             </div>
 
             <div class="form-group" style="max-width: 480px; margin: 0 auto;">
                 <label>Your Name</label>
-                <input type="text" id="referee-name" placeholder="Enter your name">
+                <select id="referee-name" class="competition-dropdown">
+                    <option value="">— Select your name —</option>
+                </select>
             </div>
 
             <button class="submit-btn" style="max-width: 480px; margin: 18px auto 0; display: block;" onclick="joinCompetition()">Join Competition</button>
@@ -1757,7 +1761,9 @@
 
             <div class="form-group" style="max-width: 480px; margin: 0 auto;">
                 <label>Competition Name</label>
-                <input type="text" id="view-comp-name" placeholder="Enter competition name">
+                <select id="view-comp-name" class="competition-dropdown">
+                    <option value="">— Select a competition —</option>
+                </select>
                 <button class="submit-btn" style="margin-top: 11px;" onclick="viewScoreboard()">View Scores</button>
             </div>
             <div id="scoreboard-display" class="scoreboard hidden">
@@ -1962,22 +1968,31 @@
         }
 
         function updateCompetitionDropdowns() {
-            const sel = document.getElementById('final-comp-select');
-            if (!sel) return;
-            const current = sel.value;
-            sel.innerHTML = '<option value="">— Select a competition —</option>';
             const sorted = Object.entries(allCompetitions)
                 .filter(([, c]) => c && c.name)
                 .sort(([, a], [, b]) => a.name.localeCompare(b.name));
-            sorted.forEach(([id, comp]) => {
-                const opt = document.createElement('option');
-                opt.value = id;
-                opt.dataset.name = comp.name;
-                const statusBadge = comp.status === 'ended' ? ' ✅' : comp.status === 'running' ? ' 🔴' : '';
-                opt.textContent = comp.name + statusBadge;
-                sel.appendChild(opt);
+
+            ['final-comp-select', 'join-comp-name', 'view-comp-name'].forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                const current = sel.value;
+                if (selId === 'final-comp-select') {
+                    sel.innerHTML = '<option value="">— Select a competition —</option>';
+                } else if (selId === 'join-comp-name') {
+                    sel.innerHTML = '<option value="">— Select a competition —</option>';
+                } else {
+                    sel.innerHTML = '<option value="">— Select a competition —</option>';
+                }
+                sorted.forEach(([id, comp]) => {
+                    const opt = document.createElement('option');
+                    opt.value = comp.name;
+                    if (selId === 'final-comp-select') { opt.value = id; opt.dataset.name = comp.name; }
+                    const statusBadge = comp.status === 'ended' ? ' ✅' : comp.status === 'running' ? ' 🔴' : '';
+                    opt.textContent = comp.name + statusBadge;
+                    sel.appendChild(opt);
+                });
+                if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
             });
-            if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
         }
 
         function updateFolderOptions() {
@@ -2162,6 +2177,26 @@
             });
         }
         loadFolders();
+
+        function loadRefereeNames() {
+            database.ref('refereeNames').on('value', snapshot => {
+                const names = snapshot.val() || {};
+                const sel = document.getElementById('referee-name');
+                if (!sel) return;
+                const current = sel.value;
+                sel.innerHTML = '<option value="">— Select your name —</option>';
+                Object.entries(names)
+                    .sort(([, a], [, b]) => a.localeCompare(b))
+                    .forEach(([, name]) => {
+                        const opt = document.createElement('option');
+                        opt.value = name;
+                        opt.textContent = name;
+                        sel.appendChild(opt);
+                    });
+                if (current && sel.querySelector(`option[value="${current}"]`)) sel.value = current;
+            });
+        }
+        loadRefereeNames();
         addContestant();
         addContestant();
         addScoreCategory();
@@ -2226,10 +2261,12 @@
         }
 
         function joinCompetition() {
-            const compName = document.getElementById('join-comp-name').value.trim();
-            const refereeName = document.getElementById('referee-name').value.trim();
-            if (!compName) { showStatus('Please enter a competition name', 'error'); return; }
-            if (!refereeName) { showStatus('Please enter your name', 'error'); return; }
+            const compSel = document.getElementById('join-comp-name');
+            const nameSel = document.getElementById('referee-name');
+            const compName = compSel.value.trim();
+            const refereeName = nameSel.value.trim();
+            if (!compName) { showStatus('Please select a competition', 'error'); return; }
+            if (!refereeName) { showStatus('Please select your name', 'error'); return; }
             showStatus('Joining...', 'info');
 
             const doJoin = (compId) => {
@@ -2343,7 +2380,7 @@
                         const quickHtml = `<div class="quick-marks mode1">${quickButtons.map(val => `<button type="button" class="quick-mark-btn small" onclick="setMode1QuickScore(${index}, ${catIndex}, ${val})">${val}</button>`).join('')}</div>`;
                         return `<div class="category-score-row"><label>${cat.name}</label><span class="weight-badge">${cat.weight}%</span><input type="number" id="score-input-${index}-${catIndex}" min="0" max="100" step="0.1" placeholder="0-100" value="${myScore}"></div>${quickHtml}`;
                     }).join('');
-                    card.innerHTML = `<h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3><div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div><p style="color: var(--text-muted); font-size: 0.82rem;">/100</p><div class="category-scores">${categoryInputsHtml}<button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button></div>`;
+                    card.innerHTML = `<div style="position:relative;"><h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3><button type="button" onclick="addTiebreaker(${index})" style="position:absolute;top:0;right:0;padding:4px 9px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.38);border-radius:8px;color:#a78bfa;font-size:0.75rem;font-weight:700;cursor:pointer;" title="+0.01 tiebreaker">+0.01</button></div><div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div><p style="color: var(--text-muted); font-size: 0.82rem;">/100</p><div class="category-scores">${categoryInputsHtml}<button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button></div>`;
                 } else {
                     const quickMarks = competitionData.quickMarks || [1, 2, 3, 5, 10];
                     const threshold = competitionData.consensusThreshold || 2;
@@ -2451,7 +2488,9 @@
             let scoresToAverage = refWeightedScores;
             if (refWeightedScores.length >= 3) { const sorted = [...refWeightedScores].sort((a, b) => a - b); scoresToAverage = sorted.slice(1, sorted.length - 1); }
             const total = scoresToAverage.reduce((sum, s) => sum + s, 0);
-            return total / scoresToAverage.length;
+            const avg = total / scoresToAverage.length;
+            const tiebreaker = comp.tiebreakers?.[contestantIndex] || 0;
+            return avg + tiebreaker;
         }
 
         function calculateWeightedAverageScore(contestantIndex) { return calculateWeightedAverageScoreForCompetition(competitionData, contestantIndex); }
@@ -2516,6 +2555,16 @@
             if (!input) return;
             input.value = String(val);
             input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function addTiebreaker(contestantIndex) {
+            if (!currentCompetitionId || !competitionData) return;
+            const tiebreakerRef = database.ref(`competitions/${currentCompetitionId}/tiebreakers/${contestantIndex}`);
+            tiebreakerRef.once('value').then(snap => {
+                const current = snap.val() || 0;
+                tiebreakerRef.set(parseFloat((current + 0.01).toFixed(2)));
+                showStatus(`+0.01 tiebreaker added for ${competitionData.contestants[contestantIndex].name}`, 'success');
+            });
         }
 
         const _voteCooldown = {};
@@ -2585,8 +2634,9 @@
         }
 
         function viewScoreboard() {
-            const compName = document.getElementById('view-comp-name').value.trim();
-            if (!compName) { showStatus('Please enter a competition name', 'error'); return; }
+            const sel = document.getElementById('view-comp-name');
+            const compName = sel.value.trim();
+            if (!compName) { showStatus('Please select a competition', 'error'); return; }
             let compId = null;
             for (const id in allCompetitions) { if (allCompetitions[id]?.name?.toLowerCase() === compName.toLowerCase()) { compId = id; break; } }
             if (!compId) { showStatus('Competition not found', 'error'); return; }
@@ -2790,6 +2840,7 @@
             updates['punishments'] = null;
             updates['cautionVotes'] = null;
             updates['punishmentVotes'] = null;
+            updates['tiebreakers'] = null;
             database.ref(`competitions/${currentCompetitionId}`).update(updates)
                 .then(() => { closeResetScoresModal(); showStatus('All player scores have been reset!', 'success'); })
                 .catch(err => { closeResetScoresModal(); showStatus('Error: ' + err.message, 'error'); });
