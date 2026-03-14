@@ -659,14 +659,17 @@
             font-size: 1.28rem;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: background 0.2s ease, box-shadow 0.2s ease;
             background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
             color: white;
             box-shadow: 0 3px 13px rgba(124,58,237,0.28);
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
 
-        .quick-mark-btn:hover { transform: scale(1.1); }
-        .quick-mark-btn:active { transform: scale(0.94); }
+        .quick-mark-btn:hover { opacity: 0.9; }
+        .quick-mark-btn:active { opacity: 0.75; }
         .quick-mark-btn.voted {
             background: linear-gradient(135deg, #059669 0%, #10b981 100%);
             animation: pulse 0.5s ease;
@@ -2304,6 +2307,16 @@
 
         function updateRefereeCards() {
             const container = document.getElementById('referee-cards');
+            const existingCards = container.querySelectorAll('.contestant-card');
+            if (existingCards.length !== competitionData.contestants.length) {
+                buildRefereeCards();
+            } else {
+                updateRefereeCardsLive();
+            }
+        }
+
+        function buildRefereeCards() {
+            const container = document.getElementById('referee-cards');
             container.innerHTML = '';
             competitionData.contestants.forEach((contestant, index) => {
                 const card = document.createElement('div');
@@ -2325,18 +2338,41 @@
                     const quickMarks = competitionData.quickMarks || [1, 2, 3, 5, 10];
                     const threshold = competitionData.consensusThreshold || 2;
                     const votes = competitionData.votes?.[index] || {};
-                    const recentVotes = Object.values(votes).filter(v => v.timestamp && (Date.now() - v.timestamp) < (competitionData.timeWindow || 0.5) * 1000);
                     const markCounts = {};
-                    recentVotes.forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
+                    if (votes) Object.values(votes).forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
                     const cautionCount = competitionData.cautions?.[index] || 0;
                     const punishmentCount = competitionData.punishments?.[index] || 0;
                     const cautionVotes = competitionData.cautionVotes?.[index] || {};
-                    const recentCautionVotes = Object.values(cautionVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < (competitionData.timeWindow || 0.5) * 1000);
+                    const recentCautionVotes = Object.values(cautionVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < 30000);
                     const punishmentVotes = competitionData.punishmentVotes?.[index] || {};
-                    const recentPunishmentVotes = Object.values(punishmentVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < (competitionData.timeWindow || 0.5) * 1000);
-                    card.innerHTML = `<h3 style="color: ${contestant.color}">${contestant.name}</h3><div class="current-score" style="color: ${contestant.color}">${contestant.score || 0}</div><p style="color: var(--text-muted); font-size: 0.82rem;">Need ${threshold} referees</p><div class="quick-marks" id="quick-marks-${index}">${quickMarks.map(mark => `<button class="quick-mark-btn" onclick="submitMode2Vote(${index}, ${mark})" data-mark="${mark}">+${mark}</button>`).join('')}</div><div class="vote-indicator"><span class="vote-count" id="vote-status-${index}">${formatVoteStatus(markCounts, threshold)}</span></div><button class="caution-btn" onclick="submitCautionVote(${index})">🟨 Caution (2× = -1)</button><div class="penalty-vote-status" id="caution-vote-status-${index}">${recentCautionVotes.length}/${threshold} caution votes</div>${cautionCount > 0 ? `<div class="caution-count">🟨 ${cautionCount} caution${cautionCount > 1 ? 's' : ''}${cautionCount >= 2 ? ` (-${Math.floor(cautionCount/2)})` : ''}</div>` : ''}<button class="punishment-btn" onclick="submitPunishmentVote(${index})">🟥 Punishment (-1)</button><div class="penalty-vote-status" id="punishment-vote-status-${index}">${recentPunishmentVotes.length}/${threshold} punishment votes</div>${punishmentCount > 0 ? `<div class="punishment-count">🟥 ${punishmentCount} punishment${punishmentCount > 1 ? 's' : ''} (-${punishmentCount})</div>` : ''}`;
+                    const recentPunishmentVotes = Object.values(punishmentVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < 30000);
+                    card.innerHTML = `<h3 style="color: ${contestant.color}">${contestant.name}</h3><div class="current-score" id="score-display-${index}" style="color: ${contestant.color}">${contestant.score || 0}</div><p style="color: var(--text-muted); font-size: 0.82rem;">Need ${threshold} referees</p><div class="quick-marks" id="quick-marks-${index}">${quickMarks.map(mark => `<button class="quick-mark-btn" onclick="submitMode2Vote(${index}, ${mark})" data-mark="${mark}">+${mark}</button>`).join('')}</div><div class="vote-indicator"><span class="vote-count" id="vote-status-${index}">${formatVoteStatus(markCounts, threshold)}</span></div><button class="caution-btn" onclick="submitCautionVote(${index})">🟨 Caution (2× = -1)</button><div class="penalty-vote-status" id="caution-vote-status-${index}">${recentCautionVotes.length}/${threshold} caution votes</div>${cautionCount > 0 ? `<div class="caution-count">🟨 ${cautionCount} caution${cautionCount > 1 ? 's' : ''}${cautionCount >= 2 ? ` (-${Math.floor(cautionCount/2)})` : ''}</div>` : ''}<button class="punishment-btn" onclick="submitPunishmentVote(${index})">🟥 Punishment (-1)</button><div class="penalty-vote-status" id="punishment-vote-status-${index}">${recentPunishmentVotes.length}/${threshold} punishment votes</div>${punishmentCount > 0 ? `<div class="punishment-count">🟥 ${punishmentCount} punishment${punishmentCount > 1 ? 's' : ''} (-${punishmentCount})</div>` : ''}`;
                 }
                 container.appendChild(card);
+            });
+        }
+
+        function updateRefereeCardsLive() {
+            if (competitionData.mode !== 2) { buildRefereeCards(); return; }
+            competitionData.contestants.forEach((contestant, index) => {
+                const scoreEl = document.getElementById(`score-display-${index}`);
+                if (scoreEl) scoreEl.textContent = contestant.score || 0;
+                const threshold = competitionData.consensusThreshold || 2;
+                const votes = competitionData.votes?.[index] || {};
+                const markCounts = {};
+                if (votes) Object.values(votes).forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
+                const statusEl = document.getElementById(`vote-status-${index}`);
+                if (statusEl) statusEl.textContent = formatVoteStatus(markCounts, threshold);
+                const cautionCount = competitionData.cautions?.[index] || 0;
+                const punishmentCount = competitionData.punishments?.[index] || 0;
+                const cautionVotes = competitionData.cautionVotes?.[index] || {};
+                const recentCautionVotes = Object.values(cautionVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < 30000);
+                const punishmentVotes = competitionData.punishmentVotes?.[index] || {};
+                const recentPunishmentVotes = Object.values(punishmentVotes).filter(v => v.timestamp && (Date.now() - v.timestamp) < 30000);
+                const cvEl = document.getElementById(`caution-vote-status-${index}`);
+                if (cvEl) cvEl.textContent = `${recentCautionVotes.length}/${threshold} caution votes`;
+                const pvEl = document.getElementById(`punishment-vote-status-${index}`);
+                if (pvEl) pvEl.textContent = `${recentPunishmentVotes.length}/${threshold} punishment votes`;
             });
         }
 
@@ -2347,8 +2383,7 @@
 
         function submitCautionVote(contestantIndex) {
             if (!competitionData.timerState || !competitionData.timerState.running) { showStatus('Competition not running', 'error'); return; }
-            const voteRef = database.ref(`competitions/${currentCompetitionId}/cautionVotes/${contestantIndex}`).push();
-            voteRef.set({ refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: Date.now() }).then(() => {
+            database.ref(`competitions/${currentCompetitionId}/cautionVotes/${contestantIndex}/${currentRefereeId}`).set({ refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: Date.now() }).then(() => {
                 checkCautionConsensus(contestantIndex);
             });
         }
@@ -2359,13 +2394,11 @@
                 if (!data) return;
                 const votes = data.cautionVotes?.[contestantIndex];
                 if (!votes) return;
-                const now = Date.now();
-                const timeWindow = (data.timeWindow || 0.5) * 1000;
                 const requiredVotes = data.consensusThreshold || 2;
-                const recent = Object.values(votes).filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
+                const all = Object.values(votes);
                 const statusEl = document.getElementById(`caution-vote-status-${contestantIndex}`);
-                if (statusEl) statusEl.textContent = `${recent.length}/${requiredVotes} caution votes`;
-                if (recent.length >= requiredVotes) {
+                if (statusEl) statusEl.textContent = `${all.length}/${requiredVotes} caution votes`;
+                if (all.length >= requiredVotes) {
                     const currentCautions = data.cautions?.[contestantIndex] || 0;
                     const newCautions = currentCautions + 1;
                     const currentScore = data.contestants[contestantIndex].score || 0;
@@ -2375,7 +2408,7 @@
                     if (newCautions % 2 === 0) {
                         updates[`contestants/${contestantIndex}/score`] = currentScore - 1;
                         const histRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
-                        histRef.set({ mark: -1, votes: recent.length, timestamp: Date.now(), type: 'caution', referees: recent.map(v => v.refereeName).join(', ') });
+                        histRef.set({ mark: -1, votes: all.length, timestamp: Date.now(), type: 'caution', referees: all.map(v => v.refereeName).join(', ') });
                         showStatus(`🟨 Caution #${newCautions} — -1 score applied!`, 'info');
                     } else {
                         showStatus(`🟨 Caution #${newCautions} issued`, 'info');
@@ -2387,8 +2420,7 @@
 
         function submitPunishmentVote(contestantIndex) {
             if (!competitionData.timerState || !competitionData.timerState.running) { showStatus('Competition not running', 'error'); return; }
-            const voteRef = database.ref(`competitions/${currentCompetitionId}/punishmentVotes/${contestantIndex}`).push();
-            voteRef.set({ refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: Date.now() }).then(() => {
+            database.ref(`competitions/${currentCompetitionId}/punishmentVotes/${contestantIndex}/${currentRefereeId}`).set({ refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: Date.now() }).then(() => {
                 checkPunishmentConsensus(contestantIndex);
             });
         }
@@ -2399,13 +2431,11 @@
                 if (!data) return;
                 const votes = data.punishmentVotes?.[contestantIndex];
                 if (!votes) return;
-                const now = Date.now();
-                const timeWindow = (data.timeWindow || 0.5) * 1000;
                 const requiredVotes = data.consensusThreshold || 2;
-                const recent = Object.values(votes).filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
+                const all = Object.values(votes);
                 const statusEl = document.getElementById(`punishment-vote-status-${contestantIndex}`);
-                if (statusEl) statusEl.textContent = `${recent.length}/${requiredVotes} punishment votes`;
-                if (recent.length >= requiredVotes) {
+                if (statusEl) statusEl.textContent = `${all.length}/${requiredVotes} punishment votes`;
+                if (all.length >= requiredVotes) {
                     const currentPunishments = data.punishments?.[contestantIndex] || 0;
                     const currentScore = data.contestants[contestantIndex].score || 0;
                     const updates = {};
@@ -2413,7 +2443,7 @@
                     updates[`punishmentVotes/${contestantIndex}`] = null;
                     updates[`contestants/${contestantIndex}/score`] = currentScore - 1;
                     const histRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
-                    histRef.set({ mark: -1, votes: recent.length, timestamp: Date.now(), type: 'punishment', referees: recent.map(v => v.refereeName).join(', ') });
+                    histRef.set({ mark: -1, votes: all.length, timestamp: Date.now(), type: 'punishment', referees: all.map(v => v.refereeName).join(', ') });
                     showStatus(`🟥 Punishment issued — -1 score!`, 'info');
                     database.ref(`competitions/${currentCompetitionId}`).update(updates);
                 }
@@ -2503,47 +2533,44 @@
             input.dispatchEvent(new Event('input', { bubbles: true }));
         }
 
+        const _refVoteCooldowns = {};
+
         function submitMode2Vote(contestantIndex, mark) {
             if (!competitionData.timerState || !competitionData.timerState.running) { showStatus('Competition not running', 'error'); return; }
-            const timeWindow = (competitionData.timeWindow || 0.5) * 1000;
-            const voteRef = database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}/${currentRefereeId}`);
-            voteRef.once('value').then(existing => {
-                const prev = existing.val();
-                const now = Date.now();
-                if (prev && (now - prev.timestamp) < timeWindow) { showStatus(`Please wait ${((timeWindow - (now - prev.timestamp)) / 1000).toFixed(1)}s`, 'error'); return; }
-                voteRef.set({ mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: now }).then(() => {
-                    const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
-                    if (btn) { btn.classList.add('voted'); btn.disabled = true; setTimeout(() => { btn.classList.remove('voted'); btn.disabled = false; }, timeWindow); }
-                    checkConsensusFromDb(contestantIndex);
-                });
+            const cooldownKey = `${contestantIndex}_${currentRefereeId}`;
+            const cooldownMs = (competitionData.timeWindow || 3) * 1000;
+            const now = Date.now();
+            const lastVote = _refVoteCooldowns[cooldownKey] || 0;
+            if (now - lastVote < cooldownMs) { showStatus(`Wait ${((cooldownMs - (now - lastVote)) / 1000).toFixed(1)}s`, 'error'); return; }
+            _refVoteCooldowns[cooldownKey] = now;
+            const btn = document.querySelector(`#quick-marks-${contestantIndex} .quick-mark-btn[data-mark="${mark}"]`);
+            if (btn) { btn.classList.add('voted'); btn.disabled = true; setTimeout(() => { if (btn) { btn.classList.remove('voted'); btn.disabled = false; } }, cooldownMs); }
+            database.ref(`competitions/${currentCompetitionId}/votes/${contestantIndex}/${currentRefereeId}`).set({ mark, refereeId: currentRefereeId, refereeName: currentRefereeName, timestamp: now }).then(() => {
+                checkConsensusFromDb(contestantIndex);
+            }).catch(() => {
+                _refVoteCooldowns[cooldownKey] = 0;
+                if (btn) { btn.classList.remove('voted'); btn.disabled = false; }
             });
         }
 
         function checkConsensusFromDb(contestantIndex) {
-            const contestantRef = database.ref(`competitions/${currentCompetitionId}`);
-            contestantRef.once('value').then(snapshot => {
+            database.ref(`competitions/${currentCompetitionId}`).once('value').then(snapshot => {
                 const data = snapshot.val();
                 if (!data) return;
                 const votes = data.votes?.[contestantIndex];
-                if (!votes) return;
-                const now = Date.now();
-                const timeWindow = (data.timeWindow || 0.5) * 1000;
                 const requiredVotes = data.consensusThreshold || 2;
-                const voteArray = Object.values(votes);
-                const recentVotes = voteArray.filter(v => typeof v.timestamp === 'number' && (now - v.timestamp) < timeWindow);
                 const markCounts = {};
-                recentVotes.forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
+                if (votes) Object.values(votes).forEach(v => { markCounts[v.mark] = (markCounts[v.mark] || 0) + 1; });
                 const statusEl = document.getElementById(`vote-status-${contestantIndex}`);
                 if (statusEl) statusEl.textContent = formatVoteStatus(markCounts, requiredVotes);
                 for (const [mark, count] of Object.entries(markCounts)) {
                     if (count >= requiredVotes) {
                         const currentScore = data.contestants[contestantIndex].score || 0;
-                        const newScore = currentScore + parseInt(mark);
                         const updates = {};
-                        updates[`contestants/${contestantIndex}/score`] = newScore;
+                        updates[`contestants/${contestantIndex}/score`] = currentScore + parseInt(mark);
                         updates[`votes/${contestantIndex}`] = null;
-                        const historyRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
-                        historyRef.set({ mark: parseInt(mark), votes: count, timestamp: Date.now(), referees: recentVotes.map(v => v.refereeName).join(', ') });
+                        const histRef = database.ref(`competitions/${currentCompetitionId}/contestants/${contestantIndex}/markHistory`).push();
+                        histRef.set({ mark: parseInt(mark), votes: count, timestamp: Date.now(), referees: Object.values(votes).map(v => v.refereeName).join(', ') });
                         database.ref(`competitions/${currentCompetitionId}`).update(updates);
                         showStatus(`+${mark} scored!`, 'success');
                         break;
