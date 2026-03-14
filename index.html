@@ -2399,9 +2399,10 @@
 
         function updateRefereeCards() {
             const container = document.getElementById('referee-cards');
-            if (container.querySelectorAll('.contestant-card').length !== competitionData.contestants.length) {
+            const existing = container.querySelectorAll('.contestant-card');
+            if (existing.length !== competitionData.contestants.length) {
                 buildRefereeCards();
-            } else {
+            } else if (competitionData.mode === 2) {
                 patchRefereeCards();
             }
         }
@@ -2580,17 +2581,21 @@
             const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
             const scores = {};
             let valid = true;
+            let missingField = '';
             categories.forEach((cat, catIndex) => {
                 const input = document.getElementById(`score-input-${contestantIndex}-${catIndex}`);
-                const score = parseFloat(input.value);
-                if (isNaN(score) || score < 0 || score > 100) valid = false;
+                if (!input) { valid = false; missingField = cat.name; return; }
+                const raw = input.value;
+                const score = parseFloat(raw);
+                if (raw === '' || isNaN(score) || score < 0 || score > 100) { valid = false; missingField = cat.name; }
                 else scores[cat.name] = score;
             });
-            if (!valid) { showStatus('Please enter valid scores (0-100) for all categories', 'error'); return; }
+            if (!valid) { showStatus(`Invalid score for "${missingField}" — enter 0–100`, 'error'); return; }
             scores.refereeName = currentRefereeName;
             scores.timestamp = firebase.database.ServerValue.TIMESTAMP;
-            database.ref(`competitions/${currentCompetitionId}/mode1Scores/${contestantIndex}/${currentRefereeId}`).set(scores)
-                .then(() => { showStatus('Scores submitted!', 'success'); updateRefereeCards(); })
+            const path = `competitions/${currentCompetitionId}/mode1Scores/${contestantIndex}/${currentRefereeId}`;
+            database.ref(path).set(scores)
+                .then(() => { showStatus('Scores submitted!', 'success'); })
                 .catch(err => showStatus('Error: ' + err.message, 'error'));
         }
 
