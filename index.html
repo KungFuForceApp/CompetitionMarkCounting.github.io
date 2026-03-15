@@ -2328,7 +2328,7 @@
                 database.ref(`competitions/${compId}`).once('value').then(snapshot => {
                     if (!snapshot.exists()) { showStatus('Competition not found', 'error'); return; }
                     competitionData = snapshot.val();
-                    currentRefereeId = database.ref(`competitions/${compId}/referees`).push().key;
+                    currentRefereeId = refereeName.replace(/[^a-zA-Z0-9]/g, '_');
                     database.ref(`competitions/${compId}/referees/${currentRefereeId}`).set({ name: refereeName, joinedAt: firebase.database.ServerValue.TIMESTAMP, online: true });
                     database.ref(`competitions/${compId}/referees/${currentRefereeId}/online`).onDisconnect().set(false);
                     document.getElementById('referee-name-display').textContent = refereeName;
