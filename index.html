@@ -2572,7 +2572,7 @@
             const total = scoresToAverage.reduce((sum, s) => sum + s, 0);
             const avg = total / scoresToAverage.length;
             const tiebreaker = comp.tiebreakers?.[contestantIndex] || 0;
-            return avg + tiebreaker;
+            return parseFloat((avg+tiebreaker).toFixed(2));
         }
 
         function calculateWeightedAverageScore(contestantIndex) { return calculateWeightedAverageScoreForCompetition(competitionData, contestantIndex); }
