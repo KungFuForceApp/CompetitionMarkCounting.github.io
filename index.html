@@ -2418,7 +2418,7 @@
                 const categories = competitionData.scoreCategories || [{ name: 'Score', weight: 100 }];
                 competitionData.contestants.forEach((contestant, index) => {
                     const scoreEl = container.querySelector(`.contestant-card:nth-child(${index + 1}) .current-score`);
-                    if (scoreEl) scoreEl.textContent = calculateWeightedAverageScore(index).toFixed(1);
+                    if (scoreEl) scoreEl.textContent = calculateWeightedAverageScore(index).toFixed(2);
                     const myScores = getMyScores(index);
                     const hasSubmitted = myScores && Object.keys(myScores).length > 0;
                     const h3 = container.querySelectorAll('.contestant-card')[index]?.querySelector('h3');
@@ -2462,7 +2462,7 @@
                         const quickHtml = `<div class="quick-marks mode1">${quickButtons.map(val => `<button type="button" class="quick-mark-btn small" onclick="setMode1QuickScore(${index}, ${catIndex}, ${val})">${val}</button>`).join('')}</div>`;
                         return `<div class="category-score-row"><label>${cat.name}</label><span class="weight-badge">${cat.weight}%</span><input type="number" id="${inputId}" min="0" max="100" step="0.1" placeholder="0-100" value="${myScore}"></div>${quickHtml}`;
                     }).join('');
-                    card.innerHTML = `<div style="position:relative;"><h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3><button type="button" onclick="addTiebreaker(${index})" style="position:absolute;top:0;right:0;padding:4px 9px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.38);border-radius:8px;color:#a78bfa;font-size:0.75rem;font-weight:700;cursor:pointer;" title="+0.01 tiebreaker">+0.01</button></div><div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(1)}</div><p style="color: var(--text-muted); font-size: 0.82rem;">/100</p><div class="category-scores">${categoryInputsHtml}<button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button></div>`;
+                    card.innerHTML = `<div style="position:relative;"><h3 style="color: ${contestant.color}">${contestant.name} ${submittedBadge}</h3><button type="button" onclick="addTiebreaker(${index})" style="position:absolute;top:0;right:0;padding:4px 9px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.38);border-radius:8px;color:#a78bfa;font-size:0.75rem;font-weight:700;cursor:pointer;" title="+0.01 tiebreaker">+0.01</button></div><div class="current-score" style="color: ${contestant.color}">${calculateWeightedAverageScore(index).toFixed(2)}</div><p style="color: var(--text-muted); font-size: 0.82rem;">/100</p><div class="category-scores">${categoryInputsHtml}<button class="submit-all-scores-btn" onclick="submitMode1Scores(${index})">Submit Scores</button></div>`;
                 } else {
                     const quickMarks = competitionData.quickMarks || [1, 2, 3, 5, 10];
                     const threshold = competitionData.consensusThreshold || 2;
@@ -2810,7 +2810,7 @@
                     const card = document.createElement('div');
                     card.className = `score-card rank-${rank}`;
                     card.style.borderColor = contestant.color;
-                    card.innerHTML = `<div class="rank">#${rank}</div><h3 style="color:${contestant.color}">${contestant.name}</h3><div class="score" style="color:${contestant.color}">${contestant.totalScore.toFixed(1)}</div><p style="color:var(--text-muted);font-size:0.78rem;margin-top:7px;">${contestant.comps} comp${contestant.comps !== 1 ? 's' : ''}</p>`;
+                    card.innerHTML = `<div class="rank">#${rank}</div><h3 style="color:${contestant.color}">${contestant.name}</h3><div class="score" style="color:${contestant.color}">${contestant.totalScore.toFixed(2)}</div><p style="color:var(--text-muted);font-size:0.78rem;margin-top:7px;">${contestant.comps} comp${contestant.comps !== 1 ? 's' : ''}</p>`;
                     container.appendChild(card);
                 });
             };
@@ -2865,7 +2865,7 @@
                     const punishmentHtml = punishmentCount > 0 ? `<div class="punishment-badge">🟥 ${punishmentCount} punishment${punishmentCount > 1 ? 's' : ''} (-${punishmentCount})</div>` : '';
                     detailsHtml = `<div class="mark-history">${markHistory.slice(-5).map(h => `<div class="mark-history-item ${h.type === 'punishment' ? 'punishment' : h.type === 'caution' ? 'caution' : h.mark < 0 ? 'caution' : 'consensus'}">${h.mark > 0 ? '+' : ''}${h.mark} (${h.votes} votes)</div>`).join('')}</div>${cautionHtml}${punishmentHtml}`;
                 }
-                card.innerHTML = `<div class="rank">#${contestant.rank}</div><h3 style="color: ${contestant.color}">${contestant.name}</h3><div class="score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(1)}</div>${competitionData.mode === 1 ? '<p style="color: var(--text-muted); font-size: 0.82rem;">/100</p>' : ''}${detailsHtml}`;
+                card.innerHTML = `<div class="rank">#${contestant.rank}</div><h3 style="color: ${contestant.color}">${contestant.name}</h3><div class="score" style="color: ${contestant.color}">${contestant.finalScore.toFixed(2)}</div>${competitionData.mode === 1 ? '<p style="color: var(--text-muted); font-size: 0.82rem;">/100</p>' : ''}${detailsHtml}`;
                 container.appendChild(card);
             });
         }
@@ -3381,7 +3381,7 @@
             const el = document.getElementById('final-results-list');
             if (!el || !currentContestants || currentContestants.length === 0) return;
             const rankLabels = ['🥇 冠軍', '🥈 亞軍', '🥉 季軍'];
-            const rows = currentContestants.map((c, i) => { const score = c.finalScore !== undefined ? c.finalScore : (c.totalScore || 0); return `<tr><td style="font-size:1.1rem; font-weight:800; white-space:nowrap;">${rankLabels[i] || '#' + (i+1)}</td><td style="font-size:1.05rem; font-weight:700; color:${c.color};">${c.name}</td><td style="font-size:1.05rem; font-weight:800; color:${c.color}; text-align:right;">${score.toFixed(1)}</td></tr>`; }).join('');
+            const rows = currentContestants.map((c, i) => { const score = c.finalScore !== undefined ? c.finalScore : (c.totalScore || 0); return `<tr><td style="font-size:1.1rem; font-weight:800; white-space:nowrap;">${rankLabels[i] || '#' + (i+1)}</td><td style="font-size:1.05rem; font-weight:700; color:${c.color};">${c.name}</td><td style="font-size:1.05rem; font-weight:800; color:${c.color}; text-align:right;">${score.toFixed(2)}</td></tr>`; }).join('');
             el.innerHTML = `<div class="rankings-table-section" style="max-width:680px; margin: 0 auto;"><h3 style="margin-bottom:13px;">📋 Full Results</h3><table class="rankings-table" style="width:100%;"><thead><tr><th style="width:115px;">Rank</th><th>Player</th><th style="text-align:right;">Score</th></tr></thead><tbody>${rows}</tbody></table></div>`;
         }
 
@@ -3398,7 +3398,7 @@
             const card = document.createElement('div');
             card.className = 'podium-card current-highlight';
             card.style.borderColor = contestant.color;
-            card.innerHTML = `<div class="podium-rank">${podiumNames[podiumIdx]}</div><div class="podium-name" style="color:${contestant.color}">${contestant.name}</div><div class="podium-score" style="color:${contestant.color}">${(contestant.finalScore ?? contestant.totalScore ?? 0).toFixed(1)}</div>`;
+            card.innerHTML = `<div class="podium-rank">${podiumNames[podiumIdx]}</div><div class="podium-name" style="color:${contestant.color}">${contestant.name}</div><div class="podium-score" style="color:${contestant.color}">${(contestant.finalScore ?? contestant.totalScore ?? 0).toFixed(2)}</div>`;
             const base = document.createElement('div');
             base.className = `podium-base ${podiumClasses[podiumIdx]}`;
             slot.appendChild(card); slot.appendChild(base);
@@ -3421,7 +3421,7 @@
             section.innerHTML = `<h3>🏅 ${award.name}</h3>`;
             const list = document.createElement('div');
             list.className = 'final-awards-list';
-            winners.forEach((entry, i) => { const item = document.createElement('div'); item.className = 'final-award-item'; item.style.animationDelay = `${i * 0.08}s`; item.innerHTML = `<span class="final-award-name" style="color:${entry.color}">${entry.name}</span><span class="final-award-score" style="color:${entry.color}">${(entry.finalScore ?? entry.totalScore ?? 0).toFixed(1)}</span>`; list.appendChild(item); });
+            winners.forEach((entry, i) => { const item = document.createElement('div'); item.className = 'final-award-item'; item.style.animationDelay = `${i * 0.08}s`; item.innerHTML = `<span class="final-award-name" style="color:${entry.color}">${entry.name}</span><span class="final-award-score" style="color:${entry.color}">${(entry.finalScore ?? entry.totalScore ?? 0).toFixed(2)}</span>`; list.appendChild(item); });
             section.appendChild(list);
             awardsEl.prepend(section);
             revealedAwards.push(awardIndex);
@@ -3702,14 +3702,14 @@
                 const actualRank = idx;
                 const awardChipsHtml = awardColNames.filter(aName => stats.awardCounts[aName]).map(aName => `<span class="award-chip" style="font-size:0.7rem; padding:2px 7px;">🏅 ${aName}${stats.awardCounts[aName] > 1 ? ` ×${stats.awardCounts[aName]}` : ''}</span>`).join('');
                 const badgesHtml = [stats.gold ? `<span class="rank-badge gold">🥇 ${stats.gold}</span>` : '', stats.silver ? `<span class="rank-badge silver">🥈 ${stats.silver}</span>` : '', stats.bronze ? `<span class="rank-badge bronze">🥉 ${stats.bronze}</span>` : ''].filter(Boolean).join('');
-                return `<div class="rankings-podium-slot"><div class="rankings-podium-card" style="border-color: ${stats.color}"><div class="rankings-podium-medal">${podiumMedals[actualRank]}</div><div class="rankings-podium-name" style="color:${stats.color}">${name}</div><div class="rankings-podium-badges">${badgesHtml}</div>${awardChipsHtml ? `<div style="margin-top:5px;">${awardChipsHtml}</div>` : ''}<div style="font-size:0.72rem; color:var(--text-muted); margin-top:5px;">${stats.comps} comp${stats.comps !== 1 ? 's' : ''} · ${stats.totalScore.toFixed(1)} pts</div></div><div class="rankings-podium-base ${podiumClasses[actualRank]}"></div></div>`;
+                return `<div class="rankings-podium-slot"><div class="rankings-podium-card" style="border-color: ${stats.color}"><div class="rankings-podium-medal">${podiumMedals[actualRank]}</div><div class="rankings-podium-name" style="color:${stats.color}">${name}</div><div class="rankings-podium-badges">${badgesHtml}</div>${awardChipsHtml ? `<div style="margin-top:5px;">${awardChipsHtml}</div>` : ''}<div style="font-size:0.72rem; color:var(--text-muted); margin-top:5px;">${stats.comps} comp${stats.comps !== 1 ? 's' : ''} · ${stats.totalScore.toFixed(2)} pts</div></div><div class="rankings-podium-base ${podiumClasses[actualRank]}"></div></div>`;
             }).join('');
             const awardHeaderCols = awardColNames.map((name, i) => `<th>🏅 ${name}<br><span style="font-size:0.66rem; font-weight:400; color:var(--text-muted);">rank ${i + 1}</span></th>`).join('');
             const tableRows = sorted.map(([name, stats], i) => {
                 const rank = i + 1;
                 const rankDisplay = rank === 1 ? `<span class="rank-num r1">🥇</span>` : rank === 2 ? `<span class="rank-num r2">🥈</span>` : rank === 3 ? `<span class="rank-num r3">🥉</span>` : `<span class="rank-num" style="color:var(--text-muted)">#${rank}</span>`;
                 const awardCells = awardColNames.map(aName => { const count = stats.awardCounts[aName] || 0; return `<td>${count ? `<span class="award-col-badge">${count}</span>` : `<span style="color:var(--text-muted)">—</span>`}</td>`; }).join('');
-                return `<tr class="${rank <= 3 ? 'top-3' : ''}"><td>${rankDisplay}</td><td><span class="player-dot" style="background:${stats.color}"></span>${name}</td><td><span class="rank-badge gold">${stats.gold}</span></td><td><span class="rank-badge silver">${stats.silver}</span></td><td><span class="rank-badge bronze">${stats.bronze}</span></td>${awardCells}<td class="total-score-cell" style="color:${stats.color}">${stats.totalScore.toFixed(1)}</td><td style="color:var(--text-muted)">${stats.comps}</td></tr>`;
+                return `<tr class="${rank <= 3 ? 'top-3' : ''}"><td>${rankDisplay}</td><td><span class="player-dot" style="background:${stats.color}"></span>${name}</td><td><span class="rank-badge gold">${stats.gold}</span></td><td><span class="rank-badge silver">${stats.silver}</span></td><td><span class="rank-badge bronze">${stats.bronze}</span></td>${awardCells}<td class="total-score-cell" style="color:${stats.color}">${stats.totalScore.toFixed(2)}</td><td style="color:var(--text-muted)">${stats.comps}</td></tr>`;
             }).join('');
             const sortLabel = ['🥇 Gold', '🥈 Silver', '🥉 Bronze', ...awardColNames.map(a => `🏅 ${a}`), 'Total Score'].join(' → ');
             container.innerHTML = `<div class="rankings-podium-section"><h3>🏆 Top Players Podium</h3><p class="podium-subtitle">Ranked by: ${sortLabel}</p><div class="rankings-podium">${podiumHtml}</div></div><div class="rankings-table-section"><h3>📋 Full Leaderboard <span style="font-weight:400; font-size:0.87rem; color:var(--text-muted)">${sorted.length} players · ${compsToAnalyse.length} competitions</span></h3><div style="overflow-x: auto;"><table class="rankings-table"><thead><tr><th>Rank</th><th>Player</th><th>🥇 1st</th><th>🥈 2nd</th><th>🥉 3rd</th>${awardHeaderCols}<th>Total Score</th><th>Comps</th></tr></thead><tbody>${tableRows}</tbody></table></div></div>`;
@@ -4229,14 +4229,14 @@
             }, 1400);
             T('wr-rule', 2000);
             setTimeout(() => {
-                const target = parseFloat(champ.total.toFixed(1));
+                const target = parseFloat(champ.total.toFixed(2));
                 s('wr-score').innerHTML = `<span id="wr-score-n">0</span><sup>pts</sup>`;
                 s('wr-score').classList.add('in');
                 let curr = 0;
                 const up = () => {
                     curr = Math.min(target, curr + Math.max(0.3, target/32));
                     const el = document.getElementById('wr-score-n');
-                    if (el) el.textContent = curr>=target ? target.toFixed(1) : curr.toFixed(0);
+                    if (el) el.textContent = curr>=target ? target.toFixed(2) : curr.toFixed(2);
                     if (curr < target) setTimeout(up, 38);
                 };
                 up();
